@@ -1,0 +1,115 @@
+diff -crN ../vpopmail-5.3.3/vchkpw.c ./vchkpw.c
+*** ../vpopmail-5.3.3/vchkpw.c	Tue Feb 19 14:24:18 2002
+--- ./vchkpw.c	Tue Feb 26 08:12:41 2002
+***************
+*** 420,428 ****
+      /* They are authenticated now, check for restrictions
+       * Check if they are allowed pop access 
+       */
+!     if ( vpw->pw_gid & NO_POP ) {
+          snprintf(LogLine, LOG_LINE_SIZE, 
+              "%s: pop access denied %s@%s:%s", 
+              VchkpwLogName, TheUser, TheDomain, IpAddr);
+  	vlog(VLOG_ERROR_ACCESS, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+          vchkpw_exit(0);
+--- 420,439 ----
+      /* They are authenticated now, check for restrictions
+       * Check if they are allowed pop access 
+       */
+!     if ( ( vpw->pw_gid & NO_POP ) && ConnType == POP_CONN ) {
+          snprintf(LogLine, LOG_LINE_SIZE, 
+              "%s: pop access denied %s@%s:%s", 
++             VchkpwLogName, TheUser, TheDomain, IpAddr);
++ 	vlog(VLOG_ERROR_ACCESS, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
++         vchkpw_exit(0);
++     }
++ 
++     /* They are authenticated now, check for restrictions
++      * Check if they are allowed smtp access 
++      */
++     if ( ( vpw->pw_gid & NO_SMTP ) && ConnType == SMTP_CONN ) {
++         snprintf(LogLine, LOG_LINE_SIZE, 
++             "%s: smtp access denied %s@%s:%s", 
+              VchkpwLogName, TheUser, TheDomain, IpAddr);
+  	vlog(VLOG_ERROR_ACCESS, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+          vchkpw_exit(0);
+diff -crN ../vpopmail-5.3.3/vmoduser.c ./vmoduser.c
+*** ../vpopmail-5.3.3/vmoduser.c	Fri Feb  1 19:32:38 2002
+--- ./vmoduser.c	Tue Feb 26 08:03:35 2002
+***************
+*** 136,141 ****
+--- 136,142 ----
+      printf("         -u ( set no dialup flag )\n");
+      printf("         -d ( set no password changing flag )\n");
+      printf("         -p ( set no pop access flag )\n");
++     printf("         -s ( set no smtp access flag )\n");
+      printf("         -w ( set no web mail access flag )\n");
+      printf("         -i ( set no imap access flag )\n");
+      printf("         -b ( set bounce mail flag )\n");
+***************
+*** 168,174 ****
+      NoMakeIndex = 0;
+  
+      errflag = 0;
+!     while( (c=getopt(argc,argv,"avunxc:q:dpwibr0123he:C:")) != -1 ) {
+          switch(c) {
+              case 'v':
+                  printf("version: %s\n", VERSION);
+--- 169,175 ----
+      NoMakeIndex = 0;
+  
+      errflag = 0;
+!     while( (c=getopt(argc,argv,"avunxc:q:dpswibr0123he:C:")) != -1 ) {
+          switch(c) {
+              case 'v':
+                  printf("version: %s\n", VERSION);
+***************
+*** 197,202 ****
+--- 198,206 ----
+                  break;
+              case 'p':
+                  GidFlag |= NO_POP;
++                 break;
++             case 's':
++                 GidFlag |= NO_SMTP;
+                  break;
+              case 'w':
+                  GidFlag |= NO_WEBMAIL;
+diff -crN ../vpopmail-5.3.3/vpopmail.h ./vpopmail.h
+*** ../vpopmail-5.3.3/vpopmail.h	Tue Feb  5 09:22:48 2002
+--- ./vpopmail.h	Tue Feb 26 07:56:54 2002
+***************
+*** 94,99 ****
+--- 94,100 ----
+  #define V_USER1       0x100
+  #define V_USER2       0x200
+  #define V_USER3       0x400
++ #define NO_SMTP       0x800
+  #define QA_ADMIN     0x1000
+  
+  extern int OptimizeAddDomain;
+diff -crN ../vpopmail-5.3.3/vuserinfo.c ./vuserinfo.c
+*** ../vpopmail-5.3.3/vuserinfo.c	Fri Feb  1 12:04:47 2002
+--- ./vuserinfo.c	Tue Feb 26 08:01:11 2002
+***************
+*** 258,263 ****
+--- 258,265 ----
+              printf("        user flag 2 is set\n");
+  	if ( mypw->pw_gid & V_USER3 ) 
+              printf("        user flag 3 is set\n");
++ 	if ( mypw->pw_gid & NO_SMTP ) 
++             printf("        smtp access is closed\n");
+  
+          printf("dir:       %s\n", mypw->pw_dir);
+          printf("quota:     %s\n", mypw->pw_shell);
+***************
+*** 323,328 ****
+--- 325,332 ----
+  		    printf("user flag 2 is set\n");
+  	    if ( mypw->pw_gid & V_USER3 )
+  		    printf("user flag 3 is set\n");
++ 	    if ( mypw->pw_gid & NO_SMTP )
++ 		    printf("no smtp flag has been set\n");
+          }
+          if ( DisplayComment ) printf("%s\n", mypw->pw_gecos);
+          if ( DisplayDir ) printf("%s\n", mypw->pw_dir);

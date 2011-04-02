@@ -1,0 +1,116 @@
+<title><?php echo _("Preface")?></title>
+<itemizedlist>
+<listitem>
+    <para><anchor id="whatisatoaster" /><emphasis><?php echo _("What's a POP toaster?") ?></emphasis></para>
+    <para><?php echo _("I use Dan Bernstein's definition described at <ulink url='http://cr.yp.to/qmail/toaster.html'>http://cr.yp.to/qmail/toaster.html</ulink>")?></para>
+</listitem>
+
+<listitem>
+    <para><anchor id="doesanddoesnot" /><emphasis><?php echo _("What this toaster does and does not do") ?></emphasis></para>
+    <para><?php echo _(" This \"howto\" will walk you through building a Linux Qmail \"Toaster\". While these instructions are intended to work with popular Linux distributions, they will probably work on other flavors of Unix without too much modification.")?></para>
+    <itemizedlist>
+        <listitem><literallayout><?php echo _("Qmail SMTP Mail Server with SMTP-AUTH (Plain, Login, CRAM-MD5), TLS (SSL) support, and optional Virus/Spam Scanner.") ?></literallayout></listitem>
+        <listitem><literallayout><?php echo _("POP3 Server with CRAM-MD5, APOP, and SSL support") ?></literallayout></listitem>
+        <listitem><literallayout><?php echo _("IMAP Server with TLS (SSL) support") ?></literallayout></listitem>
+        <listitem><literallayout><?php echo _("WebMail Server") ?></literallayout></listitem>
+        <listitem><literallayout><?php echo _("Quota Support (usage viewable by webmail)") ?></literallayout></listitem>
+        <listitem><literallayout><?php echo _("Autoresponder") ?></literallayout></listitem>
+        <listitem><literallayout><?php echo _("Mailing Lists") ?></literallayout></listitem>
+        <listitem><literallayout><?php echo _("Web-Based Email Administration") ?></literallayout></listitem>
+    </itemizedlist>
+    <para><?php echo _("What this toaster does NOT do is act as a thorough guide to qmail or any of the other packages it installs. Such information is already available in the documentation, <ulink url='http://www.lifewithqmail.org/'>Life With Qmail</ulink>, or other howtos/toasters. I only put this together to document all the commands/urls/procedures that I find myself repeating often. It's intended to have a bit of a \"copy and paste\" feel to it aimed at the impatient (me). If it's not sufficient for you, take the time to read the documentation of each package that's to be installed. There's no substitute for that.") ?></para>
+</listitem>
+
+<listitem>
+    <para><anchor id="assumptions" /><emphasis><?php echo _("Assumptions/Support") ?></emphasis></para>
+
+    <para><?php echo _("This document assumes that you are familiar with Unix system administration, mail/web protocols, etc. You don't have to be a guru to make this work, but you will be patching and compiling source code, as well as editing configuration files. If you want a <quote>point and click</quote> install experience, this is not for you.")?></para>
+
+    <para><?php echo _("These instructions come with no warranty or guarantee. If you blow up your server, and lose business in the process, that's your problem.")?></para>
+
+    <para><?php echo _("Support is not provided. There are mailing lists for all these packages, as well as one specific to this toaster. See links in the appendix for more information.")?></para>
+
+    <para><?php echo _("<emphasis>Commercial support is available</emphasis>. See <ulink url='http://merchbox.com/qmail.php'>http://merchbox.com/qmail.php</ulink> for more information. There are also other sources of commercial support for the individual packages. See the respective documentation for each package for further information.")?></para>
+</listitem>
+
+<listitem>
+    <para><anchor id="prerequisites" /><emphasis><?php echo _("Prerequisites") ?></emphasis></para>
+    <para><?php echo _("If you have installed a recent version of your Linux distribution, you shouldn't have any problems, especially if you did a \"server\" type of install rather than \"Desktop\". However, this install DOES require that you have the apache web server and PHP installed. Most distributions come with these now. PHP is only required for SquirrelMail. The main issues you might see are missing development libraries, or gdbm, stunnel, kerberos dev files, or openssl. If you are using an rpm based distro, an easy way to make sure they are installed is to use yum, which is likely installed already. Make sure the packages get installed if necessary using this command:") ?></para>
+
+    <programlisting><literal role="gen-rpm">yum install gcc g++ gcc-g++ gdbm gdbm-devel openssl openssl-devel stunnel krb5-devel bzip2 bzip2-devel</literal></programlisting>
+
+    <para><?php _("<emphasis>SELinux</emphasis>: Some setuid programs, like QmailAdmin, will not work with SELinux. You should disable SELinux during installation of the OS. If you have already installed the OS, you should disable it. I have also seen SELinux prevent SquirrelMail from working properly under Apache. In Fedora Core 4, I was able to disable it by setting <quote>SELINUX=disabled</quote> in /etc/sysconfig/selinux and rebooting.") ?></para>
+    <para><?php echo _("<emphasis>Aliases</emphasis> Some distributions setup aliases for common commands that might interfere with this install. I recommend unaliasing some of the more common ones if you are unsure:") ?></para>
+
+    <programlisting><literal>unalias rm mv cp</literal></programlisting>
+    <para><?php echo _("This orignial version of this document was written using RedHat Linux 9.0. However, I now use debian exclusively now, and I fully recommend it. Once you get comfortable with apt, you'll never go back!") ?></para>
+</listitem>
+<listitem>
+    <para><anchor id="debian" /><emphasis><?php echo _("Debian Notes") ?></emphasis></para>
+    <para><?php echo _("The easy way to make sure you have all the proper debian packages installed is to just execute this command:")?></para>
+    <programlisting><literal role="debian">apt-get install libgdbm-dev gcc g++ patch make libc-dev stunnel libssl-dev libapache2-mod-php4 wget bzip2</literal></programlisting>
+    <para><?php echo _("In addition, you probably want these things installed as well:") ?></para>
+    <programlisting>
+        <literal>apt-get install man telnet</literal>
+    </programlisting>
+    <para><?php echo _("Lots of Debian packages require an MTA, and Debian defaults to exim4. This obviously can be a problem for qmail. So lets fix that with a dummy equivs package:") ?></para>
+
+    <programlisting role="debian">
+        <lineannotation><?php echo _("install equivs")?></lineannotation>
+        <literal>apt-get install equivs</literal>
+        <literal></literal>
+        <lineannotation><?php echo _("build the dummy mta package")?></lineannotation>
+        <literal>cd /tmp</literal>
+        <literal>cp /usr/share/doc/equivs/examples/mail-transport-agent.ctl .</literal>
+        <literal>equivs-build mail-transport-agent.ctl</literal>
+        <literal></literal>
+        <lineannotation><?php echo _("remove exim4")?></lineannotation>
+        <literal>dpkg --ignore-depends=exim4 -r exim4</literal>
+        <literal>dpkg --ignore-depends=exim4-daemon-light -r exim4-daemon-light</literal>
+        <literal>dpkg --ignore-depends=exim4-base -r exim4-base</literal>
+        <literal>dpkg --ignore-depends=exim4-base -r exim4-base</literal>
+        <literal></literal>
+        <lineannotation><?php echo _("and install the dummy mta package")?></lineannotation>
+        <literal>dpkg -i /tmp/mta-local_1.0_all.deb</literal>
+        </programlisting>
+
+    <para><?php _("Courier-imap's startup script likes to use a different lock directory, so we'll just create it:")?></para>
+
+    <programlisting role="debian">
+        <literal>mkdir /var/lock/subsys</literal>
+    </programlisting>
+
+    <para><?php echo _("Apache's DocumentRoot is in /var/www instead of /var/www/html. What I do is use that, and put SquirrelMail's data directory in /etc/apache.")?></para>
+
+    <para><?php echo _("Apache's cgi-bin directory by default is /usr/lib/cgi-bin. You should use that path when configuring qmailadmin.")?></para>
+    <para><?php echo _("SpamAssassin needs many perl libraries. If you plan to use SpamAssassin, then install these libraries now:")?></para>
+    <programlisting role="debian">
+        <literal>apt-get install libdigest-sha1-perl libnet-dns-perl \</literal>
+        <literal>libmail-spf-query-perl libgeo-ipfree-perl razor pyzor libnet-ident-perl \</literal>
+        <literal>libio-socket-ssl-perl libarchive-tar-perl libio-zlib-perl \</literal>
+        <literal>libsys-hostname-long-perl libhtml-parser-perl</literal>
+    </programlisting>
+
+    <para><?php echo _("ClamAV requires the zlib and zlib-dev packages:")?></para>
+
+    <programlisting role="debian">
+        <literal>apt-get install zlib1g zlib1g-dev libbz2-dev libgmp3 libgmp3-dev</literal>
+    </programlisting>
+
+    <para><?php echo _("QmailMRTG7 requires the mrtg package:")?></para>
+
+    <programlisting role="debian">
+        <literal>apt-get install mrtg</literal>
+    </programlisting>
+</listitem>
+
+<listitem>
+    <para><anchor id="trustix" /><emphasis><?php echo _("Trustix Notes:")?></emphasis></para>
+    <para><?php echo _("Matthew Valentini provided some <ulink url='trustix_notes.eml.html'>notes</ulink> on using this toaster with Trustix 3.0. I have not tested them, I'm just making them available as-is.") ?></para>
+</listitem>
+<listitem>
+    <para><anchor id="license" /><emphasis><?php echo _("Toaster License")?></emphasis></para>
+    <para><?php echo _("This document is covered by the same license as Life With Qmail, and the license is detailed here:")?></para>
+    <para><ulink url="http://www.opencontent.org/opl.shtml">http://www.opencontent.org/opl.shtml</ulink></para>
+</listitem>
+</itemizedlist>

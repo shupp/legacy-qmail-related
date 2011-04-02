@@ -1,0 +1,370 @@
+<?xml version='1.0' encoding='ISO-8859-1'?><article>
+    <title>Bill's Linux Qmail Toaster v. 0.9.0</title>
+    <section><title>Archivo de modificaciones</title>
+
+
+<literallayout>0.9.0 - 3/28/2007</literallayout>
+<itemizedlist>
+    <listitem><literallayout role="listitem">Se migró la documentación al formato <ulink url='http://www.docbook.org/schemas/sdocbook/index.html>DocBook Simplificado</ulink> con soporte gettextembebido. Se exhibe via unas pocas clases HP nuevas escritas para estepropósito. Vea <ulink url='http://trac.merchbox.com/trac/toasterdoc'>ToasterDoc</ulink> para más información.</literallayout></listitem>
+
+    <listitem><literallayout role="listitem">Actualización del toaster patch a 0.9.0</literallayout></listitem>
+    <listitem><literallayout role="listitem">Actualización de clamav a 0.90.1</literallayout></listitem>
+    <listitem><literallayout role="listitem">Updgrade courier-imap to 4.1.2, courier-authlib to 0.59.1.  Wrote cram patch for authvchkpw so secure auth is available for imap connections</literallayout></listitem>
+    <listitem><literallayout role="listitem">Updgrade vpopmail to 5.4.18 + vpopmaild and configure patches</literallayout></listitem>
+    <listitem><literallayout role="listitem">Updgrade TMDA and TMDA-cgi to 1.1.11 and 0.16.2 respectively</literallayout></listitem>
+    <listitem><literallayout role="listitem">Actualización de cantidad de textos y notas</literallayout></listitem>
+
+    <listitem><literallayout role="listitem">'make install-strip' disponible para clamav ahora</literallayout></listitem>
+    <listitem><literallayout role="listitem">Actualización de toaster-scripts a 0.9.0 (nuevas opciones de 'kill' en losscripts ctl, argumento -L removido en spamd)</literallayout></listitem>
+    <listitem><literallayout role="listitem">Actualización de simscan a 1.3.1.shupp1 (archivos compactados con el parche de configure para clamavdb aplicado)</literallayout></listitem>
+    <listitem><literallayout role="listitem">Agregado de opciones 'server thread sorting' y 'server-side sorting'a la configuración de squirrelmail - gracias Maciej Soltysiak</literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.8.11 - 11/6/2006</literallayout>
+<itemizedlist>
+
+    <listitem><literallayout role="listitem">Paso agregado para instalar el parche double-bounce-trim a qmail</literallayout></listitem>
+    <listitem><literallayout role="listitem">Actualización de clamav a 0.88.6</literallayout></listitem>
+    <listitem><literallayout role="listitem">Updgrade courier-imap to 4.1.1</literallayout></listitem>
+    <listitem><literallayout role="listitem">Updgrade vpopmail to 5.4.17 + vpopmaild patches</literallayout></listitem>
+    <listitem><literallayout role="listitem">Updgrade TMDA and TMDA-cgi to 1.1.9 and 0.15+patch respectively</literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.8.10 - 8/7/2006</literallayout>
+<itemizedlist>
+    <listitem><literallayout role="listitem">Upgrade clamav to 0.88.4</literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.8.9 - 6/11/2006</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Actualización de qmail-toaster-0.8.3.patch, el cual remueve el parchemfcheck y habilita en su lugar CHKUSER_SENDER_MX en chkuser_settings.h</literallayout></listitem>
+    <listitem><literallayout role="listitem">Corrección de algunos errores de tipeo</literallayout></listitem>
+
+    <listitem><literallayout role="listitem">Cambio a 'config-fast `hostname --long`' durante la instalación de qmailpara automatización simplificada</literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.8.8 - 5/11/2006</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Actualización de clamav a 0.88.2 </literallayout></listitem>
+    <listitem><literallayout role="listitem">Enlace agregado a notas de Trustix 3.0 - gracias Matthew Valentini</literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.8.7 - 4/9/2006</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Actualización del 'toaster patch' (retirar mfcheck, habilitar extensiones deusuario en chkuser), ezmlm-idx, courier imap, squirrelmail, quota usage, toaster scripts, clamav (y parches correspondientes), y simscan</literallayout></listitem>
+    <listitem><literallayout role="listitem">TMDA agregado en las Opciones</literallayout></listitem>
+    <listitem><literallayout role="listitem">Notasi agregadas para los problemas en x86_64 - gracias Rick Root</literallayout></listitem>
+    <listitem><literallayout role="listitem">Agregado de directivas  'chkconfig' al script de init de freshclam - graciasKen Schweigert</literallayout></listitem>
+    <listitem><literallayout role="listitem">Notas agregadas finalmente sobre el uso de pop3ds.run.v4 en caso de que Ud tenga stunnel version 4</literallayout></listitem>
+
+    <listitem><literallayout role="listitem">Directivas 'umask' agregadas - gracias George Toft</literallayout></listitem>
+    <listitem><literallayout role="listitem">Opción 'clear' agregada en 'qmailctl' para limpiar errores de 'readproctitle' - gracias Sim</literallayout></listitem>
+    <listitem><literallayout role="listitem">Agregado de parche a simscan para llamar correctamente a ripmime</literallayout></listitem>
+    <listitem><literallayout role="listitem">Agregada información de prueba de SSL/TLS. También se anota como tratar conproblemas de cipher</literallayout></listitem>
+    <listitem><literallayout role="listitem">Agregado de freshclam.log a 'logrotate' - gracias Tom Collins'</literallayout></listitem>
+    <listitem><literallayout role="listitem">4/10/2006 - Agregado de instancia SSL de tmda-ofmipd</literallayout></listitem>
+
+    <listitem><literallayout role="listitem">4/1/2006 - Nota de diferentes versión de sintaxis para stunnel 3 y 4 - gracias Ingo Claro</literallayout></listitem>
+    <listitem><literallayout role="listitem">4/10/2006 - Retroceso de ezmlm-idx a 0.443 hasta que chkuser sea actualizadopara soportar la nueva versión</literallayout></listitem>
+    <listitem><literallayout role="listitem">4/10/2006 - actualización de QmailAdmin a 1.2.10 para incluir varioscorreciones de seguridad</literallayout></listitem>
+    <listitem><literallayout role="listitem">4/19/2006 - Agregado de notas para remover exim4-base y exim4-configa las notas de Debian</literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.8.6 - 1/28/2006</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Actualización de clamav a 0.88</literallayout></listitem>
+    <listitem><literallayout role="listitem">uso de vpopmail-5.4.13-cumulative-1.patch el cual tiene una corrección y vuelve atrás a vpopmaild</literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.8.5 - 1/5/2006</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Actualización del 'toaster patch' a versión 0.8.1 (actualizacion tls)</literallayout></listitem>
+    <listitem><literallayout role="listitem">Actualización de ripmime a 1.4.0.6</literallayout></listitem>
+
+</itemizedlist>
+
+<literallayout>0.8.4 - 12/26/2005</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Actualización de versiones de courier-imap/courier-authlib</literallayout></listitem>
+    <listitem><literallayout role="listitem">Corrección de error de deletreo</literallayout></listitem>
+    <listitem><literallayout role="listitem">Uso de 'yum' en lugar de 'rpm -q' en 'Prerrequisitos'</literallayout></listitem>
+    <listitem><literallayout role="listitem">Corrección de algunos errores de tipeo en 'apt-get' -  gracias Tom Nats</literallayout></listitem>
+
+    <listitem><literallayout role="listitem">Mencionar MANDATORY_MANPATH para Debian - gracias Andrea Riela</literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.8.3 - 12/3/2005</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Agregado de instalación de dependencias de  SpamAssassin y ClamAV, y aliasde gmake a la sección Notas de Debian</literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.8.2 - 11/7/2005</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Actualización de clamav a 0.87.1</literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.8.1 - 9/16/2005</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Actualización de versiones de qmailadmin, courier-authlib, courier-imap, clamav y ezmlm-idx </literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.8 - 7/24/2005</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Actualización de la línea 'configure' de qmailadmin puesto que debianrequiere argumentos</literallayout></listitem>
+    <listitem><literallayout role="listitem">Agregado de notas para Debian</literallayout></listitem>
+    <listitem><literallayout role="listitem">Agregado de qmailmrtg7 bajo 'Opciones'</literallayout></listitem>
+    <listitem><literallayout role="listitem">Actualización de todos los paquetes de software a las últimas versionesincluyendo courier-imap que ahora requiere authlib</literallayout></listitem>
+    <listitem><literallayout role="listitem">Actualización del 'toaster patch' para incluir las últimas versiones</literallayout></listitem>
+
+    <listitem><literallayout role="listitem">Actualización de notas en la Prueba de Instalación</literallayout></listitem>
+    <listitem><literallayout role="listitem">Actualización del archivo de vínculos web en 'Solución de Problemas'</literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.7.13 - 6/23/2005</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Actualización de clamav a 0.86.1</literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.7.12 - 5/23/2005</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Actualización de clamav a 0.85.1</literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.7.11 - 5/13/2005</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Actualización de clamav a 0.85</literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.7.10 - 5/1/2005</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Actualización de vpopmail a 5.4.10</literallayout></listitem>
+    <listitem><literallayout role="listitem">Actualización de ripmime a 1.4.0.5</literallayout></listitem>
+    <listitem><literallayout role="listitem">Actualización de clamav a 0.84</literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.7.9 - 3/13/2005</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Actualización de 5.4.9</literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.7.7 - 2/16/2005</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">agregado de 'spam_passthru=yes' a simcontrol - gracias Jason S</literallayout></listitem>
+    <listitem><literallayout role="listitem">nota agregada sobre la necesidad de 'gmp-devel' - gracias Jesus San Miguel</literallayout></listitem>
+
+    <listitem><literallayout role="listitem">nota agregada sobre 'chowning' de /var/qmail/spam a vpopmail:vchkpw luegode reinstalar qmail (para 'spam throttle')</literallayout></listitem>
+    <listitem><literallayout role="listitem">remover comandos 'chmod +t', debido a son necesarios solo para daemontools&lt; 0.75</literallayout></listitem>
+    <listitem><literallayout role="listitem">Actualización de qmailctl para usar svclist para una lista de serviciosútil para múltiples instancias de qmail-smtpd. - gracias Tom Collins</literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.7.7 - 2/16/2005</literallayout>
+
+<itemizedlist>
+
+    <listitem><literallayout role="listitem">Actualización de clamav a 0.83</literallayout></listitem>
+    <listitem><literallayout role="listitem">Actualización de simscan a 1.1</literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.7.6 - 2/7/2005</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Actualización de clamav a 0.83</literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.7.5 - 2/4/2005</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Corrección de punto y comas faltantes en la creación de aliasesgracias Tom Collins</literallayout></listitem>
+    <listitem><literallayout role="listitem">Consolidación de sugerencias para comandos 'rpm'- gracias Tom Collins</literallayout></listitem>
+    <listitem><literallayout role="listitem">Agregado de páginas de manual de qmail a la ruta MANCONFIG gracias Tom Collins </literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.7.4 - 2/1/2005</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Actualización de clamab a 0.81 - gracias Bob Hutchinson por el parcheactualizado de stderr</literallayout></listitem>
+    <listitem><literallayout role="listitem">Cambios menores al comando 'tcprules' en la instalación de vpopmailgracias Jake Applebaum</literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.7.3 - 1/25/2005</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Actualización del parche 'qmail-toaster' a 0.7.2 para corregir un CR en overmaildirquota.c</literallayout></listitem>
+
+</itemizedlist>
+
+<literallayout>0.7.2 - 1/20/2005</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Actualización del parche maildir++ para corregir un free() duplicado- gracias Tom Collins</literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.7.1 - 1/8/2005</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Agregado de mención a la incompatibilidad de SELinux con QmailAdmin- gracias Dave Roberts</literallayout></listitem>
+
+</itemizedlist>
+
+<literallayout>0.7 - 12/27/2004</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">1/8/2005-Agregado de mención a la incompatibilidad de SELinux con QmailAdmin- gracias Dave Roberts</literallayout></listitem>
+    <listitem><literallayout role="listitem">Parche qmail-toaster cambiado de 0.75b a 0.7 (sin cambios)</literallayout></listitem>
+    <listitem><literallayout role="listitem">Versión de toaster cambiada de 0.72b a 0.7</literallayout></listitem>
+    <listitem><literallayout role="listitem">Nota agregada a la instalación de courier-imap acerca del cambio delcertificado auto-firmado</literallayout></listitem>
+
+</itemizedlist>
+
+<literallayout>0.7b2 - 12/20/2004</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Rutas actualizadas de los scripts init. Este documento utiliza ahora /etc/y /etc/rc?.d en lugar de /etc/rc.d/init.d y /etc/rc.d/rc?.d</literallayout></listitem>
+    <listitem><literallayout role="listitem">Habilitado escaneo por-dominio en simscan - gracias José Luis Canciani</literallayout></listitem>
+    <listitem><literallayout role="listitem">Error de tipeo en la información de versión del parche del toaster- gracias Eduardo Cortes</literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.7b1 - 12/15/2004</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Nuevo parche del Toaster con versiones actualizadas, SPF, quitado mfcheckcambio de spam throttle para tarpit</literallayout></listitem>
+    <listitem><literallayout role="listitem">Actualización de vpopmail a 5.4.8, qmailadmin a 1.2.3</literallayout></listitem>
+    <listitem><literallayout role="listitem">Actualización de courier-imap a 3.0.8</literallayout></listitem>
+    <listitem><literallayout role="listitem">SpamAssassin, ClamAV, simscan, ripmime agregados a Opciones</literallayout></listitem>
+    <listitem><literallayout role="listitem">Cantidad de actualizaciones a los archivos run/config</literallayout></listitem>
+
+    <listitem><literallayout role="listitem">qmailctl ahora detecta si se están usando usuarios con 'roaming'</literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.6 - 2/16/2004</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Cambio a netqmail 1.05 para la instalación del parche base</literallayout></listitem>
+    <listitem><literallayout role="listitem">Actualización del gran parche y del parche 'chkuser'</literallayout></listitem>
+    <listitem><literallayout role="listitem">Actualización de vpopmail a 5.4.1, qmailadmin a 1.2.1</literallayout></listitem>
+
+    <listitem><literallayout role="listitem">Actualización de courier-imap a 2.2.2.20040207 conforme con código de vlimits</literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.5.2 - 1/27/2004</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Corrección del problema con el 'config.php' en la instalación del plugin'quota usage'</literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.5.1 - 1/20/2004</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Correcciones de algunos errores de tipeo</literallayout></listitem>
+    <listitem><literallayout role="listitem">Anotado en 'prerequisitos' que los archivos krb5 dev, Apache y PHP son requerequeridos</literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.5 - 1/6/2004</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Actualización de versiones base del software, parche qmail</literallayout></listitem>
+    <listitem><literallayout role="listitem">Cambio de SqWebmail a SquirrelMail</literallayout></listitem>
+
+    <listitem><literallayout role="listitem">Instalación de Apache removida (usar solo la de la distribución)</literallayout></listitem>
+    <listitem><literallayout role="listitem">Soporte removido para usuarios 'roaming' (usar smtp-auth en su lugar)</literallayout></listitem>
+    <listitem><literallayout role="listitem">Agregado de enlace a licencia</literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.4.7 - 6/17/2002</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">errores de tipeo en el enlace a courier-imap, nombre de archivo -gracias a Yalcin Cekic.</literallayout></listitem>
+
+</itemizedlist>
+
+<literallayout>0.4.6 - 6/05/2002</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">el script qmail-smtpd 'run' no tenía un hostname, lo cual es ahora requerido para el parche smtp-auth 0.30 y superior.</literallayout></listitem>
+    <listitem><literallayout role="listitem">olvidé hacer 'chown' a imapd.pem para courier-imap ahora que lo estamoscorriendo como vpopmail</literallayout></listitem>
+    <listitem><literallayout role="listitem">opción de 'configure' incorrecta para qmailadmin</literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.4.5 - 6/03/2002</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Uso de courier-imap 1.4.7 (recomendación de seguridad)</literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.4.4 - 5/31/2002</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Actualización de la instalación de courier-imap para correr como vpopmail.vchkpw en lugar de root (para 'usuarios imap con roaming')</literallayout></listitem>
+    <listitem><literallayout role="listitem">Update support information </literallayout></listitem>
+
+</itemizedlist>
+
+<literallayout>0.4.3 - 5/29/200</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Uso de números de puertos en los scripts de inicio de pop3d en lugarde 'pop-3' y 'pop3s'</literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.4.2 - 5/26/2002</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Actualización del parche smtp auth al nuevo 0.31</literallayout></listitem>
+
+</itemizedlist>
+
+<literallayout>0.4.1 - 5/21/2002</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Uso de vpopmail-5.3.6 en lugar de vchkpwcmd5 alternativo</literallayout></listitem>
+    <listitem><literallayout role="listitem">Uso de courier-imap 1.4.5</literallayout></listitem>
+    <listitem><literallayout role="listitem">Uso de sqwebmail 3.3.4</literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.4 - 4/20/2002 (no publicado)</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Provisión de nuevo módulo vchkpwcmd5 (alternativo a vchkpw)</literallayout></listitem>
+    <listitem><literallayout role="listitem">Uso de vpopmail-5.3.5-cmd5 y qmailadmin 1.0.4</literallayout></listitem>
+    <listitem><literallayout role="listitem">Uso de courier-imap 1.4.4 y sqwebmail 3.3.3</literallayout></listitem>
+    <listitem><literallayout role="listitem">Cambio a qmail-pop3d para courier pop3d</literallayout></listitem>
+    <listitem><literallayout role="listitem">Actualización a v.0.30 del parche SMTP-AUTH</literallayout></listitem>
+
+</itemizedlist>
+
+<literallayout>0.3 - 1/3/2002</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Uso de vpopmail-5.1.4 y qmailadmin 1.0.1</literallayout></listitem>
+    <listitem><literallayout role="listitem">remover parches innecesarios</literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.2 - 12/26/2001</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">Corrección de enlace roto en la sección de download</literallayout></listitem>
+    <listitem><literallayout role="listitem">parche agregado para problemas de quota en vpopmail-5.1.3</literallayout></listitem>
+</itemizedlist>
+
+<literallayout>0.1 - 12/24/2001</literallayout>
+
+<itemizedlist>
+    <listitem><literallayout role="listitem">lanzamiento inicial</literallayout></listitem>
+</itemizedlist></section>
+
+</article>

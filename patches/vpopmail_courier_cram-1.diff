@@ -1,0 +1,102 @@
+This patch adds CRAM-MD5 support to the authvchkpw module in 
+courier-authlib-0.59-1.
+
+After applying this patch, you must add " AUTH=CRAM-MD5" to IMAP_CAPABILITY in
+/usr/lib/courier-imap/etc/imapd, and restart courier-imap.  Then, just check
+"use secure authentication" in your mail client's imap server settings.  This 
+way, you can have secure authentication without putting your entire imap
+connection behind SSL.
+
+Cheers,
+
+Bill Shupp
+hostmater@shupp.org
+
+
+
+diff -urN ../courier-authlib-0.59.1/authvchkpw.c ./authvchkpw.c
+--- ../courier-authlib-0.59.1/authvchkpw.c	2006-05-02 18:29:43.000000000 -0700
++++ ./authvchkpw.c	2007-04-04 12:25:02.873080456 -0700
+@@ -23,6 +23,9 @@
+ 
+ static const char rcsid[]="$Id: authvchkpw.c,v 1.25 2005/02/20 04:41:20 mrsam Exp $";
+ 
++static int auth_vchkpw_login(const char *service, char *authdata,
++	int (*callback_func)(struct authinfo *, void *), void *callback_arg);
++
+ extern int auth_vchkpw_pre(const char *userid, const char *service,
+         int (*callback)(struct authinfo *, void *),
+                         void *arg);
+@@ -54,7 +57,50 @@
+ 	return (*i->callback_func)(a, i->callback_arg);
+ }
+ 
++#if HAVE_HMACLIB
++
++#include        "libhmac/hmac.h"
++#include        "cramlib.h"
++
++
++static int auth_vchkpw_cram(const char *service,
++                           const char *authtype, char *authdata,
++                           int (*callback_func)(struct authinfo *, void *),
++                           void *callback_arg)
++{
++        struct  cram_callback_info      cci;
++
++        if (auth_get_cram(authtype, authdata, &cci))
++                return (-1);
++
++        cci.callback_func=callback_func;
++        cci.callback_arg=callback_arg;
++
++        return auth_vchkpw_pre(cci.user, service, &auth_cram_callback, &cci);
++}
++#endif
++
+ int auth_vchkpw(const char *service, const char *authtype, char *authdata,
++               int (*callback_func)(struct authinfo *, void *),
++               void *callback_arg)
++{
++        if (strcmp(authtype, AUTHTYPE_LOGIN) == 0)
++                return (auth_vchkpw_login(service, authdata,
++                        callback_func, callback_arg));
++
++#if HAVE_HMACLIB
++        return (auth_vchkpw_cram(service, authtype, authdata,
++                        callback_func, callback_arg));
++#else
++        errno=EPERM;
++        return (-1);
++#endif
++
++}
++
++
++
++static int auth_vchkpw_login(const char *service, char *authdata,
+ 	int (*callback_func)(struct authinfo *, void *), void *callback_arg)
+ {
+ char *user, *pass;
+@@ -63,9 +109,7 @@
+ 	/* Make sure that we have been supplied with the correct
+ 	 * AUTHDATA format which is : userid<NEWLINE>password<NEWLINE>
+ 	 */
+-	if (strcmp(authtype, AUTHTYPE_LOGIN) ||
+-		(user=strtok(authdata, "\n")) == 0 ||
+-		(pass=strtok(0, "\n")) == 0)
++	if ( (user=strtok(authdata, "\n")) == 0 || (pass=strtok(0, "\n")) == 0)
+ 	{
+ 		/* login syntax was invalid */
+ 		errno=EPERM;
+diff -urN ../courier-authlib-0.59.1/preauthvchkpw.c ./preauthvchkpw.c
+--- ../courier-authlib-0.59.1/preauthvchkpw.c	2006-05-02 18:29:43.000000000 -0700
++++ ./preauthvchkpw.c	2007-04-04 12:24:12.802692312 -0700
+@@ -151,6 +151,7 @@
+ 	auth.address		= userid;
+ 	auth.fullname		= vpw->pw_gecos;
+ 	auth.passwd		= vpw->pw_passwd;
++	auth.clearpasswd	= vpw->pw_clear_passwd;
+ 	auth.options		= options;
+ 	courier_authdebug_authinfo("DEBUG: authvchkpw: ", &auth, 0, vpw->pw_passwd);
+ 

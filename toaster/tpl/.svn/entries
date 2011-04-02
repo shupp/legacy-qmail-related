@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wc-entries
+   xmlns="svn:">
+<entry
+   committed-rev="126"
+   name=""
+   committed-date="2007-04-17T23:54:19.964402Z"
+   url="svn://trac.merchbox.com/toasterdoc/branches/stable/tpl"
+   last-author="shupp"
+   kind="dir"
+   uuid="5df0e5c9-6029-0410-b58c-b86a8e687cad"
+   revision="126"/>
+<entry
+   committed-rev="24"
+   name="validate.php"
+   text-time="2007-03-29T22:49:22.000000Z"
+   committed-date="2007-03-04T04:10:41.862057Z"
+   checksum="91aa636279f70004fd644a0da35d74e5"
+   last-author="shupp"
+   kind="file"
+   prop-time="2007-03-29T22:49:22.000000Z"/>
+<entry
+   committed-rev="67"
+   name="wrapper.xml"
+   text-time="2007-03-29T22:49:22.000000Z"
+   committed-date="2007-03-28T07:00:56.404294Z"
+   checksum="f91c0047fc21b7f7fd78be9357cbbc3e"
+   last-author="shupp"
+   kind="file"
+   prop-time="2007-03-29T22:49:22.000000Z"/>
+<entry
+   committed-rev="41"
+   name="qmailmrtg7.xml"
+   text-time="2007-03-29T22:49:22.000000Z"
+   committed-date="2007-03-16T21:23:33.935923Z"
+   checksum="a38e235d0f8e753848c8ce6cd628052e"
+   last-author="shupp"
+   kind="file"
+   prop-time="2007-03-29T22:49:22.000000Z"/>
+<entry
+   committed-rev="114"
+   name="tmda.xml"
+   text-time="2007-04-13T18:21:54.000000Z"
+   committed-date="2007-04-13T18:21:43.647543Z"
+   checksum="daf60cca756e62c6059a4783c8b7b5e5"
+   last-author="shupp"
+   kind="file"
+   prop-time="2007-04-13T18:21:54.000000Z"/>
+<entry
+   committed-rev="124"
+   name="toc.xml"
+   text-time="2007-04-17T23:43:10.000000Z"
+   committed-date="2007-04-17T23:42:45.924985Z"
+   checksum="153bc2356b07820ed717aa04abca2627"
+   last-author="shupp"
+   kind="file"
+   prop-time="2007-04-17T23:43:10.000000Z"/>
+<entry
+   committed-rev="126"
+   name="changelog.xml"
+   text-time="2007-04-17T23:54:39.000000Z"
+   committed-date="2007-04-17T23:54:19.964402Z"
+   checksum="165ce327a2a9cf402aa1e89216a9a9c8"
+   last-author="shupp"
+   kind="file"
+   prop-time="2007-04-17T23:54:39.000000Z"/>
+<entry
+   committed-rev="114"
+   name="gettingstarted.xml"
+   text-time="2007-04-13T18:21:54.000000Z"
+   committed-date="2007-04-13T18:21:43.647543Z"
+   checksum="15325a7b3ac96643ce0809855d36e300"
+   last-author="shupp"
+   kind="file"
+   prop-time="2007-04-13T18:21:54.000000Z"/>
+<entry
+   committed-rev="1"
+   name="renderers.xml"
+   text-time="2007-03-29T22:49:22.000000Z"
+   committed-date="2007-02-13T19:55:01.747383Z"
+   checksum="ffb810b7232f1ae78159fb5cbe839896"
+   last-author="shupp"
+   kind="file"
+   prop-time="2007-03-29T22:49:22.000000Z"/>
+<entry
+   committed-rev="114"
+   name="courier-imap.xml"
+   text-time="2007-04-13T18:21:54.000000Z"
+   committed-date="2007-04-13T18:21:43.647543Z"
+   checksum="be38a5ceb57ce1e32354bc544ec14f06"
+   last-author="shupp"
+   kind="file"
+   prop-time="2007-04-13T18:21:54.000000Z"/>
+<entry
+   committed-rev="87"
+   name="preface.xml"
+   text-time="2007-03-29T22:49:22.000000Z"
+   committed-date="2007-03-29T17:22:12.981620Z"
+   checksum="bb95b424c4dee0a83cc9bcb3cef6ba12"
+   last-author="shupp"
+   kind="file"
+   prop-time="2007-03-29T22:49:22.000000Z"/>
+<entry
+   committed-rev="124"
+   name="languages.xml"
+   text-time="2007-04-17T23:43:10.000000Z"
+   committed-date="2007-04-17T23:42:45.924985Z"
+   checksum="9abde4f7e862991890f5f0d95e717a6f"
+   last-author="shupp"
+   kind="file"
+   prop-time="2007-04-17T23:43:10.000000Z"/>
+<entry
+   committed-rev="28"
+   name="ezmlm-idx.xml"
+   text-time="2007-03-29T22:49:22.000000Z"
+   committed-date="2007-03-04T04:32:32.902673Z"
+   checksum="db162ec38020a769473c32a101bdbd71"
+   last-author="shupp"
+   kind="file"
+   prop-time="2007-03-29T22:49:22.000000Z"/>
+<entry
+   committed-rev="112"
+   name="ucspi-tcp.xml"
+   text-time="2007-04-05T19:52:20.000000Z"
+   committed-date="2007-04-05T19:52:08.547085Z"
+   checksum="f08358234ecb39b18897b7ba7a784375"
+   last-author="shupp"
+   kind="file"
+   prop-time="2007-04-05T19:52:20.000000Z"/>
+<entry
+   committed-rev="89"
+   name="squirrelmail.xml"
+   text-time="2007-03-29T22:49:22.000000Z"
+   committed-date="2007-03-29T17:48:51.972304Z"
+   checksum="d06b9bcd8a0873c5547c60ec24979f2c"
+   last-author="shupp"
+   kind="file"
+   prop-time="2007-03-29T22:49:22.000000Z"/>
+<entry
+   committed-rev="42"
+   name="qmailadmin-limits.xml"
+   text-time="2007-03-29T22:49:22.000000Z"
+   committed-date="2007-03-16T21:25:45.324785Z"
+   checksum="e76d3da58829eff76ac15ab93b8e3436"
+   last-author="shupp"
+   kind="file"
+   prop-time="2007-03-29T22:49:22.000000Z"/>
+<entry
+   committed-rev="124"
+   name="qmailadmin.xml"
+   text-time="2007-04-17T23:43:10.000000Z"
+   committed-date="2007-04-17T23:42:45.924985Z"
+   checksum="c151edbab2b24f9d957f85f97c22b2cc"
+   last-author="shupp"
+   kind="file"
+   prop-time="2007-04-17T23:43:10.000000Z"/>
+<entry
+   committed-rev="1"
+   name="sdocbook.dtd"
+   text-time="2007-03-29T22:49:22.000000Z"
+   committed-date="2007-02-13T19:55:01.747383Z"
+   checksum="40e51774f83cf53220801499f47b81d8"
+   last-author="shupp"
+   kind="file"
+   prop-time="2007-03-29T22:49:22.000000Z"/>
+<entry
+   committed-rev="13"
+   name="daemontools.xml"
+   text-time="2007-03-29T22:49:22.000000Z"
+   committed-date="2007-02-22T21:55:07.394418Z"
+   checksum="7156043e2f909fdb1dd59baa99f6d9ae"
+   last-author="shupp"
+   kind="file"
+   prop-time="2007-03-29T22:49:22.000000Z"/>
+<entry
+   committed-rev="22"
+   name="vpopmail.xml"
+   text-time="2007-03-29T22:49:22.000000Z"
+   committed-date="2007-03-03T19:46:54.545611Z"
+   checksum="68febbcd1112447c16a97f04a1f7e0bf"
+   last-author="shupp"
+   kind="file"
+   prop-time="2007-03-29T22:49:22.000000Z"/>
+<entry
+   committed-rev="90"
+   name="validate_all.sh"
+   text-time="2007-03-29T22:49:22.000000Z"
+   committed-date="2007-03-29T17:58:00.835485Z"
+   checksum="a236a916679c1db941d61e912f13bc0a"
+   last-author="shupp"
+   kind="file"
+   prop-time="2007-03-29T22:49:22.000000Z"/>
+<entry
+   committed-rev="76"
+   name="simscan.xml"
+   text-time="2007-03-29T22:49:22.000000Z"
+   committed-date="2007-03-29T00:38:51.846068Z"
+   checksum="54d12d09f33c893346a18b1ecb87142b"
+   last-author="shupp"
+   kind="file"
+   prop-time="2007-03-29T22:49:22.000000Z"/>
+<entry
+   committed-rev="36"
+   name="ripmime.xml"
+   text-time="2007-03-29T22:49:22.000000Z"
+   committed-date="2007-03-16T19:55:05.265457Z"
+   checksum="fa7085f2918be249b6aee6f7e514fde5"
+   last-author="shupp"
+   kind="file"
+   prop-time="2007-03-29T22:49:22.000000Z"/>
+<entry
+   committed-rev="114"
+   name="qmail.xml"
+   text-time="2007-04-13T18:21:54.000000Z"
+   committed-date="2007-04-13T18:21:43.647543Z"
+   checksum="550c689ec8de8e80e367301fd23eb1f0"
+   last-author="shupp"
+   kind="file"
+   prop-time="2007-04-13T18:21:54.000000Z"/>
+<entry
+   committed-rev="75"
+   name="clamav.xml"
+   text-time="2007-03-29T22:49:22.000000Z"
+   committed-date="2007-03-28T18:03:14.208317Z"
+   checksum="4653a2186586c71875088eaa87d4fa9b"
+   last-author="shupp"
+   kind="file"
+   prop-time="2007-03-29T22:49:22.000000Z"/>
+<entry
+   committed-rev="27"
+   name="autorespond.xml"
+   text-time="2007-03-29T22:49:22.000000Z"
+   committed-date="2007-03-04T04:22:27.021132Z"
+   checksum="fb0172b6f0c0aa5e8a0367dabf850c0d"
+   last-author="shupp"
+   kind="file"
+   prop-time="2007-03-29T22:49:22.000000Z"/>
+<entry
+   committed-rev="74"
+   name="spamassassin.xml"
+   text-time="2007-03-29T22:49:22.000000Z"
+   committed-date="2007-03-28T17:45:17.512929Z"
+   checksum="a70e48123376acdb56c036131660b0f0"
+   last-author="shupp"
+   kind="file"
+   prop-time="2007-03-29T22:49:22.000000Z"/>
+<entry
+   committed-rev="124"
+   name="appendix.xml"
+   text-time="2007-04-17T23:43:10.000000Z"
+   committed-date="2007-04-17T23:42:45.924985Z"
+   checksum="903815617c09be7ab0858ab9a9e20496"
+   last-author="shupp"
+   kind="file"
+   prop-time="2007-04-17T23:43:10.000000Z"/>
+<entry
+   committed-rev="124"
+   name="versions.xml"
+   text-time="2007-04-17T23:43:10.000000Z"
+   committed-date="2007-04-17T23:42:45.924985Z"
+   checksum="42749bca6a3d611809f6e9b567778bf4"
+   last-author="shupp"
+   kind="file"
+   prop-time="2007-04-17T23:43:10.000000Z"/>
+<entry
+   committed-rev="124"
+   name="html.xsl"
+   text-time="2007-04-17T23:43:10.000000Z"
+   committed-date="2007-04-17T23:42:45.924985Z"
+   checksum="bde61233737ba559f9374cc2ddd0d309"
+   last-author="shupp"
+   kind="file"
+   prop-time="2007-04-17T23:43:10.000000Z"/>
+<entry
+   committed-rev="46"
+   name="outline.xml"
+   text-time="2007-03-29T22:49:22.000000Z"
+   committed-date="2007-03-17T00:08:08.882166Z"
+   checksum="f9287b1e7f00ee536e0c5ed103003097"
+   last-author="shupp"
+   kind="file"
+   prop-time="2007-03-29T22:49:22.000000Z"/>
+<entry
+   committed-rev="85"
+   name="test.xml"
+   text-time="2007-03-29T22:49:22.000000Z"
+   committed-date="2007-03-29T06:19:53.276170Z"
+   checksum="0d751ef45d68e54a79596610d3d406d8"
+   last-author="shupp"
+   kind="file"
+   prop-time="2007-03-29T22:49:22.000000Z"/>
+</wc-entries>

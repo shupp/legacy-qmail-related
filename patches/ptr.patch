@@ -1,0 +1,26 @@
+--- records.php.orig	2006-03-06 16:07:56.000000000 -0800
++++ records.php	2006-03-06 16:09:08.000000000 -0800
+@@ -273,7 +273,10 @@
+ } else if($_REQUEST['record_mode'] == 'add_record_now') {
+ 
+     // Add domain to 'name'
+-    if(!eregi("^.*\.($domain)\.*$", $_REQUEST['name']) && !eregi("^($domain)\.*$", $_REQUEST['name'])) {
++    if($_REQUEST['type'] != 'PTR' && 
++        !eregi("^.*\.($domain)\.*$", $_REQUEST['name']) && 
++        !eregi("^($domain)\.*$", $_REQUEST['name'])) {
++
+         if(strlen($_REQUEST['name']) > 0) {
+             $name = $_REQUEST['name'].".$domain";
+         } else {
+@@ -489,7 +492,10 @@
+ } else if($_REQUEST['record_mode'] == 'edit_record_now') {
+ 
+     // Add domain to 'name'
+-    if(!eregi("^.*\.($domain)\.*$", $_REQUEST['name']) && !eregi("^($domain)\.*$", $_REQUEST['name'])) {
++    if($_REQUEST['type'] != 'PTR' && 
++        !eregi("^.*\.($domain)\.*$", $_REQUEST['name']) && 
++        !eregi("^($domain)\.*$", $_REQUEST['name'])) {
++
+         if(strlen($_REQUEST['name']) > 0) {
+             $name = $_REQUEST['name'].".$domain";
+         } else {

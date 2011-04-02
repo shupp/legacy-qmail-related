@@ -1,0 +1,85 @@
+#!/bin/sh
+
+# For Red Hat chkconfig
+# chkconfig: - 30 80
+# description: the qmail-pop3d server
+
+PATH=/var/qmail/bin:/bin:/usr/bin:/usr/local/bin:/usr/local/sbin
+export PATH
+
+QMAILDUID=`id -u vpopmail`
+NOFILESGID=`id -g vpopmail`
+
+case "$1" in
+  start)
+    echo "Starting qmail-pop3d"
+    if svok /service/qmail-pop3d; then
+      svc -u /service/qmail-pop3d
+    else
+      echo qmail-pop3d service not running
+    fi
+    echo "Starting qmail-pop3ds"
+    if svok /service/qmail-pop3ds; then
+      svc -u /service/qmail-pop3ds
+    else
+      echo qmail-pop3ds service not running
+    fi
+    if [ -d /var/lock/subsys ]; then
+      touch /var/lock/subsys/vpopmail
+    fi
+    ;;
+  stop)
+    echo "Stopping qmail-pop3d..."
+    svc -d /service/qmail-pop3d
+    echo "Stopping qmail-pop3ds..."
+    svc -d /service/qmail-pop3ds
+    if [ -f /var/lock/subsys/vpopmail ]; then
+      rm /var/lock/subsys/vpopmail
+    fi
+    ;;
+  stat)
+    svstat /service/qmail-pop3d
+    svstat /service/qmail-pop3d/log
+    svstat /service/qmail-pop3ds
+    svstat /service/qmail-pop3ds/log
+    ;;
+  pause)
+    echo "Pausing qmail-pop3d"
+    svc -p /service/qmail-pop3d
+    echo "Pausing qmail-pop3ds"
+    svc -p /service/qmail-pop3ds
+    ;;
+  cont)
+    echo "Continuing qmail-pop3d"
+    svc -c /service/qmail-pop3d
+    echo "Continuing qmail-pop3ds"
+    svc -c /service/qmail-pop3ds
+    ;;
+  restart)
+    echo "Stopping qmail-pop3d:"
+    echo "* Stopping qmail-pop3d."
+    echo "Stopping qmail-pop3ds:"
+    svc -d /service/qmail-pop3d
+    svc -d /service/qmail-pop3ds
+    echo "* Restarting qmail-pop3d."
+    svc -u /service/qmail-pop3d
+    echo "* Restarting qmail-pop3ds."
+    svc -u /service/qmail-pop3ds
+    ;;
+  help)
+    cat <<HELP
+   stop -- stops mail service (pop3 connections refused)
+  start -- starts mail service (pop3 connection accepted)
+  pause -- temporarily stops pop3 service
+   cont -- continues paused pop3 service
+   stat -- displays status of pop3 service
+restart -- stops and restarts pop3d
+HELP
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart|stat|pause|cont|help}"
+    exit 1
+    ;;
+esac
+
+exit 0

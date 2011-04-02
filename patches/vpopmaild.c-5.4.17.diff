@@ -1,0 +1,76 @@
+This patch adds a couple of new functions to vpopmaild in vpopmail 5.4.17
+
+
+--- vpopmaild.c.orig	2006-07-31 11:38:17.000000000 -0700
++++ vpopmaild.c	2006-07-31 11:57:55.000000000 -0700
+@@ -85,6 +85,7 @@
+ int list_domains();
+ int find_domain();
+ int domain_count();
++int user_count();
+ int list_users();
+ int list_alias();
+ int list_lists();
+@@ -142,7 +143,8 @@
+ {"list_domains", list_domains, "[page per_page]<crlf>" },
+ {"find_domain", find_domain, "domain [per-page]<crlf>" },
+ {"domain_count", domain_count, "<crlf>" },
+-{"list_users", list_users, "domain<crlf>" },
++{"user_count", user_count, "domain<crlf>" },
++{"list_users", list_users, "domain [page per_page]<crlf>" },
+ {"list_alias", list_alias, "domain<crlf>" },
+ {"list_lists", list_lists, "domain<crlf>" },
+ {"get_ip_map", get_ip_map, "domain<crlf>" },
+@@ -1512,6 +1514,52 @@
+   return(0);
+ }
+ 
++int user_count()
++{
++ char *domain;
++ int first;
++ int count;
++
++  if ( !(AuthVpw.pw_gid & QA_ADMIN) && !(AuthVpw.pw_gid & SA_ADMIN) ) {
++    snprintf(WriteBuf,sizeof(WriteBuf), RET_ERR "XXX not authorized" RET_CRLF);
++    return(-1);
++  }
++
++  if ((domain=strtok(NULL,TOKENS))==NULL) {
++    snprintf(WriteBuf,sizeof(WriteBuf), 
++      RET_ERR "XXX email_address required" RET_CRLF);
++    return(-1);
++  }
++
++  if ( !(AuthVpw.pw_gid&SA_ADMIN) && (AuthVpw.pw_gid&QA_ADMIN) && 
++        (strcmp(TheDomain,domain))!=0 ) {
++    snprintf(WriteBuf,sizeof(WriteBuf), 
++      RET_ERR "XXX not authorized for domain" RET_CRLF);
++    return(-1);
++  }
++
++  if ( !(AuthVpw.pw_gid&SA_ADMIN) && (AuthVpw.pw_gid&QA_ADMIN) && 
++        (strcmp(TheDomain,domain))!=0 ) {
++    snprintf(WriteBuf,sizeof(WriteBuf), 
++      RET_ERR "XXX not authorized for domain" RET_CRLF);
++    return(-1);
++  }
++
++  snprintf(WriteBuf, sizeof(WriteBuf), RET_OK_MORE);
++  wait_write();
++
++  first=1;
++  count = 0;
++  while((tmpvpw=vauth_getall(domain, first, 1))!=NULL) {
++    first = 0;
++    ++count;
++  }
++  snprintf(WriteBuf,sizeof(WriteBuf), "count %i" RET_CRLF, count);
++  wait_write();
++  snprintf(WriteBuf,sizeof(WriteBuf), "." RET_CRLF);
++  return(0);
++}
++
+ 
+ int list_users()
+ {

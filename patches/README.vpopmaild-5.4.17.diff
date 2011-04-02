@@ -1,0 +1,40 @@
+--- README.vpopmaild.orig	2006-07-31 11:59:37.000000000 -0700
++++ README.vpopmaild	2006-07-31 12:01:58.000000000 -0700
+@@ -262,6 +262,17 @@
+ 
+ --------------------------------------------------------------------
+ 
++user_count domain
++
++Rights required: SA_ADMIN, or QA_ADMIN.  QA_ADMIN can only manage their
++                 own domain.
++
++Action:  Return the number of accounts in a domain.  This can be used to determine
++the number of pages of user account information that is available.
++
++
++--------------------------------------------------------------------
++
+ mk_dir directory
+ 
+ Rights required: SA_ADMIN, QA_ADMIN or USER.  QA_ADMIN can only work within
+@@ -391,7 +402,7 @@
+ 
+ --------------------------------------------------------------------
+ 
+-list_users domain
++list_users domain [page lines_per_page]
+ 
+ Rights required: SA_ADMIN, or QA_ADMIN.  QA_ADMIN can only manage their
+                  own domain.
+@@ -399,7 +410,9 @@
+ Action:  List all Mailbox accounts for a domain.
+ 
+ It returns the same info about a user as something else.  Find it and
+-copy the info here.
++copy the info here.  If the optional page is given, lines_per_page must be 
++specified also.  When both are given, the data is broken up into pages with 
++lines_per_page lines on each.  The page returned is specified by page.
+ 
+ 
+ --------------------------------------------------------------------

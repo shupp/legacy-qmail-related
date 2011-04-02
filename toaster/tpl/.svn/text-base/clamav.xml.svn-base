@@ -1,0 +1,62 @@
+<title><?php echo _("Options")?></title>
+
+<itemizedlist>
+    <listitem>
+        <para><anchor id="clamav" /><emphasis><?php echo _("ClamAV")?></emphasis></para>
+        <para><?php echo _("This open source virus scanner will be called by simscan.")?></para>
+        <para><?php echo _("Info: ")?> <ulink url="http://clamav.sf.net">http://clamav.sf.net</ulink></para>
+
+        <para><?php echo _("NOTE: You need gmp-devel installed to verify the digital signatures of the virus database.")?></para>
+
+        <para><?php echo _("Install:")?></para>
+
+
+        <programlisting>
+
+			<literal>groupadd clamav</literal>
+			<literal>useradd -g clamav clamav</literal>
+			<literal>cd {varsrc}/tar</literal>
+			<literal>wget http://shupp.org/software/clamav-{clamav}.tar.gz</literal>
+			<literal>wget http://shupp.org/patches/clamav-{clamav}.patch</literal>
+			<literal>cd ../</literal>
+			<literal>tar -xzf tar/clamav-{clamav}.tar.gz</literal>
+			<literal>cd clamav-{clamav}</literal>
+			<literal>patch -p0 &lt; ../tar/clamav-{clamav}.patch</literal>
+			<literal>./configure</literal>
+			<literal>make</literal>
+			<literal>make install-strip</literal>
+			<literal></literal>
+			<lineannotation><?php echo _("setup freshclam")?></lineannotation>
+			<literal>touch /var/log/freshclam.log</literal>
+			<literal>chmod 600 /var/log/freshclam.log</literal>
+			<literal>chown clamav /var/log/freshclam.log</literal>
+			<literal>cp {varsrc}/toaster-scripts-{toasterscripts}/freshclam /etc/init.d/freshclam</literal>
+			<literal>chmod 755 /etc/init.d/freshclam</literal>
+			<literal>ln -s ../init.d/freshclam /etc/rc0.d/K30freshclam</literal>
+			<literal>ln -s ../init.d/freshclam /etc/rc1.d/K30freshclam</literal>
+			<literal>ln -s ../init.d/freshclam /etc/rc2.d/S80freshclam</literal>
+			<literal>ln -s ../init.d/freshclam /etc/rc3.d/S80freshclam</literal>
+			<literal>ln -s ../init.d/freshclam /etc/rc4.d/S80freshclam</literal>
+			<literal>ln -s ../init.d/freshclam /etc/rc5.d/S80freshclam</literal>
+			<literal>ln -s ../init.d/freshclam /etc/rc6.d/K30freshclam</literal>
+			<literal></literal>
+			<lineannotation><?php echo _("add freshclam.log to logrotate")?></lineannotation>
+			<literal>cp {varsrc}/toaster-scripts-{toasterscripts}/freshclam.logrotate /etc/logrotate.d/freshclam</literal>
+			<literal></literal>
+			<lineannotation><?php echo _("run clamd under daemontools")?></lineannotation>
+			<literal>mkdir -p /var/qmail/supervise/clamd/log</literal>
+			<literal>mkdir -p /var/log/clamd</literal>
+			<literal>chown clamav /var/log/clamd</literal>
+			<literal>cp ../toaster-scripts-{toasterscripts}/clamd.run /var/qmail/supervise/clamd/run</literal>
+			<literal>cp ../toaster-scripts-{toasterscripts}/clamd.log.run /var/qmail/supervise/clamd/log/run</literal>
+			<literal>chmod 755 /var/qmail/supervise/clamd/run</literal>
+			<literal>chmod 755 /var/qmail/supervise/clamd/log/run</literal>
+			<literal></literal>
+			<lineannotation><?php echo _("Start clamd and freshclam")?></lineannotation>
+			<literal>ln -s /var/qmail/supervise/clamd /service</literal>
+			<literal>/etc/init.d/freshclam start</literal>
+
+        </programlisting>
+    </listitem>
+
+</itemizedlist>

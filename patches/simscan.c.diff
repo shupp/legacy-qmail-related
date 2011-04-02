@@ -1,0 +1,12 @@
+--- simscan.c.orig	Tue Jan 10 11:32:26 2006
++++ simscan.c	Tue Jan 10 11:33:04 2006
+@@ -729,7 +729,8 @@
+     case 0:
+      close(1);
+      close(2);
+-     execl(RIPMIME, "ripmime", "-i", message_name, "-d", NULL );
++     /* execl(RIPMIME, "ripmime", "-i", message_name, "-d", NULL ); */
++     execl(RIPMIME, "ripmime", "--disable-qmail-bounce", "-i", message_name, "-d", NULL );
+      _exit(-1);
+   }
+ 

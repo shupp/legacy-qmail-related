@@ -1,0 +1,13 @@
+--- qscanq.c.orig	Mon Apr  5 12:35:56 2004
++++ qscanq.c	Mon Apr  5 12:36:53 2004
+@@ -71,7 +71,9 @@
+   /* [fn := name timestamp.ppid.n of existing directory w/sticky bit set ] */
+   do {
+     mkfn(fn, c++);
+-    if (mkdir(fn, 01700) == 0) break;
++    if (mkdir(fn, 01700) == 0) {
++		if(chmod(fn, 01700) == 0) break;
++	}
+     sleep(1);
+   } while (c<MAX_RETRIES);
+   if (c == MAX_RETRIES) {

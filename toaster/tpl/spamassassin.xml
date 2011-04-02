@@ -1,0 +1,37 @@
+<title><?php echo _("Options")?></title>
+<para><?php echo _("Here, you can add 4 tools that together will prevent viruses from reaching your system via email, and tag spam for client filtering")?></para>
+
+
+<itemizedlist>
+    <listitem>
+        <para><anchor id="spamassassin" /><emphasis><?php echo _("SpamAssassin")?></emphasis></para>
+        <para><?php echo _("SpamAssassin is the leading open source spam scanner.  We'll be installing SpamAssassin via CPAN below.")?></para>
+        <para><?php echo _("<emphasis>NOTE:</emphasis> Debian users should have installed the SpamAssassin prerequisites during 'Debian Notes' eariler.  RPM distributions may want to use 'yum install spamassassin' instead of CPAN below, so that you get all the dependencies.  If the RPM of SpamAssassin is out of date, you could then simply do 'yum uninstall spamassassin', and follow the CPAN installation below, as you'll have the dependencies.")?></para>
+        <para><?php echo _("Info: ")?> <ulink url="http://www.spamassassin.org">http://www.spamassassin.org</ulink></para>
+
+        <para><?php echo _("Install:")?></para>
+
+
+        <programlisting>
+            <literal>cd /root</literal>
+            <literal>perl -MCPAN -e shell</literal>
+            <literal>o conf prerequisites_policy ask</literal>
+            <literal>install Mail::SpamAssassin</literal>
+            <literal>quit</literal>
+            <literal></literal>
+            <lineannotation><?php echo _("run spamd under daemontools")?></lineannotation>
+            <literal>mkdir -p /var/qmail/supervise/spamd/log</literal>
+            <literal>mkdir -p /var/log/spamd</literal>
+            <literal>chown qmaill /var/log/spamd</literal>
+            <literal>cp {varsrc}/toaster-scripts-{toasterscripts}/spamd.run /var/qmail/supervise/spamd/run</literal>
+            <literal>cp {varsrc}/toaster-scripts-{toasterscripts}/spamd.log.run /var/qmail/supervise/spamd/log/run</literal>
+            <literal>chmod 755 /var/qmail/supervise/spamd/run</literal>
+            <literal>chmod 755 /var/qmail/supervise/spamd/log/run</literal>
+            <literal>cp {varsrc}/toaster-scripts-{toasterscripts}/local.cf /etc/mail/spamassassin/local.cf</literal>
+            <literal>mkdir /etc/mail/spamassassin/.spamassassin/</literal>
+            <literal>chown vpopmail /etc/mail/spamassassin/.spamassassin/</literal>
+            <literal>ln -s /var/qmail/supervise/spamd /service</literal>
+        </programlisting>
+    </listitem>
+
+</itemizedlist>

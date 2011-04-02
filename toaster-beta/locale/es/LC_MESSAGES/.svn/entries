@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wc-entries
+   xmlns="svn:">
+<entry
+   committed-rev="134"
+   name=""
+   committed-date="2007-07-17T23:11:19.600447Z"
+   url="svn://trac.merchbox.com/toasterdoc/trunk/locale/es/LC_MESSAGES"
+   last-author="shupp"
+   kind="dir"
+   uuid="5df0e5c9-6029-0410-b58c-b86a8e687cad"
+   revision="137"/>
+<entry
+   committed-rev="134"
+   name="messages.mo"
+   text-time="2007-07-17T23:10:13.000000Z"
+   committed-date="2007-07-17T23:11:19.600447Z"
+   checksum="37f1c0d1eaf457371992d05bb79d6927"
+   last-author="shupp"
+   kind="file"
+   prop-time="2007-04-02T17:51:25.000000Z"/>
+<entry
+   committed-rev="134"
+   name="messages.po"
+   text-time="2007-07-17T23:10:13.000000Z"
+   committed-date="2007-07-17T23:11:19.600447Z"
+   checksum="ebdd4b78ed10a1a8939f45798fae7d1d"
+   last-author="shupp"
+   kind="file"
+   prop-time="2007-04-02T17:51:25.000000Z"/>
+</wc-entries>

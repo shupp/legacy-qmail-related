@@ -1,0 +1,35 @@
+*** vdelivermail.c.orig	Fri Oct 18 18:28:09 2002
+--- vdelivermail.c	Sat Oct 19 12:50:35 2002
+***************
+*** 238,246 ****
+--- 238,267 ----
+  {
+   int found = 0;
+   char *tmpstr;
++  char tmpuser[350];
++  char def[150];
++  int i;
++  int j=0;
+  
+      /* Get the first alias for this user@domain */
+      tmpstr = valias_select( TheUser, TheDomain );
++ 
++     /* check for wildcard if there's no match */
++     if(tmpstr == NULL) {
++         for(i=strlen(TheUser);i >= 0 && j != 1;--i) {
++             if(TheUser[i-1]=='-') {
++                 tmpuser[0] = '\0';
++                 strncat(tmpuser,TheUser,i); 
++                 strcat(tmpuser, "default");
++                 tmpstr = valias_select( tmpuser, TheDomain );
++                 if(tmpstr != NULL) {
++                     sprintf(def, "DEFAULT=%s", &TheUser[i]);
++                     putenv(def);
++                     j = 1;
++                 }
++             }
++         }
++     }
+  
+      /* tmpstr will be NULL if there are no more aliases */
+      while (tmpstr != NULL ) {

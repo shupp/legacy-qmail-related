@@ -1,0 +1,46 @@
+VERSION: 20051423
+
+This patch for netqmail 1.05 is a composite of the latest versions of Frederik 
+Vermulen's TLS patch (20050329) and Erwin Hoffmann's SMTP-AUTH (0.5.7) update 
+to Eric M. Johnston's and Krzysztof Dabrowski's qmail-smtpd-auth-0.31 patch.
+
+To install, get netqmail 1.05, put it in the same directory as this patch, and 
+then set it up:
+
+wget http://qmail.org/netqmail-1.05.tar.gz
+tar -xzf netqmail-1.05.tar.gz
+cd netqmail-1.05
+./collate.sh
+cd netqmail-1.05
+patch -p0 < ../../netqmail-1.05-tls-smtpauth-20051423.patch
+cd netqmail-1.05
+make
+make setup check
+make cert
+make tmprsadh
+
+Voila!  You should now have TLS and SMTP-AUTH support working in qmail-smtpd.
+
+VPOPMAIL NOTE:  This version will only work with vpopmail versions 5.4.0 and 
+later
+
+
+Here are the relevant URLs:
+
+Netqmail:
+http://www.qmail.org/netqmail/
+
+TLS:
+http://inoa.net/qmail-tls/
+
+Qmail SMTP-AUTH:
+http://www.fehcom.de/qmail/smtpauth.html
+
+
+
+
+This composite patch was put together by Bill Shupp (hostmaster@shupp.org)
+
+
+
+

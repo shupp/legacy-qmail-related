@@ -1,0 +1,54 @@
+2.0.4 -> 2.0.5 update patch.
+Jeremy Kitchen 20030918
+
+This patch fixes some problems with the fundamental way
+autoresponder works.  It used to exit with a failure when
+it didn't reply to messages, causing the message to never
+actually be delivered.  If it is not going to reply to a
+message it should always exit 0, so the message can be
+handled by the rest of the .qmail file.
+
+jeremy@inter7.com
+
+diff -urN autorespond-2.0.4/autorespond.c autorespond-2.0.5/autorespond.c 
+--- autorespond-2.0.4/autorespond.c	2003-08-25 11:11:58.000000000 -0500
++++ autorespond-2.0.5/autorespond.c	2003-09-18 15:05:52.000000000 -0500
+@@ -621,16 +621,16 @@
+ 
+ 	/*don't autorespond to a mailer-daemon*/
+ 	if( sender[0]==0 || strncasecmp(sender,"mailer-daemon",13)==0 || strchr(sender,'@')==NULL || strcmp(sender,"#@[]")==0 ) {
+-		/*exit with success but request to stop parsing .qmail file*/
++		/*exit with success and continue parsing .qmail file*/
+ 		fprintf(stderr,"AUTORESPOND:  Stopping on mail from [%s].\n",sender);
+-		_exit(99);
++		_exit(0);
+ 	}
+ 
+ 
+ 	if ( inspect_headers("mailing-list", (char *)NULL ) != (char *)NULL )
+ 	{
+-		fprintf(stderr,"AUTORESPOND: I can't handle a message with a Mailing-List header.\n");
+-		_exit(100);			/*hard error*/
++		fprintf(stderr,"AUTORESPOND: This looks like it's from a mailing list, I will ignore it.\n");
++		_exit(0);			/*report success and exit*/
+ 	}
+ 	if ( inspect_headers("Delivered-To", "Autoresponder" ) != (char *)NULL )
+ 	{
+@@ -643,7 +643,7 @@
+ 	     inspect_headers("precedence", "list" ) != (char *)NULL )
+ 	{
+ 		fprintf(stderr,"AUTORESPOND: Junk mail received.\n");
+-		_exit(100);
++		_exit(0); /* don't reply to bulk, junk, or list mail */
+ 	}
+ 
+ 	/*check the logs*/
+@@ -694,7 +694,7 @@
+ 	}
+ 	if(count>num) {
+ 		fprintf(stderr,"AUTORESPOND: too many received from [%s]\n",sender);
+-		_exit(99);
++		_exit(0); /* don't reply to this message, but allow it to be delivered */
+ 	}
+ 
+ 	sprintf(filename,"tmp%u.%u",getpid(),timer);

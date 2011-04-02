@@ -1,0 +1,24 @@
+<title><?php echo _("Install Software") ?></title>
+
+<itemizedlist>
+    <listitem>
+        <para><emphasis><?php echo _("ezmlm-idx")?></emphasis></para>
+
+        <para><?php echo _("Fast, full featured Mailing List Manager configureable from qmailadmin.")?></para>
+
+        <para><?php echo _("Info: ")?><ulink url="http://www.ezmlm.org">http://www.ezmlm.org</ulink></para>
+
+        <para><?php echo _("Install:")?></para>
+
+        <programlisting>
+            <literal>cd {varsrc}</literal>
+            <literal>tar -xzf tar/ezmlm-{ezmlm}.tar.gz</literal>
+            <literal>tar -xzf tar/ezmlm-idx-{ezmlmidx}.tar.gz</literal>
+            <literal>mv ezmlm-idx-{ezmlmidx}/* ezmlm-{ezmlm}/</literal>
+            <literal>cd ezmlm-{ezmlm}</literal>
+            <literal>patch -p0 &lt; idx.patch</literal>
+            <literal>make</literal>
+            <literal>make setup</literal>
+        </programlisting>
+    </listitem>
+</itemizedlist>

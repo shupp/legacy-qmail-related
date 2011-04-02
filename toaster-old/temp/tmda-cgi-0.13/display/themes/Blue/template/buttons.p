@@ -1,0 +1,70 @@
+(dp0
+S'topics'
+p1
+(lp2
+S'Addresses'
+p3
+aS'Pending'
+p4
+aS'Filters'
+p5
+aS'Lists'
+p6
+aS'Settings'
+p7
+aS'Info'
+p8
+aS'Logout'
+p9
+asS'subtopics'
+p10
+(lp11
+S'E-mail'
+p12
+aS'Generate Dynamic/Return Address'
+p13
+aS'Test Dynamic Address'
+p14
+aS'Incoming Filter'
+p15
+aS'Outgoing Filter'
+p16
+aS'Theme'
+p17
+aS'Local Config'
+p18
+aS'Templates'
+p19
+aS'Global Config'
+p20
+aS'Uninstall'
+p21
+aS'whitelist'
+p22
+aS'white'
+p23
+aS'blacklist'
+p24
+aS'black'
+p25
+aS'confirmed'
+p26
+aS'confirm'
+p27
+aS'revoked'
+p28
+aS'work'
+p29
+aS'family'
+p30
+aS'friends'
+p31
+aS'accept'
+p32
+aS'deny'
+p33
+aS'whitelist_confirmed'
+p34
+aS'other'
+p35
+as.

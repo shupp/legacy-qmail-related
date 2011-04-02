@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<?xml-stylesheet href="display/styles.css" type="text/css"?>
+<html>
+<!-- THIS PAGE IS AUTOMATICALLY GENERATED.  DO NOT EDIT. -->
+<!-- Sun Jul 13 13:27:15 2003 -->
+<!-- USING HT2HTML 2.1 -->
+<!-- SEE http://ht2html.sf.net -->
+<!-- User-specified headers:
+Title: Virtual Users
+
+-->
+
+<head>
+<title>Virtual Users</title>
+<meta http-equiv="Content-Type" content="text/html; charset=us-ascii">
+<meta name="generator" content="HT2HTML/2.1">
+<link rel="STYLESHEET" href="display/styles.css" type="text/css">
+</head>
+<body bgcolor="#A6A6B3" text="#000000"
+      onload="Preloader()"
+      link="#0000bb"  vlink="#551a8b"
+      alink="#ff0000">
+<!-- start of page table -->
+<table bgcolor="#FFFFFF" width="700" height="100%" border="0"
+cellspacing="0" cellpadding="0"><tr><td valign="top"><table class="matte"
+width="100%" height="100%" border="0" cellspacing="0" cellpadding="0"><tr>
+<td valign="top"><table width="100%" border="0" cellspacing="0" cellpadding="0">
+<!-- start of banner row -->
+<tr>
+<!-- start of corner cells -->
+<td width="194" height="135" valign="middle" bgcolor="#7B7CB6" class="corner"><img src="display/corner.gif" width="194" height="135" alt=""></td>
+<!-- end of corner cells -->
+<!-- start of banner -->
+<td height="135" valign="top" background="display/top_bg.gif" bgcolor="#7B7CB6" class="banner"><a href="/"><img src="display/title.png" width="341" height="135"
+border="0" alt="TMDA (http://tmda.net) CGI Interface"></a></td><!-- end of banner -->
+</tr><!-- end of banner row -->
+<tr><!-- start of sidebar/body row -->
+<!-- start of sidebar cells -->
+<td width="194" background="display/left_bg.gif" bgcolor="#7B7CB6" valign="top" class="sidebar">
+<!-- start of sidebar table -->
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+<tr><td><a href="index.html"
+onmouseover="document.images.x37.src='display/dyn_buttons/layout1_r1_c1_h.png'"
+onmouseout="document.images.x37.src='display/dyn_buttons/layout1_r1_c1.png'"><img
+src="display/dyn_buttons/layout1_r1_c1.png" name="x37" height="50" width="194" border="0" alt="Overview"></a></td></tr>
+<tr><td><a href="t_index.html"
+onmouseover="document.images.x115.src='display/dyn_buttons/layout1_r2_c1_h.png'"
+onmouseout="document.images.x115.src='display/dyn_buttons/layout1_r2_c1.png'"><img
+src="display/dyn_buttons/layout1_r2_c1.png" name="x115" height="35" width="194" border="0" alt="Tutorial"></a></td></tr>
+<tr><td><img src="display/dyn_buttons/layout1_r3_c1_h.png"
+height="35" width="194" border="0" alt="Virtual Users"></td></tr>
+<tr><td><a href="download.html"
+onmouseover="document.images.x195.src='display/dyn_buttons/layout1_r4_c1_h.png'"
+onmouseout="document.images.x195.src='display/dyn_buttons/layout1_r4_c1.png'"><img
+src="display/dyn_buttons/layout1_r4_c1.png" name="x195" height="35" width="194" border="0" alt="Install"></a></td></tr>
+<tr><td><a href="auth.html"
+onmouseover="document.images.x275.src='display/dyn_buttons/layout1_r5_c1_h.png'"
+onmouseout="document.images.x275.src='display/dyn_buttons/layout1_r5_c1.png'"><img
+src="display/dyn_buttons/layout1_r5_c1.png" name="x275" height="35" width="194" border="0" alt="Passwords"></a></td></tr>
+<tr><td><a href="config.html"
+onmouseover="document.images.x355.src='display/dyn_buttons/layout1_r6_c1_h.png'"
+onmouseout="document.images.x355.src='display/dyn_buttons/layout1_r6_c1.png'"><img
+src="display/dyn_buttons/layout1_r6_c1.png" name="x355" height="35" width="194" border="0" alt="Config."></a></td></tr>
+<tr><td><a href="surprise.html"
+onmouseover="document.images.x435.src='display/dyn_buttons/layout1_r7_c1_h.png'"
+onmouseout="document.images.x435.src='display/dyn_buttons/layout1_r7_c1.png'"><img
+src="display/dyn_buttons/layout1_r7_c1.png" name="x435" height="35" width="194" border="0" alt="Support"></a></td></tr>
+</table><!-- end of sidebar table -->
+
+</td>
+<!-- end of sidebar cell -->
+<!-- start of body cell -->
+<td valign="top" class="body"><h2>Virtual users</h2>
+<p>Virtual users are now fully supported. If your system has virtual users, you
+  will need to read over the following sections to insure compatibility.</p>
+
+<a href="#Stub">Stub programs</a><br>
+<a href="#Settings">Virtual user specific settings</a><p>
+
+<h3><a name="Stub"></a>Stub programs</h3>
+<p>tmda-cgi uses a "stub" program which converts the output of a virtual user
+  information package into a format that tmda-cgi can handle. In other words,
+  you must have the appropriate stub program for tmda-cgi to work on your
+  system.</p>
+<p>The current tmda-cgi release includes the following stubs:</p>
+<ul>
+  <li>vpopmail1 - compatible with vpopmail (version 5.2.1)</li>
+  <li>qmailuserassign - compatible with qmail's (version 1.0.3)
+    <tt>users/assign</tt> file</li>
+</ul>
+<p>If you use a different program to handle your virtual mail system, you will
+  either need to write a stub (they're pretty darn simple) or work with one of
+  the developers to get one written. Either way, you'll want to contact the
+  developers on the
+  <a href="http://tmda.net/lists/listinfo/tmda-workers">tmda-workers mailing
+  list</a> so that your new stub can be included in future releases.</p>
+<p>If you have a listed virtual mail system, but the version you are using is
+  different, try picking the stub with the closest version number.  We don't
+  have a good way to test these stubs against every version ever created, so
+  there's no saying for sure whether your version will work or not. If you
+  can't find a stub that works, you will either need to write one or work with
+  one of the developers to get one written. Either way, you'll want to contact
+  the developers on the
+  <a href="http://tmda.net/lists/listinfo/tmda-workers">tmda-workers mailing
+  list</a> so that your new stub can be included in future releases.</p>
+<p>If you wish to write your own stub, see <tt>tmda-cgi/stubs/vpopmail1.py</tt>
+  as an example of what data will be provided and what data should be
+  returned.</p>
+<p>Virtual user support must be configured when you <a
+  href="compile.html">compile</a> tmda-cgi. You will be asked for a "virtual
+  user stub and parameters". For vpopmail, this is typically:</p>
+<blockquote>
+  <tt>vpopmail1 /home/vpopmail/bin/vuserinfo ~</tt>
+</blockquote>
+<p><tt>vpopmail1</tt> is the stub name, <tt>/home/vpopmail/bin/vuserinfo</tt>
+  is the vpopmail program which provides user information, and <tt>~</tt> means
+  to pass the login name in as the first and only parameter to
+  <tt>vuserinfo</tt>.</p>
+<p>For qmailuserassign, this is typically:</p>
+<blockquote>
+  <tt>qmailuserassign /bin/grep ~ /var/qmail/users/assign</tt>
+</blockquote>
+<p>If you use a different stub or keep vuserinfo located
+  somewhere else, you will need to specify a different string.</p>
+
+<h3><a name="Settings"></a>Virtual user specific settings</h3>
+<p>To support virtual users, you will need to make sure you have set various
+  virtual user specific configuration settings correctly. Here's a list of some
+  things to check before installing:</p>
+<ul>
+  <li><a href="defaults.html#NoOverrideVPop">NoOverride:VPop</a></li>
+  <li><a href="defaults.html#NoOverrideVPopBin">NoOverride:VPopBin</a></li>
+  <li><a href="auth.html">Authentication method</a></li>
+</ul>
+<p>There are a few other virtual user specific settings, but these are the ones
+  most likely to need adjusting.</p>
+</td>
+<!-- end of body cell -->
+</tr><!-- end of sidebar/body row -->
+</table></td></tr></table></td></tr></table><!-- end of page table -->
+<script>
+<!--
+function Preloader()
+{
+  var x37 = new Image();
+x37.src = "display/dyn_buttons/layout1_r1_c1_h.png";
+  var x115 = new Image();
+x115.src = "display/dyn_buttons/layout1_r2_c1_h.png";
+  var x195 = new Image();
+x195.src = "display/dyn_buttons/layout1_r4_c1_h.png";
+  var x275 = new Image();
+x275.src = "display/dyn_buttons/layout1_r5_c1_h.png";
+  var x355 = new Image();
+x355.src = "display/dyn_buttons/layout1_r6_c1_h.png";
+  var x435 = new Image();
+x435.src = "display/dyn_buttons/layout1_r7_c1_h.png";
+}
+//-->
+</script>
+</body></html>

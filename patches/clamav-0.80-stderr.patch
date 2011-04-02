@@ -1,0 +1,51 @@
+diff -urN ../clamav-0.80/clamd/clamd.c ./clamd/clamd.c
+--- ../clamav-0.80/clamd/clamd.c	Mon Aug 23 15:38:06 2004
++++ ./clamd/clamd.c	Wed Dec 15 21:32:26 2004
+@@ -137,8 +137,13 @@
+     if((cpt = cfgopt(copt, "LogFile"))) {
+ 	logg_file = cpt->strarg;
+ 	if(logg_file[0] != '/') {
++		if (strcmp(logg_file,"stderr")!=0) {
+ 	    fprintf(stderr, "ERROR: LogFile requires full path.\n");
+ 	    exit(1);
++		}
++		else {
++			use_stderr=1;
++		}
+ 	}
+ 	time(&currtime);
+ 	if(logg("+++ Started at %s", ctime(&currtime))) {
+diff -urN ../clamav-0.80/shared/output.c ./shared/output.c
+--- ../clamav-0.80/shared/output.c	Sat Oct 16 19:29:54 2004
++++ ./shared/output.c	Wed Dec 15 21:32:26 2004
+@@ -115,7 +115,9 @@
+ #ifdef CL_THREAD_SAFE
+ 	pthread_mutex_lock(&logg_mutex);
+ #endif
+-	if(!logg_fd) {
++	if(use_stderr) {
++		logg_fd = stderr;
++	} else if(!logg_fd) {
+ 	    old_umask = umask(0037);
+ 	    if((logg_fd = fopen(logg_file, "a")) == NULL) {
+ 		umask(old_umask);
+@@ -150,7 +152,7 @@
+ 	    free(timestr);
+ 	}
+ 
+-	if(logg_size) {
++	if(logg_size && !use_stderr) {
+ 	    if(stat(logg_file, &sb) != -1) {
+ 		if(sb.st_size > logg_size) {
+ 		    logg_file = NULL;
+diff -urN ../clamav-0.80/shared/output.h ./shared/output.h
+--- ../clamav-0.80/shared/output.h	Mon May 10 19:14:14 2004
++++ ./shared/output.h	Wed Dec 15 21:32:26 2004
+@@ -28,6 +28,7 @@
+ 
+ int mdprintf(int desc, const char *str, ...);
+ 
++int use_stderr;
+ int logg(const char *str, ...);
+ void logg_close(void);
+ extern short int logg_verbose, logg_lock, logg_time;

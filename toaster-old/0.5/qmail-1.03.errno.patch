@@ -1,0 +1,47 @@
+diff -u qmail-1.03.old/cdb_seek.c qmail-1.03/cdb_seek.c
+--- qmail-1.03.old/cdb_seek.c	1998-06-15 05:52:55.000000000 -0500
++++ qmail-1.03/cdb_seek.c	2003-01-08 15:55:53.000000000 -0600
+@@ -1,6 +1,5 @@
+ #include <sys/types.h>
+ #include <errno.h>
+-extern int errno;
+ #include "cdb.h"
+ 
+ #ifndef SEEK_SET
+diff -u qmail-1.03.old/dns.c qmail-1.03/dns.c
+--- qmail-1.03.old/dns.c	1998-06-15 05:52:55.000000000 -0500
++++ qmail-1.03/dns.c	2003-01-08 16:00:32.000000000 -0600
+@@ -7,8 +7,6 @@
+ #include <errno.h>
+ extern int res_query();
+ extern int res_search();
+-extern int errno;
+-extern int h_errno;
+ #include "ip.h"
+ #include "ipalloc.h"
+ #include "fmt.h"
+diff -u qmail-1.03.old/error.3 qmail-1.03/error.3
+--- qmail-1.03.old/error.3	1998-06-15 05:52:55.000000000 -0500
++++ qmail-1.03/error.3	2003-01-08 15:58:13.000000000 -0600
+@@ -3,8 +3,7 @@
+ error \- syscall error codes
+ .SH SYNTAX
+ .B #include <error.h>
+-
+-extern int \fBerrno\fP;
++.B #include <errno.h>
+ 
+ extern int \fBerror_intr\fP;
+ .br
+diff -u qmail-1.03.old/error.h qmail-1.03/error.h
+--- qmail-1.03.old/error.h	1998-06-15 05:52:55.000000000 -0500
++++ qmail-1.03/error.h	2003-01-08 15:59:13.000000000 -0600
+@@ -1,7 +1,7 @@
+ #ifndef ERROR_H
+ #define ERROR_H
+ 
+-extern int errno;
++#include <errno.h>
+ 
+ extern int error_intr;
+ extern int error_nomem;

@@ -1,0 +1,601 @@
+Title: Default Settings
+
+<h3><a name="Defaults"></a>Default Settings</h3>
+<p>The default settings file (<tt>defaults.ini</tt> in the root of your tmda-cgi 
+  install) determines the default look and feel for each user. Feel free to 
+  modify these settings. Users can always override the defaults file with their 
+  own preferences.</p>
+<p>The default settings file is broken into sections for easy organization. The 
+  value of each parameter is as follows:</p>
+
+<table width="100%">
+  <tr>
+    <td><a href="#NoOverrideInstallBackupTGZ">NoOverride:InstallBackupTGZ</a></td>
+    <td><a href="#NoOverrideInstallInstruct">NoOverride:InstallInstruct</a></td>
+  </tr>
+  <tr>
+    <td><a href="#NoOverrideMayEditFilters">NoOverride:MayEditFilters</a></td>
+    <td><a href="#NoOverrideMayEditLocalConfig">NoOverride:MayEditLocalConfig</a></td>
+  </tr>
+  <tr>
+    <td><a href="#NoOverrideMayEditTemplates">NoOverride:MayEditTemplates</a></td>
+    <td><a href="#NoOverrideMayInstall">NoOverride:MayInstall</a></td>
+  </tr>
+  <tr>
+    <td><a href="#NoOverrideMaySearchPendList">NoOverride:MaySearchPendList</A></td>
+    <td><a href="#NoOverrideSendmail">NoOverride:Sendmail</a></td>
+  </tr>
+  <tr>
+    <td><a href="#NoOverrideSpamCopFilter">NoOverride:SpamCopFilter</a></td>
+    <td><a href="#NoOverrideUninstallBackupTGZ">NoOverride:UninstallBackupTGZ</a></td>
+  </tr>
+  <tr>
+    <td><a href="#NoOverrideUninstallInstruct">NoOverride:UninstallInstruct</a></td>
+    <td><a href="#NoOverrideUserSplit">NoOverride:UserSplit</a></td>
+  </tr>
+  <tr>
+    <td><a href="#NoOverrideVPop">NoOverride:VPop</a></td>
+    <td><a href="#NoOverrideVPopBin">NoOverride:VPopBin</a></td>
+  </tr>
+  <tr>
+    <td><a href="#NoOverrideWhichTar">NoOverride:WhichTar</a></td>
+    <td><a href="#GeneralCSEncoding">General:CSEncoding</a></td>
+  </tr>
+  <tr>
+    <td><a href="#GeneralSpamCopAddr">General:SpamCopAddr</a></td>
+    <td><a href="#GeneralTheme">General:Theme</a></td>
+  </tr>
+  <tr>
+    <td><a href="#GeneralUseJSConfirm">General:UseJSConfirm</a></td>
+    <td><a href="#GenAddrExpireNum">GenAddr:ExpireNum</a></td>
+  </tr>
+  <tr>
+    <td><a href="#GenAddrExpireUnit">GenAddr:ExpireUnit</a></td>
+    <td><a href="#GenAddrKeyword">GenAddr:Keyword</a></td>
+  </tr>
+  <tr>
+    <td><a href="#GenAddrSender">GenAddr:Sender</a></td>
+    <td><a href="#LoginInitPage">Login:InitPage</a></td>
+  </tr>
+  <tr>
+    <td><a href="#PendingListCropDest">PendingList:CropDest</a></td>
+    <td><a href="#PendingListCropSender">PendingList:CropSender</a></td>
+  </tr>
+  <tr>
+    <td><a href="#PendingListCropSubject">PendingList:CropSubject</a></td>
+    <td><a href="#PendingListDateFormat">PendingList:DateFormat</a></td>
+  </tr>
+  <tr>
+    <td><a href="#PendingListPagerSize">PendingList:PagerSize</a></td>
+    <td><a href="#PendingListShowAddr">PendingList:ShowAddr</a></td>
+  </tr>
+  <tr>
+    <td><a href="#PendingListShowDelete">PendingList:ShowDelete</a></td>
+    <td><a href="#PendingListShowBlack">PendingList:ShowBlack</a></td>
+  </tr>
+  <tr>
+    <td><a href="#ViewPendingAltPref">ViewPending:AltPref</a></td>
+    <td><a href="#ViewPendingAllowTags">ViewPending:AllowTags</a></td>
+  </tr>
+  <tr>
+    <td><a href="#ViewPendingBlockRemove">ViewPending:BlockRemove</a></td>
+    <td><a href="#ViewPendingEmailClass">ViewPending:EmailClass</a></td>
+  </tr>
+  <tr>
+    <td><a href="#ViewPendingHeaders">ViewPending:Headers</a></td>
+    <td><a href="#AccessPaths">AccessPaths</a></td>
+  </tr>
+</table>
+
+<h4><a name="NoOverrideInstallBackupTGZ"></a>NoOverride:InstallBackupTGZ</h4>
+<blockquote>
+  <p>Filename of an archive the installer can create to backup any files which 
+    will be overritten in the install process. This file will be used again
+    to restore these files if the user ever uninstalls.</p>
+  <p>Example:
+    <table class="example">
+      <tr>
+        <td>[NoOverride]<br>
+          InstallBackupTGZ = backup.tgz</td>
+      </tr>
+    </table>
+  <p>Default: <tt>TMDA_backup.tgz</tt></p>
+</blockquote>
+
+<h4><a name="NoOverrideInstallInstruct"></a>NoOverride:InstallInstruct</h4>
+<blockquote>
+  <p>Any special instructions your users will need after installing TMDA. If
+    left blank, no special instructions will be given</p>
+  <p>Example:
+    <table class="example">
+      <tr>
+        <td>[NoOverride]<br>
+          InstallInstruct =</td>
+      </tr>
+    </table>
+  <p>Default: You will need to change the outgoing mail settings on your e-mail 
+    client to make full use of TMDA's features. Please set your SMTP port to 
+    8025 (instead of 25). Contact the helpdesk if you need some assistance in 
+    doing this.</p>
+</blockquote>
+
+<h4><a name="NoOverrideMayEditFilters"></a>NoOverride:MayEditFilters</h4>
+<blockquote>
+  <p>Allow users to edit their filter files with tmda-cgi.</p>
+  <p>Example:
+    <table class="example">
+      <tr>
+        <td>[NoOverride]<br>
+          MayEditFilters = No</td>
+      </tr>
+    </table>
+  <p>Default: <tt>Yes</tt></p>
+</blockquote>
+
+<h4><a name="NoOverrideMayEditLocalConfig"></a>NoOverride:MayEditLocalConfig</h4>
+<blockquote>
+  <p>Allow users to edit their local config files <b><i>in file view
+    mode</b></i> with tmda-cgi. Setting this to "No" will still allow users
+    to edit in form view mode or view (but not save) in file view mode.</p>
+  <p>Example:
+    <table class="example">
+      <tr>
+        <td>[NoOverride]<br>
+          MayEditLocalConfig = No</td>
+      </tr>
+    </table>
+  <p>Default: <tt>Yes</tt></p>
+</blockquote>
+
+<h4><a name="NoOverrideMayEditTemplates"></a>NoOverride:MayEditTemplates</h4>
+<blockquote>
+  <p>Allow users to edit their template files with tmda-cgi.</p>
+  <p>Example:
+    <table class="example">
+      <tr>
+        <td>[NoOverride]<br>
+          MayEditTemplates = No</td>
+      </tr>
+    </table>
+  <p>Default: <tt>Yes</tt></p>
+</blockquote>
+
+<h4><a name="NoOverrideMayInstall"></a>NoOverride:MayInstall</h4>
+<blockquote>
+  <p>Allow users to install TMDA on their account with tmda-cgi.</p>
+  <p>Example:
+    <table class="example">
+      <tr>
+        <td>[NoOverride]<br>
+          MayInstall = No</td>
+      </tr>
+    </table>
+  <p>Default: <tt>Yes</tt></p>
+</blockquote>
+
+<h4><a name="NoOverrideMaySearchPendList"></a>NoOverride:MaySearchPendList</h4>
+<blockquote>
+  <p>Allow users to search their pending lists.</p>
+  <p>Note, due to the average large pending list size, searches may take
+     great amounts of CPU time.  Administrators of systems with limited
+     resources may want to disable this.</p>
+  <p>Example:
+    <table class="example">
+      <tr>
+        <td>[NoOverride]<br>
+          MaySearchPendList = No</td>
+      </tr>
+    </table>
+  <p>Default: <tt>Yes</tt></p>
+</blockquote>
+
+<h4><a name="NoOverrideSendmail"></a>NoOverride:Sendmail</h4>
+<blockquote>
+  <p>Override the default location of sendmail (<tt>/usr/sbin/sendmail</tt>).
+    This parameter is used to forward spam to
+    <a href="http://spamcop.net">SpamCop</a></p>
+  <p>Example:
+    <table class="example">
+      <tr>
+        <td>[NoOverride]<br>
+          Sendmail = /usr/local/bin/sendmail</td>
+      </tr>
+    </table>
+  <p>Default: <i>None.</i></p>
+</blockquote>
+
+<h4><a name="NoOverrideSpamCopFilter"></a>NoOverride:SpamCopFilter</h4>
+<blockquote>
+  <p>Optional message filter to use before reporting spam.</p>
+  <p>The filter program should expect data on stdin and output to stdout.</p>
+  <p>Example:
+    <table class="example">
+      <tr>
+        <td>[NoOverride]<br>
+          SpamCopFilter = /home/user/sausr/bin/spamassassin -x -d</td>
+      </tr>
+    </table>
+  <p>Default: <i>None.</i></p>
+</blockquote>
+
+<h4><a name="NoOverrideUninstallBackupTGZ"></a>NoOverride:UninstallBackupTGZ</h4>
+<blockquote>
+  <p>Filename of an archive the uninstaller can create to backup any files 
+    which will be overritten in the uninstall process. This file will be used 
+    again to restore these files if the user ever re-installs.</p>
+  <p>Example:
+    <table class="example">
+      <tr>
+        <td>[NoOverride]<br>
+          UninstallBackupTGZ = backup.tgz</td>
+      </tr>
+    </table>
+  <p>Default: <tt>TMDA_restore.tgz</tt></p>
+</blockquote>
+
+<h4><a name="NoOverrideUninstallInstruct"></a>NoOverride:UninstallInstruct</h4>
+<blockquote>
+  <p>Any special instructions your users will need after uninstalling TMDA. If
+    left blank, no special instructions will be given.</p>
+  <p>Example:
+    <table class="example">
+      <tr>
+        <td>[NoOverride]<br>
+          UninstallInstruct =</td>
+      </tr>
+    </table>
+  <p>Default: You will need to change the outgoing mail settings on your e-mail 
+    client. Please set your SMTP port to 25 (instead of 8025). Contact the 
+    helpdesk if you need some assistance in doing this.</p>
+</blockquote>
+
+<h4><a name="NoOverrideUserSplit"></a>NoOverride:UserSplit</h4>
+<blockquote>
+  <p>Regular expression to split virtual user login names.</p>
+  <p>Default: <tt>^(.+)[%@](.+)$</tt> (split on "@" or "%")</p>
+</blockquote>
+
+<h4><a name="NoOverrideVPop"></a>NoOverride:VPop</h4>
+<blockquote>
+  <p>Path to real virtual user home directory. (Available for use in <a 
+    href="autoinstall.html#Skel">skel</a> files.)</p>
+  <p>Default: <tt>/home/vpopmail</tt></p>
+</blockquote>
+
+<h4><a name="NoOverrideVPopBin"></a>NoOverride:VPopBin</h4>
+<blockquote>
+  <p>Path to virtual user binaries directory. (Available for use in <a 
+    href="autoinstall.html#Skel">skel</a> files.)</p>
+  <p>Default: <tt>/home/vpopmail/bin</tt></p>
+</blockquote>
+
+<h4><a name="NoOverrideWhichTar"></a>NoOverride:WhichTar</h4>
+<blockquote>
+  <p>Path to <tt>tar</tt> program.</p>
+  <p>Default: <tt>/bin/tar</tt></p>
+</blockquote>
+
+<h4><a name="GeneralCSEncoding"></a>General:CSEncoding</h4>
+<blockquote>
+  <p>Set the default encoding for all tmda-cgi pages. It's generally safe to
+    leave this one set to the defaults.  Internationally encoded e-mails which
+    do not identify their codeset will not render correctly unless this setting
+    matches the content.</p>
+  <p>If many international e-mails are not rendering correctly, try resetting
+    this to match their character set.</p>
+  <p>Example:
+    <table class="example">
+      <tr>
+        <td>[General]<br>
+          CSEncoding = big5</td>
+      </tr>
+    </table>
+  <p>Default: <tt>iso-8859-1</tt></p>
+</blockquote>
+
+<h4><a name="GeneralSpamCopAddr"></a>General:SpamCopAddr</h4>
+<blockquote>
+  <p>E-mail address to use when forwarding spam to
+    <a href="http://spamcop.net">SpamCop</a></p>
+  <p>I recommend you leave this setting blank. Instead of providing a single
+    e-mail address for all your users to share, encourage them to get their own
+    SpamCop address.</p>
+  <p>Default: <i>None.</i></p>
+</blockquote>
+
+<h4><a name="GeneralTheme"></a>General:Theme</h4>
+<blockquote>
+  <p>Theme to use if the user has not yet selected one of their own.</p>
+  <p>Example:
+    <table class="example">
+      <tr>
+        <td>[General]<br>
+          Theme = Coffee</td>
+      </tr>
+    </table>
+  <p>Default: <tt>Blue</tt></p>
+</blockquote>
+
+<h4><a name="GeneralUseJSConfirm"></a>General:UseJSConfirm</h4>
+<blockquote>
+  <p>Enables a pop-up confirmation box before any irreversible actions, such as
+    deleting or blacklisting a message. Disable this option if most of your
+    users have browsers without Javascript or where Javascript is disabled.
+    Such users will have to disable Javascript confirmation to be able to
+    delete or blacklist messages.</p>
+  <p>Example:
+    <table class="example">
+      <tr>
+        <td>[General]<br>
+          UseJSConfirm = 0</td>
+      </tr>
+    </table>
+  <p>Default: <tt>1</tt> (enabled)</p>
+</blockquote>
+
+<h4><a name="GenAddrKeyword"></a>GenAddr:Keyword</h4>
+<blockquote>
+  <p>Default keyword to use on first run.</p>
+  <p>Default: <i>None.</i></p>
+</blockquote>
+
+<h4><a name="GenAddrExpireNum"></a>GenAddr:ExpireNum</h4>
+<blockquote>
+  <p>Default expiration to use on first run.</p>
+  <p>Default: <tt>30</tt></p>
+</blockquote>
+
+<h4><a name="GenAddrExpireUnit"></a>GenAddr:ExpireUnit</h4>
+<blockquote>
+  <p>Default expiration to use on first run.</p>
+  <p>Default: <tt>d</tt> (days)</p>
+</blockquote>
+
+<h4><a name="GenAddrSender"></a>GenAddr:Sender</h4>
+<blockquote>
+  <p>Default to keyword to use on first run.</p>
+  <p>Default: <i>None.</i></p>
+</blockquote>
+
+<h4><a name="LoginInitPage"></a>Login:InitPage</h4>
+<blockquote>
+  <p>First page to present to a user after they log in. Almost any <tt>cmd</tt>
+    (look at the URL when selecting a page in tmda-cgi) is valid, but I
+    recommend you use either <tt>pending</tt> or <tt>gen_addr</tt>.</p>
+  <p>Example:
+    <table class="example">
+      <tr>
+        <td>[Login]<br>
+          InitPage = gen_addr</td>
+      </tr>
+    </table>
+  <p>Default: <tt>pending</tt></p>
+</blockquote>
+
+<h4><a name="PendingListCropDest"></a>PendingList:CropDest</h4>
+<blockquote>
+  <p>Maximum length of an e-mail recipient before it will be cropped in list 
+    view.</p>
+  <p>Please note that the theme which ships with tmda-cgi does not display
+    e-mail recipient. This parameter will only be of interest if you create
+    a theme which includes <tt>%(To)s</tt>.</p>
+  <p>Example:
+    <table class="example">
+      <tr>
+        <td>[PendingList]<br>
+          CropDest = 40</td>
+      </tr>
+    </table>
+  <p>Default: <tt>25</tt></p>
+</blockquote>
+
+<h4><a name="PendingListCropSender"></a>PendingList:CropSender</h4>
+<blockquote>
+  <p>Maximum length of a sender's e-mail address before it will be cropped in 
+    list view.</p>
+  <p>Example:
+    <table class="example">
+      <tr>
+        <td>[PendingList]<br>
+          CropSender = 40</td>
+      </tr>
+    </table>
+  <p>Default: <tt>25</tt></p>
+</blockquote>
+
+<h4><a name="PendingListCropSubject"></a>PendingList:CropSubject</h4>
+<blockquote>
+  <p>Maximum length of an e-mail subject before it will be cropped in list 
+    view.<p>
+  <p>Example:
+    <table class="example">
+      <tr>
+        <td>[PendingList]<br>
+          CropSubject = 50</td>
+      </tr>
+    </table>
+  <p>Default: <tt>40</tt></p>
+</blockquote>
+
+<h4><a name="PendingListDateFormat"></a>PendingList:DateFormat</h4>
+<blockquote>
+  <p>Format string for <a
+    href="http://python.org/doc/current/lib/module-time.html#l2h-1386">time.strftime()</a>,
+    used when displaying message dates in pending list view.</p>
+  <p>time.strftime() pads numeric fields with zeros to make them fixed-width 
+    fields. To suppress the zero-padding behavior, prefix any of the listed 
+    directives with "Z-".</p>
+  <p>Example:
+    <table class="example">
+      <tr>
+        <td>[PendingList]<br>
+          DateFormat = %m/%d/%y</td>
+      </tr>
+    </table>
+  <p>Default: <tt>%a Z-%m/Z-%d</tt></p>
+</blockquote>
+
+<h4><a name="PendingListPagerSize"></a>PendingList:PagerSize</h4>
+<blockquote>
+  <p>Number of e-mails to show on a page.</p>
+  <p>Example:
+    <table class="example">
+      <tr>
+        <td>[PendingList]<br>
+          PagerSize = 25</td>
+      </tr>
+    </table>
+  <p>Default: <tt>15</tt></p>
+</blockquote>
+
+<h4><a name="PendingListShowAddr"></a>PendingList:ShowAddr</h4>
+<blockquote>
+  <p>Method for displaying e-mail addresses in list mode. May be
+    "<tt>Name</tt>", "<tt>Address</tt>", or "<tt>All</tt>".</p>
+  <p>Example:
+    <table class="example">
+      <tr>
+        <td>[PendingList]<br>
+          ShowAddr = All</td>
+      </tr>
+    </table>
+  <p>Default: <tt>Name</tt></p>
+</blockquote>
+
+<h4><a name="PendingListShowDelete"></a>PendingList:ShowDelete</h4>
+<blockquote>
+  <p>Whether or not to show the delete column in the pending list.  May be
+    "<tt>Yes</tt>" or "<tt>No</tt>".</p>
+  <p>Example:
+    <table class="example">
+      <tr>
+        <td>[PendingList]<br>
+          ShowDelete = Yes</td>
+      </tr>
+    </table>
+  <p>Default: <tt>No</tt></p>
+</blockquote>
+
+<h4><a name="PendingListShowBlack"></a>PendingList:ShowBlack</h4>
+<blockquote>
+  <p>Whether or not to show the blacklist column in the pending list.  May be
+    "<tt>Yes</tt>" or "<tt>No</tt>".</p>
+  <p>Example:
+    <table class="example">
+      <tr>
+        <td>[PendingList]<br>
+          ShowBlack = Yes</td>
+      </tr>
+    </table>
+  <p>Default: <tt>No</tt></p>
+</blockquote>
+
+<h4><a name="ViewPendingAltPref"></a>ViewPending:AltPref</h4>
+<blockquote>
+  <p>Specify a preferred e-mail format if multiple options are present.</p>
+  <p>Example:
+    <table class="example">
+      <tr>
+        <td>[ViewPending]<br>
+          AltPref = text/html</td>
+      </tr>
+    </table>
+  <p>Default: <tt>text/plain</tt></p>
+</blockquote>
+
+<h4><a name="ViewPendingAllowTags"></a>ViewPending:AllowTags</h4>
+<blockquote>
+  <p>Specify which tags may be included when displaying an HTML-formatted
+    e-mail. Any tag <b><i>not</i></b> listed will be removed.</p>
+  <p>Example:
+    <table class="example">
+      <tr>
+        <td>[ViewPending]<br>
+          AllowTags = br,p</td>
+      </tr>
+    </table>
+  <p>Default: <tt>a,b,br,center,div,font,hr,i,p,table,td,th,tr</tt></p>
+</blockquote>
+
+<h4><a name="ViewPendingBlockRemove"></a>ViewPending:BlockRemove</h4>
+<blockquote>
+  <p>Specify which blocks of HTML must be removed before displaying an
+    HTML-formatted e-mail. Not only will any tag listed be removed, all text
+    and/or tags <b><i>between the start and end tags</i></b> will also be
+    removed.</p>
+  <p>Example:
+    <table class="example">
+      <tr>
+        <td>[ViewPending]<br>
+          BlockRemove = script</td>
+      </tr>
+    </table>
+  <p>Default: <tt>head,noframes,noscript,script,title</tt></p>
+</blockquote>
+
+<h4><a name="ViewPendingEmailClass"></a>ViewPending:EmailClass</h4>
+<blockquote>
+  <p>Default font used when viewing e-mails. These fonts may be customized in
+    the <tt>styles.css</tt> file.</p>
+  <p>Example:
+    <table class="example">
+      <tr>
+        <td>[ViewPending]<br>
+          EmailClass = fixed</td>
+      </tr>
+    </table>
+  <p>Default: <tt>proportional</tt></p>
+</blockquote>
+
+<h4><a name="ViewPendingHeaders"></a>ViewPending:Headers</h4>
+<blockquote>
+  <p>Show only headers listed in <a 
+    href="/config-vars.html#SUMMARY_HEADERS"><tt>SUMMARY_HEADERS</tt></a> 
+    (short) or show all headers (all).</p>
+  <p>Example:
+    <table class="example">
+      <tr>
+        <td>[ViewPending]<br>
+          Headers = all</td>
+      </tr>
+    </table>
+  <p>Default: <tt>short</tt></p>
+</blockquote>
+
+<h4><a name="AccessPaths"></a>AccessPaths</h4>
+<blockquote>
+  <p>tmda-cgi allows users to view and/or edit text files such as filters,
+    lists, configuration files, and templates.  These editors/viewers could be
+    exploited by a devious user.  To minimize your risk, the AccessPaths
+    section allows you to specify where these files may be located.  Unless a
+    full file path matches one of the regular expressions listed, it will not be
+    brought up in an text box.</p>
+  <p><b><i>Note:</i></b> If you do not trust your users, be sure to set
+    either</p>
+  <p><tt>defaults.ini</tt>:
+    <table class="example">
+      <tr>
+        <td>[NoOverride]<br>
+          MayEditLocalConfig = No</td>
+      </tr>
+    </table>
+  <p>or</p>
+  <p><tt>/etc/tmdarc</tt>:
+    <table class="example">
+      <tr>
+        <td>CONFIG_EXEC = 0</td>
+      </tr>
+    </table>
+  <p>A devious user could easily put executable code in their local
+    configuration file which would allow them access to any file not protected
+    by restrictive file permissions.</p>
+
+  <p>Default:
+    <table class="example">
+      <tr>
+        <td>[AccessPaths]<br>
+          A = ^%(Home)s/<br>
+          B = ^/etc/tmdarc$</td>
+      </tr>
+    </table>
+</blockquote>

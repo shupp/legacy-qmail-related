@@ -1,0 +1,1933 @@
+diff -crN ../vpopmail-5.2/Makefile.am ./Makefile.am
+*** ../vpopmail-5.2/Makefile.am	Mon Feb 18 23:43:59 2002
+--- ./Makefile.am	Sun Feb 17 20:55:50 2002
+***************
+*** 23,29 ****
+  vdominfo_SOURCES = vdominfo.c
+  vdominfo_LDADD = libvpopmail.a @auth_libs@
+  
+! vchkpw_SOURCES = vchkpw.c 
+  vchkpw_LDADD = libvpopmail.a @auth_libs@
+  
+  vdelivermail_SOURCES = vdelivermail.c maildirquota.c
+--- 23,29 ----
+  vdominfo_SOURCES = vdominfo.c
+  vdominfo_LDADD = libvpopmail.a @auth_libs@
+  
+! vchkpw_SOURCES = vchkpw.c functions.c
+  vchkpw_LDADD = libvpopmail.a @auth_libs@
+  
+  vdelivermail_SOURCES = vdelivermail.c maildirquota.c
+diff -crN ../vpopmail-5.2/Makefile.in ./Makefile.in
+*** ../vpopmail-5.2/Makefile.in	Mon Feb 18 23:43:59 2002
+--- ./Makefile.in	Sun Feb 17 20:55:55 2002
+***************
+*** 1,6 ****
+! # Makefile.in generated automatically by automake 1.4-p5 from Makefile.am
+  
+! # Copyright (C) 1994, 1995-8, 1999, 2001 Free Software Foundation, Inc.
+  # This Makefile.in is free software; the Free Software Foundation
+  # gives unlimited permission to copy and/or distribute it,
+  # with or without modifications, as long as this notice is preserved.
+--- 1,6 ----
+! # Makefile.in generated automatically by automake 1.4 from Makefile.am
+  
+! # Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
+  # This Makefile.in is free software; the Free Software Foundation
+  # gives unlimited permission to copy and/or distribute it,
+  # with or without modifications, as long as this notice is preserved.
+***************
+*** 83,92 ****
+  libvpopmail_a_LIBADD = cdb/*.o
+  
+  vpopmailbindir = @vpopmaildir@/bin
+! vpopmailbin_PROGRAMS = vchkpw vdelivermail clearopensmtp vadddomain \
+!  vdeldomain vpasswd vadduser vdeluser vaddaliasdomain vsetuserquota \
+!  vpopbull vdeloldusers vmoduser valias vuserinfo vmkpasswd vipmap \
+!  vdominfo vconvert vqmaillocal vkill
+  
+  
+  vuserinfo_SOURCES = vuserinfo.c maildirquota.c
+--- 83,89 ----
+  libvpopmail_a_LIBADD = cdb/*.o
+  
+  vpopmailbindir = @vpopmaildir@/bin
+! vpopmailbin_PROGRAMS = vchkpw vdelivermail clearopensmtp vadddomain  vdeldomain vpasswd vadduser vdeluser vaddaliasdomain vsetuserquota  vpopbull vdeloldusers vmoduser valias vuserinfo vmkpasswd vipmap  vdominfo vconvert vqmaillocal vkill
+  
+  
+  vuserinfo_SOURCES = vuserinfo.c maildirquota.c
+***************
+*** 95,101 ****
+  vdominfo_SOURCES = vdominfo.c
+  vdominfo_LDADD = libvpopmail.a @auth_libs@
+  
+! vchkpw_SOURCES = vchkpw.c 
+  vchkpw_LDADD = libvpopmail.a @auth_libs@
+  
+  vdelivermail_SOURCES = vdelivermail.c maildirquota.c
+--- 92,98 ----
+  vdominfo_SOURCES = vdominfo.c
+  vdominfo_LDADD = libvpopmail.a @auth_libs@
+  
+! vchkpw_SOURCES = vchkpw.c functions.c
+  vchkpw_LDADD = libvpopmail.a @auth_libs@
+  
+  vdelivermail_SOURCES = vdelivermail.c maildirquota.c
+***************
+*** 169,175 ****
+  AR = ar
+  PROGRAMS =  $(vpopmailbin_PROGRAMS)
+  
+! vchkpw_OBJECTS =  vchkpw.o
+  vchkpw_DEPENDENCIES =  libvpopmail.a
+  vchkpw_LDFLAGS = 
+  vdelivermail_OBJECTS =  vdelivermail.o maildirquota.o
+--- 166,172 ----
+  AR = ar
+  PROGRAMS =  $(vpopmailbin_PROGRAMS)
+  
+! vchkpw_OBJECTS =  vchkpw.o functions.o
+  vchkpw_DEPENDENCIES =  libvpopmail.a
+  vchkpw_LDFLAGS = 
+  vdelivermail_OBJECTS =  vdelivermail.o maildirquota.o
+***************
+*** 473,479 ****
+  	dot_seen=no; \
+  	rev=''; list='$(SUBDIRS)'; for subdir in $$list; do \
+  	  rev="$$subdir $$rev"; \
+! 	  test "$$subdir" != "." || dot_seen=yes; \
+  	done; \
+  	test "$$dot_seen" = "no" && rev=". $$rev"; \
+  	target=`echo $@ | sed s/-recursive//`; \
+--- 470,476 ----
+  	dot_seen=no; \
+  	rev=''; list='$(SUBDIRS)'; for subdir in $$list; do \
+  	  rev="$$subdir $$rev"; \
+! 	  test "$$subdir" = "." && dot_seen=yes; \
+  	done; \
+  	test "$$dot_seen" = "no" && rev=". $$rev"; \
+  	target=`echo $@ | sed s/-recursive//`; \
+diff -crN ../vpopmail-5.2/functions.c ./functions.c
+*** ../vpopmail-5.2/functions.c	Wed Dec 31 18:00:00 1969
+--- ./functions.c	Sun Feb 17 21:22:42 2002
+***************
+*** 0 ****
+--- 1,458 ----
++ #include <sys/types.h>
++ #include <string.h>
++ #include <stdio.h>
++ #include <ctype.h>
++ #include <unistd.h>
++ 
++ #include "md5.h"
++ #include "functions.h"
++ 
++ #ifndef VPOPMAIL
++ char *dec2hex(unsigned char *digest)
++   {
++     static char ascii[33];
++     char *hex="0123456789abcdef";
++     int i,j,k;
++ 
++     memset(ascii,0,sizeof(ascii));
++ 
++     for (i=0; i < 16; i++) 
++       {
++         j = digest[i]/16;
++         k = digest[i]%16;
++         ascii[i*2] = hex[j];
++         ascii[(i*2)+1] = hex[k];
++       }
++ 
++     return ascii;
++   }
++ #endif
++ 
++ void HMAC_MD5(text, text_len, key, key_len, digest)
++   unsigned char  *text;                 /* pointer to data stream */
++   int             text_len;             /* length of data stream */
++   unsigned char   *key;                  /* pointer to authentication key */
++   int             key_len;              /* length of authentication key */
++   unsigned char   *digest;               /* caller digest to be filled in */
++                      
++   {
++         MD5_CTX context;
++         unsigned char k_ipad[65];     /* inner padding - key XORd with ipad */
++         unsigned char k_opad[65];     /* outer padding - key XORd with opad */
++         unsigned char tk[16];
++         int i;
++  
++         /* sanity check parameters */
++         if (!text || !key || !digest )
++                 /* most heinous, probably should log something */
++                 return;
++  
++         /* if key is longer than 64 bytes reset it to key=MD5(key) */
++         if (key_len > 64) 
++ 	  {
++  
++                 MD5_CTX      tctx;
++  
++                 MD5Init(&tctx);
++                 MD5Update(&tctx, key, key_len);
++                 MD5Final(tk, &tctx);
++  
++                 key = tk;
++                 key_len = 16;
++           }
++  
++         /*
++          * the HMAC_MD5 transform looks like:
++          *
++          * MD5(K XOR opad, MD5(K XOR ipad, text))
++          *
++          * where K is an n byte key
++          * ipad is the byte 0x36 repeated 64 times
++          * opad is the byte 0x5c repeated 64 times
++          * and text is the data being protected
++          */
++ 
++  
++         /* start out by storing key in pads */
++ 
++         bzero( k_ipad, sizeof k_ipad);
++         bzero( k_opad, sizeof k_opad);
++         bcopy( key, k_ipad, key_len);
++         bcopy( key, k_opad, key_len);
++  
++         /* XOR key with ipad and opad values */
++         for (i=0; i<64; i++) 
++ 	  {
++                 k_ipad[i] ^= 0x36;
++                 k_opad[i] ^= 0x5c;
++           }
++         /*
++          * perform inner MD5
++          */
++         MD5Init(&context);                    /* init context for 1st pass */
++         MD5Update(&context, k_ipad, 64);       /* start with inner pad */
++         MD5Update(&context, text, text_len);  /* then text of datagram */
++         MD5Final(digest, &context);           /* finish up 1st pass */
++         /*
++          * perform outer MD5
++          */
++         MD5Init(&context);                    /* init context for 2nd pass */
++         MD5Update(&context, k_opad, 64);      /* start with outer pad */
++         MD5Update(&context, digest, 16);      /* then results of 1st hash */
++         MD5Final(digest, &context);           /* finish up 2nd pass */
++   }
++ 
++ 
++ int WordCount(char *str)
++   {
++     int cnt=0;
++     char inword=1, *tmp=str, found=0;
++     
++     if(!str || !*str)
++       return 0;
++ 
++     while(isspace(*tmp))  // skipping first spaces
++       tmp++;
++     
++     while(*tmp)
++       {
++         if( isspace(*tmp) )
++ 	  {
++ 	    if(inword)
++ 	      {
++ 	        inword = 0;
++ 		cnt++;
++ 		found = 1;
++ 	      }
++ 	  }
++ 	else inword = 1;
++ 
++ 	tmp++;
++       }
++ 
++     if( (found && inword) || (cnt == 0 && inword) )
++       cnt++;
++ 
++     return cnt;
++   }
++ 
++ int GetWordN(char *Word, char *str, int n, int Max)
++   {
++     int cnt=0;
++     char *tmp = str, inword=1;
++ 
++     if(!str || !*str || n < 1 || WordCount(str) < n)
++       return 0;
++ 
++     while(isspace(*tmp))  // skipping first spaces
++       tmp++;
++ 
++     if(n > 1)
++       while(*tmp)
++         {
++           if( isspace(*tmp) )
++ 	    {
++ 	      if(inword)
++ 	        {
++ 	          inword = 0;
++ 
++ 		  if(++cnt == n-1)
++ 		    break;
++ 	        }
++ 	    }
++ 	  else inword = 1;
++ 
++ 	  tmp++;
++         }
++ 
++     cnt = 0;
++ 
++     while(isspace(*tmp))
++       tmp++;            
++ 
++     while(*tmp)
++       {
++         if(isspace(*tmp))
++ 	  break;
++ 
++ 	*Word++ = *tmp++;
++ 
++ 	if(++cnt >= Max)
++ 	  break;
++       }
++ 
++     *Word = 0;
++     DelGarbage(Word);
++     return cnt;
++   }
++ 
++ 
++ int GetLineFD(int fd, char *str, int MAX)
++   {                                          
++       char c; 
++       int key, got=0;
++                                                        
++       while( (key = read(fd, &c, 1)) > 0 && MAX-- > 0)
++         {                                      
++           if(c == '\n' || c == '\f')
++             break;                             
++ 
++           *str++ = c;
++           got++;
++         }
++         
++       if(MAX < 1)  // so we reach length limit, going to end of line (or file)
++         {
++           while((key = read(fd, &c, 1)) > 0)
++             {
++               if( !(c == '\n' || c == '\f') )
++                 continue;
++               break;
++             }
++         }
++ 
++       *str = 0;        
++       
++       return (got == 0 ? (key < 1 ? -1 : 0) : got);
++   }
++             
++ 
++ 
++ 
++ int CheckCommands(char *command)
++   {
++     char *CommandsAllowed[] = { "imap", "pop3", "auth", "" };
++     int i;
++     
++     if(command[4] && !isspace(command[4]) )
++       return(0);
++ 
++     for(i = 0; i < 3; i++)
++       if( !strncasecmp(CommandsAllowed[i], command, 4) )
++         return(1);
++ 	
++     return(0);
++   }
++ 
++ void DelGarbage(char *str)
++   {
++     char *pnt = str;
++     int j=0;
++     unsigned char buff[512];
++     
++     if(!str || !*str)
++       return;
++       
++     while( *pnt )
++       {
++         if( !isBAD(*pnt) && j < 512)
++ 	  buff[j++] = *pnt;
++ 
++ 	pnt++;
++       }
++       
++      buff[j] = 0;
++      strcpy(str, buff);
++   }      
++ 
++ int isBAD(unsigned char chr)
++   {
++     char bad = 0;
++     
++     bad = ( isspace(chr) || isEOL(chr) || (!isLetter(chr) ) );
++ 
++     if( bad )
++       bad = ( !ispunct(chr) && !isdigit(chr) );
++       
++     return (bad);  
++   }
++ 
++ int isEOL(unsigned char chr)
++   {
++     return( (chr == '\r' || chr == '\n' || chr == '\f') ? 1 : 0);
++   }
++ 
++ int isLetter(char chr)
++   {
++     return ( (chr >= 'A' && chr <= 'Z') || (chr >= 'a' && chr <= 'z') );
++   }    
++ 
++ void DelSpaces(char *str)
++   {
++     int len;
++ 
++     if(!str)
++       return;
++       
++     len = strlen(str);
++     
++     while( *str && isspace(*str) && len > 0 )
++       {
++ 	memmove(str, str+1, len+1);
++ 	len--;
++ 	continue;
++       }
++ 
++     while(len > 0 && isspace(*(str+(len-1))))
++       len--;
++     
++     *(str+len) = 0;
++   }
++   
++ 
++ void CleanIP(char *str)                                      
++   {                                                          
++     int len;                                                 
++ 	                                                               
++     if(!str || !*str)                                        
++       return;                                                
++ 		                                                                 
++     len = strlen(str);                                       
++ 			                                                             
++     while(*str)
++       {                                                      
++ 	if( !isdigit(*str) && *str != '.' && len > 0 )
++ 	  {                                                  
++ 	    memmove(str, str+1, len);                       
++ 	    len--;                                          
++ 	    continue;                                       
++ 	  }                                                  
++ 	str++;                                               
++       }
++   }
++ 
++ 
++ static unsigned char dtable[256];
++ 
++ void b64_decode(char *in, char *out)
++   {
++     int i, j;
++ 
++     for (i = 0; i < 255; i++) 
++       {
++         dtable[i] = 0x80;
++       }
++ 
++     for (i = 'A'; i <= 'Z'; i++) 
++       {
++         dtable[i] = 0 + (i - 'A');
++       }
++ 
++     for (i = 'a'; i <= 'z'; i++) 
++       {
++         dtable[i] = 26 + (i - 'a');
++       }
++ 
++     for (i = '0'; i <= '9'; i++) 
++       {
++         dtable[i] = 52 + (i - '0');
++       }
++ 
++     dtable['+'] = 62;
++     dtable['/'] = 63;
++     dtable['='] = 0;
++ 
++     while(*in) 
++       {
++         unsigned char a[4], b[4], o[3];
++ 
++         for(i = 0; i < 4; i++) 
++           {
++             int c = *in++;
++ 
++             if(c <= ' ')
++               continue;
++ 
++             if (dtable[c] & 0x80) 
++               {
++                 i--;
++                 continue;
++               }
++ 
++             a[i] = (unsigned char) c;
++             b[i] = (unsigned char) dtable[c];
++           }
++         o[0] = (b[0] << 2) | (b[1] >> 4);
++         o[1] = (b[1] << 4) | (b[2] >> 2);
++         o[2] = (b[2] << 6) | b[3];
++ 
++         i = ( (a[2] == '=') ? 1 : (a[3] == '=' ? 2 : 3) );
++ 
++         for(j=0; j < i; j++)
++           *out++ = o[j];
++ 
++         if (i < 3) 
++           break;
++       }
++     *out = 0;
++   }
++ 
++ 
++ void b64_encode(char *in, char *out)
++   {
++     int i;
++ 
++     /*  Fill dtable with character encodings.  */
++ 
++     for (i = 0; i < 26; i++)
++       {
++         dtable[i] = 'A' + i;
++         dtable[26 + i] = 'a' + i;
++       }
++ 
++     for(i = 0; i < 10; i++)
++       dtable[52 + i] = '0' + i;
++ 
++     dtable[62] = '+';
++     dtable[63] = '/';
++ 
++     while (*in)
++       {
++         unsigned char igroup[3], ogroup[4];
++         int c, n;
++ 
++         igroup[0] = igroup[1] = igroup[2] = 0;
++ 
++         for (n = 0; n < 3 && *in; n++)
++           {
++             c = *in++;
++             igroup[n] = (unsigned char) c;
++           }
++ 
++         if(n > 0) 
++ 	  {
++             ogroup[0] = dtable[igroup[0] >> 2];
++             ogroup[1] = dtable[((igroup[0] & 3) << 4) | (igroup[1] >> 4)];
++             ogroup[2] = dtable[((igroup[1] & 0xF) << 2) | (igroup[2] >> 6)];
++             ogroup[3] = dtable[igroup[2] & 0x3F];
++ 
++             /* Replace characters in output stream with "=" pad
++                characters if fewer than three characters were
++                read from the end of the input stream. */
++ 
++             if(n < 3) 
++               {
++                 ogroup[3] = '=';
++                 if (n < 2)
++                   ogroup[2] = '=';
++               }
++             for (i = 0; i < 4; i++)
++               *out++ = ogroup[i];
++           }
++       }
++ 
++     *out = 0;
++   }
++ 
++ char *md5(char *string)
++   {
++     MD5_CTX buff;
++     char digest[17];
++ 
++     MD5Init(&buff);
++     MD5Update(&buff, string, strlen(string));
++     MD5Final(digest, &buff);
++ 
++     return(dec2hex(digest));
++   }
++ 
+diff -crN ../vpopmail-5.2/functions.h ./functions.h
+*** ../vpopmail-5.2/functions.h	Wed Dec 31 18:00:00 1969
+--- ./functions.h	Sun Feb 17 21:20:43 2002
+***************
+*** 0 ****
+--- 1,18 ----
++ char *md5(char *);
++ void HMAC_MD5(unsigned char *text, int text_len, unsigned char *key, int key_len, unsigned char *digest);
++ 
++ char *dec2hex(unsigned char *);
++ 
++ int WordCount(char *);
++ int GetWordN(char *, char *, int, int);
++ int CheckCommands(char *);
++ void DelGarbage(char *);
++ void DelSpaces(char *);
++ int isBAD(unsigned char);
++ int isEOL(unsigned char);
++ int isLetter(char chr);
++ void CleanIP(char *);
++ int GetLineFD(int, char *, int);
++ 
++ void b64_decode(char *, char *);
++ void b64_encode(char *, char *);
+diff -crN ../vpopmail-5.2/readme ./readme
+*** ../vpopmail-5.2/readme	Wed Dec 31 18:00:00 1969
+--- ./readme	Tue Feb 19 01:36:10 2002
+***************
+*** 0 ****
+--- 1,5 ----
++ here is my corrections to use vchkpw with qmail & courier-imap
++ to make them possible to use APOP, CRAM-MD5 authentication schemas.
++ 
++ in case of courier, you should change authentication module authvchkpw
++ to vchkpw.
+diff -crN ../vpopmail-5.2/vchkpw.c ./vchkpw.c
+*** ../vpopmail-5.2/vchkpw.c	Mon Feb 18 23:43:59 2002
+--- ./vchkpw.c	Tue Feb 19 01:47:18 2002
+***************
+*** 29,39 ****
+--- 29,42 ----
+  #include <errno.h>
+  #include <sys/wait.h>
+  #include <pwd.h>
++ #include <ctype.h>
+  #include <sys/types.h>
+  #include "config.h"
+  #include "vpopmail.h"
+  #include "vlog.h"
+  #include "vauth.h"
++ #include "md5.h"
++ #include "functions.h"
+  
+  #ifdef HAS_SHADOW
+  #include <shadow.h>
+***************
+*** 45,50 ****
+--- 48,59 ----
+  #define VCHKPW_SHELL    "SHELL=NOLOGIN"
+  #define VCHKPW_VPOPUSER "VPOPUSER="
+  
++ /* uncomment the next line for some debugging */
++ /* #define DEBUG 0 */
++ 
++ /* to eliminate problem with functions' dec2hex */
++ #define VPOPMAIL 1 
++ 
+  /* For tracking ip of client asking for pop service */
+  char *IpAddr;
+  
+***************
+*** 56,73 ****
+  char ThePass[AUTH_SIZE];
+  char TheCrypted[AUTH_SIZE];
+  char TheDomain[AUTH_SIZE];
+  
+  /* log line buffer */
+  #define LOG_LINE_SIZE 500
+  char LogLine[LOG_LINE_SIZE];
+  
+  /* environment variable buffers */
+! #define MAX_ENV_BUF 100
+  static char envbuf1[MAX_ENV_BUF];
+  static char envbuf2[MAX_ENV_BUF];
+  static char envbuf3[MAX_ENV_BUF];
+  static char envbuf4[MAX_ENV_BUF];
+  
+  /* shared data */
+  uid_t pw_uid;
+  gid_t pw_gid;
+--- 65,103 ----
+  char ThePass[AUTH_SIZE];
+  char TheCrypted[AUTH_SIZE];
+  char TheDomain[AUTH_SIZE];
++ /* additional string from qmail-popup or qmail-smtpd */
++ char APOPStamp[AUTH_SIZE];
++ 
++ /* keys for protocols */
++ char IsAPOP = 0, IsCRAM=0, Unsupported = 0;  /* my for APOP & IMAP Auth */
++ char IsOneLine = 0;
++ char *protocol="Undefined", IsCOURIER=0;
++ char *LocalPort;
++ char IsIMAP=0, IsSMTP=0, IsPOP3=0;
++ char IsSSL=0;
++ int PortNumber;
++ 
++ /* functions to support courier */
++ void authmod_fail_completely();
++ void authexit(int);
++ 
+  
+  /* log line buffer */
+  #define LOG_LINE_SIZE 500
+  char LogLine[LOG_LINE_SIZE];
+  
+  /* environment variable buffers */
+! #define MAX_ENV_BUF 128
+  static char envbuf1[MAX_ENV_BUF];
+  static char envbuf2[MAX_ENV_BUF];
+  static char envbuf3[MAX_ENV_BUF];
+  static char envbuf4[MAX_ENV_BUF];
+  
++ /* additional environment for courier */
++ static char envbuf5[MAX_ENV_BUF];
++ static char envbuf6[MAX_ENV_BUF];
++ static char envbuf7[MAX_ENV_BUF];
++ 
+  /* shared data */
+  uid_t pw_uid;
+  gid_t pw_gid;
+***************
+*** 79,103 ****
+  void login_virtual_user();
+  void login_system_user();
+  void read_user_pass();
+- void vlog(int verror, char *TheUser, char *TheDomain, char *ThePass, char *TheName, char *IpAddr, char *LogLine);
+  void vchkpw_exit(int err);
+  void run_command(char *prog);
+  
+  int main( int argc, char **argv)
+  {
+  
+-     if ( (IpAddr = getenv("TCPREMOTEIP")) == NULL) IpAddr="";
+  
+      /* read in the user name and password from file descriptor 3 */
+      read_user_pass();
+  
+      if ( parse_email( TheName, TheUser, TheDomain, AUTH_SIZE) != 0 ) {
+          snprintf(LogLine, LOG_LINE_SIZE, 
+!             "vchkpw: invalid user/domain characters %s:%s", TheName, IpAddr);
+! 	vlog(VLOG_ERROR_PASSWD, TheUser, TheDomain, ThePass, TheName, 
+            IpAddr, LogLine);
+          vchkpw_exit(20);
+!     }
+  
+      /* check if this virtual domain is in the system 
+       * we look in /var/qmail/users/cdb file
+--- 109,156 ----
+  void login_virtual_user();
+  void login_system_user();
+  void read_user_pass();
+  void vchkpw_exit(int err);
+  void run_command(char *prog);
++ void vlog(int verror, char *TheUser, char *TheDomain, char *ThePass, 
++     char *TheName, char *IpAddr, char *LogLine);
+  
+  int main( int argc, char **argv)
+  {
++     if ( (IpAddr = getenv("TCPREMOTEIP")) == NULL) {
++         IpAddr="";
++     } else {
++       CleanIP(IpAddr);  /* to be sure IP is in IPv4 format */
++     }                   /* courier uses IPv6 format, so we removing it */
++ 
++     if ( (LocalPort = getenv("TCPLOCALPORT")) == NULL) LocalPort="";
++     PortNumber = atoi(LocalPort);
++ 
++     if(PortNumber == 25 || PortNumber == 465) {
++         IsSMTP = 1;
++     } else if(PortNumber == 110 || PortNumber == 995) {
++         IsPOP3 = 1;
++     } else if(PortNumber == 143 || PortNumber == 993) {
++         IsIMAP = 1;
++     }
++ 
++     if(PortNumber == 465 || PortNumber == 993 || PortNumber == 995) {
++       IsSSL = 1;
++     }
+  
+  
+      /* read in the user name and password from file descriptor 3 */
+      read_user_pass();
+  
++     /* parse the name into a user@domain if there */
++ 
+      if ( parse_email( TheName, TheUser, TheDomain, AUTH_SIZE) != 0 ) {
+          snprintf(LogLine, LOG_LINE_SIZE, 
+!             "vchkpw: %s: invalid user/domain characters %s:%s", protocol,
+!                 TheName, IpAddr);
+!         vlog(VLOG_ERROR_PASSWD, TheUser, TheDomain, ThePass, TheName, 
+            IpAddr, LogLine);
+          vchkpw_exit(20);
+!       }
+  
+      /* check if this virtual domain is in the system 
+       * we look in /var/qmail/users/cdb file
+***************
+*** 106,217 ****
+       */
+      if ( (vpw = vauth_getpw(TheUser, TheDomain)) != NULL ) {
+  
+! 	vget_assign(TheDomain,NULL,0,&pw_uid,&pw_gid);
+          login_virtual_user();
+  
+      /* if it is not in the virtual domains 
+       * then check the user in /etc/passwd
+       */
+  #ifdef ENABLE_PASSWD
+!     } else if ( ENABLE_PASSWD == 1 ) {
+! 	login_system_user();
+  #endif
+  
+      } else {
+!         snprintf(LogLine, LOG_LINE_SIZE, 
+!             "vchkpw: vpopmail user not found %s@%s:%s", 
+!             TheUser, TheDomain, IpAddr);
+! 	vlog(VLOG_ERROR_LOGON, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+!         vchkpw_exit(3);
+!     }
+!     vclose();
+  
+      /* The user is authenticated, now setup the environment
+       * for qmail-pop3d
+       */
+  
+!     /* Set the programs effective group id */ 
+!     if ( setgid(pw_gid) == -1 ) {
+!         snprintf(LogLine, LOG_LINE_SIZE, 
+!             "vchkpw: setgid %lu failed errno %d %s@%s:%s", 
+!           (long unsigned)pw_gid, errno, TheUser, TheDomain, IpAddr);
+! 	vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+!         vchkpw_exit(4);
+!     }
+  
+!     /* Set the programs effective user id */ 
+!     if ( setuid(pw_uid) == -1 ) {
+!         snprintf(LogLine, LOG_LINE_SIZE, 
+!             "vchkpw: setuid %lu failed errno %d %s@%s:%s", 
+!           (long unsigned)pw_uid, errno, TheUser, TheDomain, IpAddr);
+! 	vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+!         vchkpw_exit(5);
+      }
+  
+!     /* Change to the users Maildir directory */
+!     if (chdir(pw_dir) == -1) {
+!       if ( vpw!=NULL) { 
+!         if ( vmake_maildir(TheDomain, vpw->pw_dir )!= VA_SUCCESS ) {
+!           snprintf(LogLine, LOG_LINE_SIZE, 
+!             "vchkpw: autocreate dir errno %d %s %s@%s:%s", 
+!             errno, pw_dir, TheUser, TheDomain, IpAddr);
+! 	  vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, 
+!             TheName, IpAddr, LogLine);
+!           vchkpw_exit(6);
+          }
+-         chdir(pw_dir);
+-       } else {
+-         snprintf(LogLine, LOG_LINE_SIZE, 
+-           "vchkpw: chdir failed errno %d %s %s@%s:%s", 
+-           errno, pw_dir, TheUser, TheDomain, IpAddr);
+- 	vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, 
+-           TheName, IpAddr, LogLine);
+-         vchkpw_exit(6);
+-      }
+-     }
+  
+!     /* The the VCHKPW_USER variable */
+!     strncpy(envbuf1,VCHKPW_USER,MAX_ENV_BUF);
+!     strncat(envbuf1,TheUser,MAX_ENV_BUF);
+!     if ( putenv(envbuf1) == -1 ) {
+!         snprintf(LogLine, LOG_LINE_SIZE, 
+!             "vchkpw: putenv(USER) failed errno %d %s@%s:%s", 
+!           errno, TheUser, TheDomain, IpAddr);
+! 	vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+!         vchkpw_exit(7);
+!     }
+  
+!     /* Now HOME */
+!     strncpy(envbuf2,VCHKPW_HOME,MAX_ENV_BUF);
+!     strncat(envbuf2,pw_dir,MAX_ENV_BUF);
+!     if ( putenv(envbuf2) == -1 ) {
+!         snprintf(LogLine, LOG_LINE_SIZE, 
+!             "vchkpw: putenv(HOME) failed errno %d %s@%s:%s", 
+!           errno, TheUser, TheDomain, IpAddr);
+! 	vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+!         vchkpw_exit(8);
+!     }
+  
+!     /* Now SHELL */
+!     strncpy(envbuf3,VCHKPW_SHELL,MAX_ENV_BUF);
+!     if ( putenv(envbuf3) == -1 ) {
+!         snprintf(LogLine, LOG_LINE_SIZE, 
+!             "vchkpw: putenv(SHELL) failed errno %d %s@%s:%s", 
+!           errno, TheUser, TheDomain, IpAddr);
+! 	vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+!         vchkpw_exit(9);
+!     }
+  
+!     /* Now VPOPUSER */
+!     strncpy(envbuf4,VCHKPW_VPOPUSER,MAX_ENV_BUF);
+!     strncat(envbuf4,TheName,MAX_ENV_BUF);
+!     if ( putenv(envbuf4) == -1 ) {
+!         snprintf(LogLine, LOG_LINE_SIZE,
+!             "vchkpw: putenv(VPOPUSER) failed errno %d %s@%s:%s", 
+!             errno, TheUser, TheDomain, IpAddr);
+! 	vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+!         vchkpw_exit(10);
+!     }
+  
+  
+      /* close the log connection */
+--- 159,337 ----
+       */
+      if ( (vpw = vauth_getpw(TheUser, TheDomain)) != NULL ) {
+  
+!     vget_assign(TheDomain, NULL, 0, &pw_uid, &pw_gid);
+          login_virtual_user();
+  
+      /* if it is not in the virtual domains 
+       * then check the user in /etc/passwd
+       */
+  #ifdef ENABLE_PASSWD
+!     } else if( ENABLE_PASSWD == 1 ) {
+!     login_system_user();
+  #endif
+  
+      } else {
+!          /* here is addition to log protocol */
+!          snprintf(LogLine, LOG_LINE_SIZE, 
+!                   "%s: User not found %s@%s:%s", 
+!                   protocol, TheUser, TheDomain, IpAddr);
+!          vlog(VLOG_ERROR_LOGON, TheUser, TheDomain,
+!               ThePass, TheName, IpAddr, LogLine);
+! 
+!          vchkpw_exit(3);
+!      }
+!      vclose();
+  
+      /* The user is authenticated, now setup the environment
+       * for qmail-pop3d
+       */
+  
+!     if(!IsSMTP && !IsCOURIER) {
+!         /* Set the programs effective group id */
+!         if ( setgid(pw_gid) == -1 ) {
+!             snprintf(LogLine, LOG_LINE_SIZE,
+!                 "vchkpw: %s: setgid %lu failed errno %d %s@%s:%s", protocol,
+!                     (long unsigned) pw_gid, errno, TheUser, TheDomain, IpAddr);
+!             vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass,
+!                  TheName, IpAddr, LogLine);
+!             vchkpw_exit(4);
+!         }
+  
+!         /* Set the programs effective user id */ 
+!         if ( setuid(pw_uid) == -1 ) {
+!             snprintf(LogLine, LOG_LINE_SIZE,
+!                 "vchkpw: %s: setuid %lu failed errno %d %s@%s:%s", protocol, 
+!                      (long unsigned) pw_uid, errno, TheUser, TheDomain, IpAddr);
+!             vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain,
+!                  ThePass, TheName, IpAddr, LogLine);
+!             vchkpw_exit(5);
+!         }
+      }
+  
+! 
+!     /* in case of SMTP-auth there are no need to change dir */
+!     if( !IsSMTP ) {
+!         /* Change to the users Maildir directory */
+! 
+!         /* there could be some problem,
+!          * but i guess in case of maildir absence and SMTP-AUTH
+!          * vdelivermail will create it
+!          */
+! 
+!         if(chdir(pw_dir) == -1) {
+!             if( vpw != NULL ) { 
+!                 if ( vmake_maildir(TheDomain, vpw->pw_dir ) != VA_SUCCESS ) {
+!                     snprintf(LogLine, LOG_LINE_SIZE, 
+!                         "vchkpw: %s: autocreate dir errno %d %s %s@%s:%s", 
+!                             protocol, errno, pw_dir, TheUser,
+!                                 TheDomain, IpAddr);
+! 
+!                     vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, 
+!                          TheName, IpAddr, LogLine);
+!                     vchkpw_exit(6);
+!                 }
+!                 chdir(pw_dir);  // after successful creation of new dir
+!             } else {
+!                 snprintf(LogLine, LOG_LINE_SIZE,
+!                     "vchkpw: %s: chdir failed errno %d %s %s@%s:%s",
+!                         protocol, errno, pw_dir, TheUser, TheDomain, IpAddr);
+!                 vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass,
+!                      TheName, IpAddr, LogLine);
+!                 vchkpw_exit(6);
+!             }
+          }
+  
+!         /* The the VCHKPW_USER variable */
+!         strncpy(envbuf1, VCHKPW_USER, MAX_ENV_BUF);
+!         strncat(envbuf1, TheUser, MAX_ENV_BUF);
+!         if ( putenv(envbuf1) == -1 ) { 
+!             snprintf(LogLine, LOG_LINE_SIZE,
+!                 "vchkpw: putenv(USER) failed errno %d %s@%s:%s",
+!                      errno, TheUser, TheDomain, IpAddr);
+!             vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass,
+!                  TheName, IpAddr, LogLine);
+!             vchkpw_exit(7);
+!         }
+  
+!         /* Now HOME */
+!         strncpy(envbuf2, VCHKPW_HOME, MAX_ENV_BUF);
+!         strncat(envbuf2, pw_dir, MAX_ENV_BUF);
+!         if ( putenv(envbuf1) == -1 ) {
+!             snprintf(LogLine, LOG_LINE_SIZE,
+!                 "vchkpw: putenv(HOME) failed errno %d %s@%s:%s",
+!                     errno, TheUser, TheDomain, IpAddr);
+!             vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, 
+!                  TheName, IpAddr, LogLine);
+!             vchkpw_exit(8);
+!         }
+  
+!         /* Now SHELL */
+!         strncpy(envbuf3,VCHKPW_SHELL,MAX_ENV_BUF);
+!         if ( putenv(envbuf3) == -1 ) {
+!             snprintf(LogLine, LOG_LINE_SIZE,
+!                 "vchkpw: putenv(SHELL) failed errno %d %s@%s:%s",
+!                     errno, TheUser, TheDomain, IpAddr);
+!             vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, 
+!                  TheName, IpAddr, LogLine);
+!             vchkpw_exit(9);
+!         }
+  
+!         /* Now VPOPUSER */
+!         strncpy(envbuf4,VCHKPW_VPOPUSER,MAX_ENV_BUF);
+!         strncat(envbuf4,TheName,MAX_ENV_BUF);
+!         if( putenv(envbuf4) == -1 ) {
+!             snprintf(LogLine, LOG_LINE_SIZE,
+!                 "vchkpw: putenv(VPOPUSER) failed errno %d %s@%s:%s",
+!                     errno, TheUser, TheDomain, IpAddr);
+!             vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, 
+!                  TheName, IpAddr, LogLine);
+!             vchkpw_exit(10);
+!         }
+! 
+!         if(IsCOURIER) {
+!             /* Next 3 shell variables for compatibilty with Courier
+!              * if vchkpw used for authentication with Courier-POP3, IMAP
+!              */
+! 
+!             strncpy(envbuf5, "AUTHENTICATED=", MAX_ENV_BUF);
+!             strncat(envbuf5, TheUser, MAX_ENV_BUF);        
+!             strcat(envbuf5, "@");
+!             strcat(envbuf5, TheDomain);
+! 
+!             if( putenv(envbuf5) == -1 ) {
+!                 snprintf(LogLine, LOG_LINE_SIZE,
+!                     "vchkpw: putenv(AUTHENTICATED) failed errno %d %s@%s:%s",
+!                         errno, TheUser, TheDomain, IpAddr);
+!                 vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, 
+!                     TheName, IpAddr, LogLine);
+!                 vchkpw_exit(10);
+!             }
+! 
+!             strncpy(envbuf6, "AUTHFULLNAME=", MAX_ENV_BUF);
+!             strncat(envbuf6, TheUser, MAX_ENV_BUF);        
+! 
+!             if ( putenv(envbuf6) == -1 ) {
+!                 snprintf(LogLine, LOG_LINE_SIZE,
+!                     "vchkpw: putenv(AUTHFULLNAME) failed errno %d %s@%s:%s",
+!                         errno, TheUser, TheDomain, IpAddr);
+!                 vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain,
+!                     ThePass, TheName, IpAddr, LogLine);
+!                 vchkpw_exit(10);
+!             }
+! 
+!             strncpy(envbuf7, "AUTHADDR=", MAX_ENV_BUF);
+!             strncat(envbuf7, IpAddr, MAX_ENV_BUF);
+! 
+!             if( putenv(envbuf7) == -1 ) {
+!                 snprintf(LogLine, LOG_LINE_SIZE,
+!                     "vchkpw: putenv(AUTHADDR) failed errno %d %s@%s:%s",
+!                         errno, TheUser, TheDomain, IpAddr);
+!                 vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain,
+!                     ThePass, TheName, IpAddr, LogLine);
+!                 vchkpw_exit(10);
+!             }
+!         } /* if IsCourier */
+!     } /* if( !IsSMTP )*/
+  
+  
+      /* close the log connection */
+***************
+*** 220,413 ****
+      }
+  
+      /* And now a simple way to kick off the next program */
+!     execvp(argv[1],argv+1);
+  
+      /* all done, time to release resources and go away */ 
+      exit(0);
+- 
+  }
+  
+  /* clean a buffer for syslog */
+  char *sysc(char *mess)
+  {
+   char *ripper;
+  
+! 	for(ripper=mess;*ripper!=0;++ripper) {
+! 		if ( *ripper=='%' ) {
+!                     *ripper = '#';
+!                 }
+          }
+! 	return(mess);
+  }
+  
+  void read_user_pass()
+  {
+!  int i,j,l;
+  
+      /* Read the user and password from file descriptor 3
+       * use TheDomain variable as temporary storage of the 
+       * full incoming line 
+       */ 
+!     memset(TheDomain,0,AUTH_SIZE);
+!     for(i=0;i<AUTH_SIZE;i+=j){
+!         
+!         /* read a chunk */
+!         j = read(3,&TheDomain[i],AUTH_SIZE-i-1);
+! 
+!         /* on error exit out */
+!         if ( j == -1 ) {     
+!             printf("vchkpw: what the hell are you doing running vchkpw on the command line!! It's only for talking with qmail-popup and qmail-pop3d.\n");
+!             vchkpw_exit(11);
+!         } else if ( j == 0 ) {
+!             break;
+          }
+      }
+  
+      /* close the user/pass file descriptor */
+      close(3);
+  
+!     /* parse out the name */
+!     memset(TheName,0,AUTH_SIZE);
+!     for(l=0;l<AUTH_INC_SIZE;++l){
+!         TheName[l] = TheDomain[l];
+!         if ( TheName[l] == 0 ) break;
+!         if (l==i)break;
+!     }
+  
+!     /* parse out the password */
+!     memset(ThePass,0,AUTH_SIZE);
+!     for(j=0,++l;l<AUTH_INC_SIZE;++j,++l){
+!         ThePass[j] = TheDomain[l];
+!         if ( ThePass[j] == 0 ) break;
+!         if (l==i)break;
+      }
+  
+      /* open the log if configured */
+      if ( ENABLE_LOGGING > 0 ) {
+!         openlog(LOG_NAME,LOG_PID,LOG_MAIL);
+!     }
+! 
+!     if ( TheName[0] == 0 ) {
+!         snprintf(LogLine, LOG_LINE_SIZE, 
+!             "vchkpw: null user name given %s:%s", TheName, IpAddr);
+! 	vlog(VLOG_ERROR_LOGON, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+!         vchkpw_exit(12);
+!     }
+  
+!     if ( ThePass[0] == 0 ) {
+!         snprintf(LogLine, LOG_LINE_SIZE, 
+!             "vchkpw: null password given %s:%s", TheName, IpAddr);
+! 	vlog(VLOG_ERROR_PASSWD, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+!         vchkpw_exit(13);
+      }
+  }
+  
+  void login_virtual_user()
+  {
+      /* If thier directory path is empty make them a new one */
+      if ( vpw->pw_dir == NULL || vpw->pw_dir[0]==0 ) {
+!         if ( make_user_dir(vpw->pw_name, TheDomain, pw_uid, pw_gid)==NULL){
+!        	    snprintf(LogLine, LOG_LINE_SIZE, 
+!                     "vchkpw: dir auto create failed %s@%s:%s", 
+!         	    TheUser, TheDomain, IpAddr);
+! 	    vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+              vchkpw_exit(14);
+          }
+      }
+  
+- #ifdef ENABLE_LEARN_PASSWORDS
+      /* check for a valid vpopmail passwd field */
+!     if ( vpw->pw_passwd==NULL||vpw->pw_passwd[0]==0) {
+!         mkpasswd3(ThePass,TheCrypted, AUTH_SIZE);
+!         vpw->pw_passwd = TheCrypted;
+!         vpw->pw_clear_passwd = ThePass;
+!         vauth_setpw(vpw, TheDomain);
+! #ifdef POP_FETCH
+!         if ( pop_init(vpw, "") {
+!           while (pop_loop) == 1 );
+          }
+  #endif
+-     }
+- #else
+-     if ( vpw->pw_passwd==NULL||vpw->pw_passwd[0]==0) {
+-        	snprintf(LogLine, LOG_LINE_SIZE, 
+-           "vchkpw: user has no password %s@%s:%s", 
+-           TheUser, TheDomain, IpAddr);
+- 	vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, TheName, 
+-           IpAddr, LogLine);
+-         vchkpw_exit(15);
+-     }
+- #endif
+  
+!     /* Encrypt the clear text password using the crypted 
+!      * password as the salt then
+!      * check if it matches the encrypted password 
+!      * If it does not match, log errors if requested
+!      * and exit 
+       */
+!     if ( strcmp(crypt(ThePass,vpw->pw_passwd),vpw->pw_passwd) != 0 ) {
+!         if ( ENABLE_LOGGING==1||ENABLE_LOGGING==2){
+!             snprintf(LogLine, LOG_LINE_SIZE, "vchkpw: password fail %s@%s:%s",
+!                 TheUser, TheDomain, IpAddr);
+!         } else if ( ENABLE_LOGGING==3||ENABLE_LOGGING==4){
+!             snprintf(LogLine, LOG_LINE_SIZE,
+!                 "vchkpw: password fail %s %s@%s:%s",
+!                 ThePass, TheUser, TheDomain, IpAddr);
+!         } else { 
+!             LogLine[0] = 0;
+          }
+!         vlog( VLOG_ERROR_PASSWD, TheUser, TheDomain, ThePass, TheName, 
+              IpAddr, LogLine);
+          vchkpw_exit(3);
+      }
+  
+  #ifdef ENABLE_LEARN_PASSWORDS
+  #ifdef CLEAR_PASS 
+!     /* User with pw_clear_passwd unset but pw_passwd set
+!      * should have the pw_clear_passwd field filled in
+!      */
+!     if ( vpw->pw_clear_passwd==NULL||vpw->pw_clear_passwd[0]==0) {
+!        vpw->pw_clear_passwd = ThePass;
+!        vauth_setpw(vpw, TheDomain);
+!     }
+  #endif
+  #endif
+  
+- 
+      /* They are authenticated now, check for restrictions
+       * Check if they are allowed pop access 
+       */
+!     if ( vpw->pw_gid & NO_POP ) {
+          snprintf(LogLine, LOG_LINE_SIZE, 
+!             "vchkpw: pop access denied %s@%s:%s", 
+!             TheUser, TheDomain, IpAddr);
+! 	vlog(VLOG_ERROR_ACCESS, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+!         vchkpw_exit(0);
+      }
+  
+      /* They are authenticated, log the success if configured */
+!     snprintf(LogLine, LOG_LINE_SIZE, "vchkpw: login success %s@%s:%s",
+!       TheUser, TheDomain, IpAddr);
+      vlog(VLOG_AUTH, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+  
+- 
+      /* If authentication logging is enabled
+       * update the authentication time on the account
+       */
+  #ifdef ENABLE_AUTH_LOGGING
+!     vset_lastauth(TheUser,TheDomain,IpAddr);
+  #endif
+  
+  #ifdef POP_AUTH_OPEN_RELAY
+      /* Check if we should open up relay for this account */
+!     if ( (vpw->pw_gid & NO_RELAY) == 0 ) {
+          open_smtp_relay();        
+      }
+  #endif
+  
+      /* Save the directory pointer */
+      pw_dir = vpw->pw_dir;
+- 
+  }
+  
+  #ifdef ENABLE_PASSWD
+--- 340,761 ----
+      }
+  
+      /* And now a simple way to kick off the next program */
+!     execvp(argv[1], argv+1);
+  
+      /* all done, time to release resources and go away */ 
+      exit(0);
+  }
+  
+  /* clean a buffer for syslog */
++ 
+  char *sysc(char *mess)
+  {
+   char *ripper;
+  
+!     for(ripper=mess; *ripper; ++ripper) {
+!         if ( *ripper == '%' ) {
+!             *ripper = '#';
+          }
+!     }
+!     return(mess);
+! }
+! 
+! 
+! /* function to read parameters from calling module
+!  * this is replacement for old function read_user_pass()
+!  * i guess its more ... reliable
+!  */
+! 
+! int GetString(char *str, int MAX, int NonCritical)
+! {
+!     unsigned char c;
+!     int cnt = 0, i;
+!     
+!     while((i = read(3, &c, 1)) > 0 && cnt < MAX) {
+!         if(c == '\0')
+!             break;
+! 
+!         *(str + cnt++) = c;
+!     }
+! 
+!     if(!NonCritical && i == -1 && cnt == 0) {
+!         printf("vchkpw: what the hell are you doing running vchkpw on the command line!! It's only for talking with Courier & Qmail mail-servers.\n");
+!         vchkpw_exit(11);
+!     }
+!       
+!     *(str+cnt) = '\0';
+! 
+!     return( cnt );
+  }
+  
++ 
+  void read_user_pass()
+  {
+!     int result=0, cnt;
+! 
+!     /* additions */
+!     char tmp[2]="\0\0", suppl[256];
+  
+      /* Read the user and password from file descriptor 3
+       * use TheDomain variable as temporary storage of the 
+       * full incoming line 
+       */ 
+! 
+!     memset(TheDomain, 0, AUTH_SIZE);
+!     memset(TheName, 0, AUTH_SIZE);
+!     memset(ThePass, 0, AUTH_SIZE);
+! 
+!     memset(APOPStamp, 0, AUTH_SIZE);    
+!     memset(tmp, 0, 2);    
+!     
+!     /* read the first argument */
+!     GetString(TheName, AUTH_SIZE, 0);
+! 
+! #ifdef DEBUG
+!     snprintf(LogLine, LOG_LINE_SIZE, 
+!         "debug: First stage: '%s'", TheName);
+!             syslog(LOG_NOTICE, sysc(LogLine));
+! #endif
+! 
+!     /* checking for  auth, pop3, imap in first word */
+!     if( CheckCommands(TheName) )  {                           
+!         /* if we get authentication request from (maybe) imap client
+!          * so there have to be 4 words
+!          */
+!         char Command[32];
+!         int len = strlen(TheName);
+! 
+!         cnt = WordCount(TheName);
+! 
+!         /* making a copy of first string */
+!         memmove(suppl, TheName, len+1);
+! 
+!         if(cnt > 2 && len > 6)  {                     
+!             /* if string seems to be correct
+!              * something like auth login user pass
+!              * check from where we got request: from IMAP or from POP3 AUTH
+!              */
+! 
+!             /* in case it's impossible to guess from port number */
+!             if(!IsIMAP) IsIMAP = !strncasecmp(TheName, "imap", 4) ? 1 : 0;
+!                 IsCOURIER = IsIMAP ? 1 : (!strncasecmp(TheName, "pop3", 4) ? 1 : -0);
+! 
+!             /* I guess IMAP server transform this into "imap login", 
+!              *  not "auth login" and courier pop3 makes it "pop3 login ..."
+!              */
+! 
+!             IsOneLine = 1;
+!             GetWordN(Command, suppl, 2, 32);
+! 
+!             /* so, if login user/pass in cleartext */
+!             if( !strncasecmp(Command, "login", 5) && len > 11) {
+!                  GetWordN(TheName, suppl, 3, AUTH_SIZE);
+!                  GetWordN(ThePass, suppl, 4, AUTH_SIZE);
+!             } else if( !strncasecmp(Command, "cram-md5", 8) && len > 30 ) {
+!                  /* if CRAM-MD5 auth */
+!                  GetWordN(TheName, suppl, 3, AUTH_SIZE);
+!                  b64_decode(TheName, ThePass);
+! 
+!                  GetWordN(TheName, suppl, 4, AUTH_SIZE);
+!                  b64_decode(TheName, suppl);
+! 
+!                  GetWordN(TheName, suppl, 1, AUTH_SIZE);
+!                  GetWordN(APOPStamp, suppl, 2, AUTH_SIZE);
+! 
+!                  IsCRAM = 1;
+!             } else {
+!                 /* currently unsupported schema were used, or just bad input */
+!                 Unsupported = 1;
+!                 vchkpw_exit(1);
+!             }
+          }
++     }          
++     
++     if( !IsOneLine ) {              
++         /* if not all parameters were passed in one line
++          * so taking them, second line should be Password (plain or APOP)
++          * if the following line empty -- malformed input, result < 1
++          */
++ 
++         if( (result = GetString(ThePass, AUTH_SIZE, 0)) < 1) {     
++             printf("vchkpw: Error in getting user/pass combination\n"); 
++             vchkpw_exit(11);
++         } 
++           
++         DelGarbage(TheName);
++         DelGarbage(ThePass);
++ 
++         /* here we are getting third parameter, APOP stamp */
++ 
++         GetString(APOPStamp, AUTH_SIZE, 0); 
++             /* stamp, from qmail, 
++              * something like <6039.999784691@domain.com>
++              * to build apop hash
++              * md5(stamp+pass)  -- pass in clear-text
++              */
++ 
++         GetString(tmp, 2, 1); /* additional byte from patched qmail */
+      }
+  
++ 
++     /* for developers */
++ #ifdef DEBUG
++     snprintf(LogLine, LOG_LINE_SIZE, 
++         "vchkpw debug: Given name: '%s'", TheName);
++             syslog(LOG_NOTICE, sysc(LogLine));
++ 
++     snprintf(LogLine, LOG_LINE_SIZE, 
++         "vchkpw debug: Given password: '%s'", ThePass);
++             syslog(LOG_NOTICE, sysc(LogLine));
++ 
++     snprintf(LogLine, LOG_LINE_SIZE, 
++         "vchkpw debug: Given stamp: '%s'", APOPStamp);
++             syslog(LOG_NOTICE, sysc(LogLine));
++ #endif
++ 
+      /* close the user/pass file descriptor */
+      close(3);
+  
+!     /* making decision which protocol used */
+! 
+!     /* could be send only by patched qmail-popup */
+!     IsAPOP = (tmp[0] == 'y') ? 1 : 0;
+! 
+!     /* "c" could be only from qmail-smtpd
+!      * but IsCRAM also could be set from "auth cram-md5 ..."
+!      */
+! 
+!     if(!IsCRAM) /* if not already setted up */
+!         IsCRAM = (tmp[0] == 'c') ? 1 : 0;  /* from qmail-smtpd */
+  
+!     if(IsSMTP || tmp[0] == 'c' || tmp[0] == 's') {
+!         /* a little strange. but IsSMTP already could be recognized
+!          * from port-number
+!          */
+!         protocol = IsSSL ? "SMTP-SSL" : "SMTP";
+!         IsSMTP = 1;
+!     } else if(IsIMAP == 1) {
+!         protocol = IsSSL ? "IMAP-SSL" : "IMAP";
+!     } else {
+!         protocol = IsSSL ? "POP3-SSL" : "POP3";
+      }
+  
+      /* open the log if configured */
+      if ( ENABLE_LOGGING > 0 ) {
+!         openlog(LOG_NAME, LOG_PID, LOG_MAIL);
+!         if( !*TheName ) {
+!             snprintf(LogLine, LOG_LINE_SIZE, 
+!                 "%s: no user name given %s:%s", protocol, TheName, IpAddr);
+!             vlog(VLOG_ERROR_LOGON, TheUser, TheDomain, ThePass, 
+!                 TheName, IpAddr, LogLine);
+!             vchkpw_exit(12);
+!         }
+  
+!         if ( (!ThePass || !*ThePass) && !IsCOURIER ) {
+!             snprintf(LogLine, LOG_LINE_SIZE, 
+!                 "%s: empty password given %s:%s", protocol, TheName, IpAddr);
+!             vlog(VLOG_ERROR_PASSWD, TheUser, TheDomain, ThePass, 
+!                 TheName, IpAddr, LogLine);
+!             vchkpw_exit(13);
+!         }
+      }
+  }
+  
++ 
+  void login_virtual_user()
+  {
++     /* some kind of protection, assume auth already failed */
++     char ErrAUTH=1, Impossible = 0;
++ 
+      /* If thier directory path is empty make them a new one */
+      if ( vpw->pw_dir == NULL || vpw->pw_dir[0]==0 ) {
+!         if ( make_user_dir(vpw->pw_name, TheDomain, pw_uid, pw_gid) == NULL) {
+!             snprintf(LogLine, LOG_LINE_SIZE, 
+!                 "vchkpw: %s: dir auto create failed %s@%s:%s", 
+!                     protocol, TheUser, TheDomain, IpAddr);
+!             vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, 
+!                 TheName, IpAddr, LogLine);
+              vchkpw_exit(14);
+          }
+      }
+  
+      /* check for a valid vpopmail passwd field */
+!     if ( vpw->pw_passwd == NULL || vpw->pw_passwd[0] == 0) {
+! #ifdef ENABLE_LEARN_PASSWORDS
+! 
+!         /* its useless business to learn passwords
+!          * when APOP or CRAM-MD5 methods used :)
+!          */
+! 
+!         if(!IsAPOP && !IsCRAM) {
+!             mkpasswd3(ThePass, TheCrypted, AUTH_SIZE);
+!             vpw->pw_passwd = TheCrypted;
+!             vpw->pw_clear_passwd = ThePass;
+!             vauth_setpw(vpw, TheDomain);
+          }
++ 
++ #ifdef POP_FETCH
++          if ( pop_init(vpw, "") {
++             while (pop_loop) == 1 );
++          }
+  #endif
+  
+!         #else  // if learn-password disabled
+! 
+!           snprintf(LogLine, LOG_LINE_SIZE, 
+!                    "vchkpw: %s: user has no password %s@%s:%s", 
+!                    protocol, TheUser, TheDomain, IpAddr);
+!           vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, TheName, 
+!                IpAddr, LogLine);
+!           vchkpw_exit(15);
+!         #endif
+!       }
+! 
+!     /* if user were added with already hashed password, 
+!      * so we will not make checks for cram & apop
+!      * ### hashed ### could be added by mkpassword
+       */
+! 
+!     if( !strcasecmp(vpw->pw_clear_passwd, "### hashed ###") 
+!         || !vpw->pw_clear_passwd
+!         || strlen(vpw->pw_clear_passwd) < 1 ) Impossible = 1;
+!       
+!     /* "Impossible" only interesting in case of APOP or CRAM
+!      *  as we dont use cleartext password from database to
+!      *  check sended cleartext pass 
+!      */
+!       
+!     if(IsCRAM) {
+!         unsigned char tmp[17];
+! 
+!         HMAC_MD5(ThePass, strlen(ThePass), vpw->pw_clear_passwd, 
+!             strlen(vpw->pw_clear_passwd), (unsigned char *) &tmp);
+! 
+!         if ( !Impossible && !strcmp(dec2hex(tmp), APOPStamp) ) ErrAUTH=0;
+!     } else if(!IsAPOP) {
+!         /* if password send in cleartext */
+! 
+!         if( !strcmp(crypt(ThePass, vpw->pw_passwd), vpw->pw_passwd))
+!             ErrAUTH = 0;
+!     } else {
+!         /* checking APOP */
+!         char *temp;
+! 
+!         if((temp = malloc(strlen(APOPStamp) + 
+!             strlen(vpw->pw_clear_passwd) + 1)) == NULL) {
+! 
+!             if ( ENABLE_LOGGING > 0 ) {
+!                 snprintf(LogLine, LOG_LINE_SIZE,
+!                     "vchkpw %s: memory allocation problems, exiting",
+!                         protocol);
+!                 vlog( VLOG_ERROR_PASSWD, TheUser, TheDomain, ThePass, TheName, 
+!                       IpAddr, LogLine);
+!             }
+!             vchkpw_exit(11);
+          }
+!              
+!         strcpy(temp, APOPStamp);
+!         strcat(temp, vpw->pw_clear_passwd);
+! 
+!         if(!Impossible && !strcmp(md5(temp), ThePass))
+!              ErrAUTH = 0;
+!           
+!         free(temp);
+!     }
+! 
+!     if( ErrAUTH ) {
+!         if ( ENABLE_LOGGING == 1 || ENABLE_LOGGING == 2 ) {
+!             snprintf(LogLine, LOG_LINE_SIZE, "%s: Password fail for %s@%s:%s", 
+!                 protocol, TheUser, TheDomain, IpAddr);
+!         } else if (ENABLE_LOGGING == 3 || ENABLE_LOGGING == 4) {
+!             snprintf(LogLine, LOG_LINE_SIZE, 
+!                 "%s: Password fail (pass: '%s' for %s@%s:%s. Auth: %s", 
+!                     protocol, ThePass, TheUser, TheDomain, IpAddr, 
+!                         IsAPOP ? "APOP" : (IsCRAM ? "CRAM-MD5" : "Plain"));
+!         }
+!         vlog( VLOG_ERROR_PASSWD, TheUser, TheDomain, ThePass, TheName,
+              IpAddr, LogLine);
+          vchkpw_exit(3);
+      }
+  
+  #ifdef ENABLE_LEARN_PASSWORDS
+  #ifdef CLEAR_PASS 
+! 
+!       /* User with pw_clear_passwd unset but pw_passwd set
+!        * should have the pw_clear_passwd field filled in
+!        */
+! 
+!       if ( !IsCRAM && !IsAPOP && Impossible ) {
+!           vpw->pw_clear_passwd = ThePass;
+!           vauth_setpw(vpw, TheDomain);
+!       }
+  #endif
+  #endif
+  
+      /* They are authenticated now, check for restrictions
+       * Check if they are allowed pop access 
+       */
+! 
+!     /* if auth were done just for smtp-sessions
+!      * i guess there is no need to make these checks
+!      */
+!     if(!IsSMTP)  {          
+!         if( (vpw->pw_gid & NO_POP) && !IsIMAP ) {
+!             snprintf(LogLine, LOG_LINE_SIZE, 
+!                 "vchkpw: POP3 access denied for %s@%s:%s", 
+!                     TheUser, TheDomain, IpAddr);
+!              vlog(VLOG_ERROR_ACCESS, TheUser, TheDomain,
+!                 ThePass, TheName, IpAddr, LogLine);
+!              vchkpw_exit(-1);
+!          }
+! 
+!          if( IsIMAP && (vpw->pw_gid & NO_IMAP ) ) {
+!              snprintf(LogLine, LOG_LINE_SIZE, 
+!                 "vchkpw: IMAP access denied for %s@%s:%s", 
+!                     TheUser, TheDomain, IpAddr);
+!              vlog(VLOG_ERROR_ACCESS, TheUser, TheDomain,
+!                       ThePass, TheName, IpAddr, LogLine);  
+!              vchkpw_exit(-1);
+!          }
+!     } else if( vpw->pw_gid & NO_SMTP )  {                               
+! 
+!         /* but if this is for SMTP ...
+!          * and user disabled from sending
+!          */
+          snprintf(LogLine, LOG_LINE_SIZE, 
+!             "vchkpw: SMTP access denied for %s@%s:%s", 
+!                 TheUser, TheDomain, IpAddr);
+!         vlog(VLOG_ERROR_ACCESS, TheUser, TheDomain,
+!             ThePass, TheName, IpAddr, LogLine);   
+!         vchkpw_exit(-1);
+      }
+  
+      /* They are authenticated, log the success if configured */
+!     snprintf(LogLine, LOG_LINE_SIZE, "%s ok, Auth: %s, User: %s@%s:%s", 
+!         protocol, IsAPOP ? "APOP" : (IsCRAM ? "CRAM-MD5" : "Plain"),
+!             TheUser, TheDomain, IpAddr);
+      vlog(VLOG_AUTH, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+  
+      /* If authentication logging is enabled
+       * update the authentication time on the account
+       */
++ 
+  #ifdef ENABLE_AUTH_LOGGING
+!     vset_lastauth(TheUser, TheDomain, IpAddr);
+  #endif
+  
+  #ifdef POP_AUTH_OPEN_RELAY
++ 
+      /* Check if we should open up relay for this account */
+! 
+!     /* if we are checking for SMTP there is no need to open relay */
+!     if ( (vpw->pw_gid & NO_RELAY) == 0 && !IsSMTP ) {
+          open_smtp_relay();        
+      }
+  #endif
+  
+      /* Save the directory pointer */
+      pw_dir = vpw->pw_dir;
+  }
+  
+  #ifdef ENABLE_PASSWD
+***************
+*** 415,434 ****
+  {
+    struct passwd *pw;
+  #ifdef HAS_SHADOW
+!   struct spwd *spw;
+  #endif
+      if ((pw=getpwnam(TheUser)) == NULL ) {
+          snprintf(LogLine, LOG_LINE_SIZE, "vchkpw: system user not found %s:%s", 
+!           TheUser, IpAddr);
+!         vlog(VLOG_ERROR_LOGON, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+          vchkpw_exit(21);
+      }
+  #ifdef HAS_SHADOW
+      if ((spw = getspnam(TheUser)) == NULL) {
+          snprintf(LogLine, LOG_LINE_SIZE, 
+              "vchkpw: system user shadow entry not found %s:%s", 
+!             TheName, IpAddr);
+! 	vlog(VLOG_ERROR_LOGON, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+          vchkpw_exit(22);
+      }
+  
+--- 763,785 ----
+  {
+    struct passwd *pw;
+  #ifdef HAS_SHADOW
+!  struct spwd *spw;
+  #endif
++ 
+      if ((pw=getpwnam(TheUser)) == NULL ) {
+          snprintf(LogLine, LOG_LINE_SIZE, "vchkpw: system user not found %s:%s", 
+!             TheUser, IpAddr);
+!         vlog(VLOG_ERROR_LOGON, TheUser, TheDomain, ThePass, TheName, IpAddr, 
+!             LogLine);
+          vchkpw_exit(21);
+      }
+  #ifdef HAS_SHADOW
+      if ((spw = getspnam(TheUser)) == NULL) {
+          snprintf(LogLine, LOG_LINE_SIZE, 
+              "vchkpw: system user shadow entry not found %s:%s", 
+!                 TheName, IpAddr);
+!         vlog(VLOG_ERROR_LOGON, TheUser, TheDomain, ThePass, TheName, IpAddr, 
+!             LogLine);
+          vchkpw_exit(22);
+      }
+  
+***************
+*** 442,479 ****
+          } else if (ENABLE_LOGGING==3||ENABLE_LOGGING==4) {
+              snprintf(LogLine, LOG_LINE_SIZE,
+                  "vchkpw: system password fail %s %s:%s",
+!                 ThePass, TheName, IpAddr);
+          } else { 
+              LogLine[0] = 0;
+          }
+!         vlog(VLOG_ERROR_PASSWD, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+          vchkpw_exit(23);
+      }
+      pw_uid = pw->pw_uid;
+      pw_gid = pw->pw_gid;
+      pw_dir = pw->pw_dir;
+  #ifdef POP_AUTH_OPEN_RELAY
+!     open_smtp_relay();    
+  #endif
+  
+  }
+  #endif
+  
+  void vchkpw_exit(int err)
+  {
+      if ( ENABLE_LOGGING > 0 ) {
+          closelog();
+      }
+      vclose();
+      exit(err);
+  }
+  
+! /* log messages and figure out what type they are and where they should go depending on configure options */
+! /* any one of the pointers can be null, i.e. the information is not available */
+! /* messages are autmatically cleaned for syslog if it is necessary */
+! void vlog(int verror, char *TheUser, char *TheDomain, char *ThePass, char *TheName, char *IpAddr, char *LogLine) {
+      /* always log to syslog if enabled */
+!     if ( (verror == VLOG_ERROR_PASSWD) && ( ENABLE_LOGGING==1 || ENABLE_LOGGING==2 || ENABLE_LOGGING==3 || ENABLE_LOGGING==4 ) ) {
+          syslog(LOG_NOTICE,sysc(LogLine));
+      } else if ( verror == VLOG_ERROR_INTERNAL ) {
+          syslog(LOG_NOTICE,sysc(LogLine));
+--- 793,846 ----
+          } else if (ENABLE_LOGGING==3||ENABLE_LOGGING==4) {
+              snprintf(LogLine, LOG_LINE_SIZE,
+                  "vchkpw: system password fail %s %s:%s",
+!                     ThePass, TheName, IpAddr);
+          } else { 
+              LogLine[0] = 0;
+          }
+!         vlog(VLOG_ERROR_PASSWD, TheUser, TheDomain, ThePass, TheName, IpAddr, 
+!             LogLine);
+          vchkpw_exit(23);
+      }
+      pw_uid = pw->pw_uid;
+      pw_gid = pw->pw_gid;
+      pw_dir = pw->pw_dir;
+  #ifdef POP_AUTH_OPEN_RELAY
+!     if(!IsSMTP)
+!       open_smtp_relay();    
+  #endif
+  
+  }
+  #endif
+  
++ 
+  void vchkpw_exit(int err)
+  {
+      if ( ENABLE_LOGGING > 0 ) {
+          closelog();
+      }
++ 
+      vclose();
++     
++     if( IsCOURIER )
++         authmod_fail_completely();
++     
+      exit(err);
+  }
+  
+! 
+! /* log messages and figure out what type they are and where they should go 
+!  * depending on configure options any one of the pointers can be null, i.e. 
+!  * the information is not available messages are autmatically cleaned for 
+!  * syslog if it is necessary
+!  */
+! 
+! void vlog(int verror, char *TheUser, char *TheDomain, char *ThePass, 
+!     char *TheName, char *IpAddr, char *LogLine) {
+! 
+      /* always log to syslog if enabled */
+!     if ( (verror == VLOG_ERROR_PASSWD) 
+!         && ( ENABLE_LOGGING==1 || ENABLE_LOGGING==2 || ENABLE_LOGGING==3 
+!             || ENABLE_LOGGING==4 ) ) {
+          syslog(LOG_NOTICE,sysc(LogLine));
+      } else if ( verror == VLOG_ERROR_INTERNAL ) {
+          syslog(LOG_NOTICE,sysc(LogLine));
+***************
+*** 481,495 ****
+          syslog(LOG_NOTICE,sysc(LogLine));
+      } else if ( verror == VLOG_ERROR_ACCESS ) {
+          syslog(LOG_NOTICE,sysc(LogLine));
+!     } else if ( verror == VLOG_AUTH && ( ENABLE_LOGGING == 1 || ENABLE_LOGGING == 4 ) ) {
+          syslog(LOG_NOTICE,sysc(LogLine));
+      }
+  #ifdef ENABLE_MYSQL_LOGGING
+!     /* always log to mysql if mysql logging is enabled and it is not internal error */
+      if ( (ENABLE_MYSQL_LOGGING > 0) && (verror != VLOG_ERROR_INTERNAL) ) {
+!         if ( (logmysql(verror, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine) ) != 0 ) {
+              syslog(LOG_NOTICE,"vchkpw: can't write MySQL logs");
+          }
+      }
+  #endif
+  }
+--- 848,916 ----
+          syslog(LOG_NOTICE,sysc(LogLine));
+      } else if ( verror == VLOG_ERROR_ACCESS ) {
+          syslog(LOG_NOTICE,sysc(LogLine));
+!     } else if ( verror == VLOG_AUTH 
+!         && ( ENABLE_LOGGING == 1 || ENABLE_LOGGING == 4 ) ) {
+          syslog(LOG_NOTICE,sysc(LogLine));
+      }
+  #ifdef ENABLE_MYSQL_LOGGING
+!     /* always log to mysql if mysql logging is enabled and it is not internal 
+!      * error
+!      */
+      if ( (ENABLE_MYSQL_LOGGING > 0) && (verror != VLOG_ERROR_INTERNAL) ) {
+!         if ( (logmysql(verror, TheUser, TheDomain, ThePass, TheName, IpAddr, 
+!             LogLine) ) != 0 ) {
+              syslog(LOG_NOTICE,"vchkpw: can't write MySQL logs");
+          }
+      }
+  #endif
++ }
++ 
++ 
++ 
++ 
++ /* additional two functions to be compatible with courier */
++ 
++ void authmod_fail_completely()                                               
++ {                                                                               
++     char **argv;                                                                 
++     int argc, n;                                                                
++     const char *p=getenv("AUTHARGC");                                               
++     char    buf[20];           
++     char *msg = "That method of authentication currently unavailable\r\n";
++                                                                                 
++     if (!p || sscanf(p, "%d", &argc) <= 0 || argc <= 0) {
++         write(2, "AUTHFAILURE\r\n", 13);
++         authexit(1);
++     }
++                                                                                                                                         
++     if( (argv = (char **) malloc((argc+1) * sizeof(char *)) ) == 0) {
++         perror("malloc");                                               
++         authexit(1);
++     }                                                                       
++                                                                 
++     for(n = 0; n < argc; n++) {
++         sprintf(buf, "AUTHARGV%d", n);                                  
++         if(( argv[n] = getenv(buf)) == 0)                                 
++             authexit(1);
++     }                     
++     argv[n] = 0;                                                              
++                                         
++     if( !(p=getenv("AUTHUSER") ) )
++         authexit(1);
++ 
++     if(Unsupported) {
++         write(2, msg, strlen(msg));
++         authexit(1);
++     }
++ 
++     execv(p, argv);
++     perror(p);                                                              
++ 
++     authexit(1);         
++ }
++ 
++ 
++ void authexit(int n)
++ {
++     exit(n);
+  }
+diff -crN ../vpopmail-5.2/vpopmail.h ./vpopmail.h
+*** ../vpopmail-5.2/vpopmail.h	Mon Feb 18 23:43:59 2002
+--- ./vpopmail.h	Sun Feb 17 20:47:51 2002
+***************
+*** 94,99 ****
+--- 94,100 ----
+  #define V_USER1       0x100
+  #define V_USER2       0x200
+  #define V_USER3       0x400
++ #define NO_SMTP       0x800
+  #define QA_ADMIN     0x1000
+  
+  extern int OptimizeAddDomain;

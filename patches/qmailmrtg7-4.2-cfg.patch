@@ -1,0 +1,256 @@
+--- qmail.mrtg.cfg.orig	2005-07-20 19:22:58.000000000 -0400
++++ qmail.mrtg.cfg	2005-07-20 19:26:23.000000000 -0400
+@@ -124,7 +124,7 @@
+ MaxBytes[smtp]: 100
+ AbsMax[smtp]: 500
+ Options[smtp]: gauge
+-Target[smtp]: `/usr/local/bin/qmailmrtg7 t /var/log/smtp`
++Target[smtp]: `/usr/local/bin/qmailmrtg7 t /var/log/qmail/smtpd`
+ PageTop[smtp]: <B>FQDN - SMTP Concurrency</B><BR>
+ ShortLegend[smtp]: SMTP
+ YLegend[smtp]: max SMTP
+@@ -141,7 +141,7 @@
+ MaxBytes[smtpad]: 1000
+ AbsMax[smtpad]: 100000
+ Options[smtpad]: gauge
+-Target[smtpad]: `/usr/local/bin/qmailmrtg7 a /var/log/smtp`
++Target[smtpad]: `/usr/local/bin/qmailmrtg7 a /var/log/qmail/smtpd`
+ PageTop[smtpad]: <B>FQDN - SMTP Totals</B><BR>
+ ShortLegend[smtpad]: SMTP
+ YLegend[smtpad]: SMTP/hour
+@@ -157,7 +157,7 @@
+ MaxBytes[pop3]: 100
+ AbsMax[pop3]: 500 
+ Options[pop3]: gauge
+-Target[pop3]: `/usr/local/bin/qmailmrtg7 t /var/log/pop3`
++Target[pop3]: `/usr/local/bin/qmailmrtg7 t /var/log/qmail/pop3d`
+ PageTop[pop3]: <B>FQDN POP3 Concurrency</B><BR>
+ ShortLegend[pop3]: POP3
+ YLegend[pop3]: max POP3
+@@ -174,7 +174,7 @@
+ MaxBytes[pop3ad]: 1000
+ AbsMax[pop3ad]: 100000
+ Options[pop3ad]: gauge
+-Target[pop3ad]: `/usr/local/bin/qmailmrtg7 a /var/log/pop3`
++Target[pop3ad]: `/usr/local/bin/qmailmrtg7 a /var/log/qmail/pop3d`
+ PageTop[pop3ad]: <B>FQDN - POP3 Totals</B><BR>
+ ShortLegend[pop3ad]: POP3
+ YLegend[pop3ad]: POP3/hour
+@@ -280,78 +280,78 @@
+ WithPeak[load]: ymwd
+ 
+ #-------------------------------------------------------------------
+-Title[ftpd]: ftpd concurrency - FQDN 
+-MaxBytes[ftpd]: 100
+-AbsMax[ftpd]: 500
+-Options[ftpd]: gauge
+-Target[ftpd]: `/usr/local/bin/qmailmrtg7 t /var/log/ftpd`
+-PageTop[ftpd]: <font face=arial size=3><B>FQDN</B> - ftpd (concurrency)</font><br>
+-ShortLegend[ftpd]: ftpd
+-YLegend[ftpd]: ftpd
+-Legend1[ftpd]: ftpd
+-LegendI[ftpd]: &nbsp;ftpd:
+-LegendO[ftpd]:
+-WithPeak[ftpd]: ymwd
+-XSize[ftpd]: 350
+-YSize[ftpd]: 150
+-
+-#-------------------------------------------------------------------
+-
+-Title[ftpdad]: ftpd allow/deny - FQDN 
+-MaxBytes[ftpdad]: 1000
+-AbsMax[ftpdad]: 10000
+-Options[ftpdad]: gauge
+-Target[ftpdad]: `/usr/local/bin/qmailmrtg7 a /var/log/ftpd`
+-PageTop[ftpdad]: <font face=arial size=3><B>FQDN</B> - ftpd (allow/deny)</font><br>
+-ShortLegend[ftpdad]: ftpd
+-YLegend[ftpdad]: ftpd
+-Legend1[ftpdad]: ftpd
+-LegendI[ftpdad]: &nbsp;Allow:
+-LegendO[ftpdad]: &nbsp;Deny:
+-WithPeak[ftpdad]: ymwd
+-XSize[ftpdad]: 350
+-YSize[ftpdad]: 150
+-
+-#-------------------------------------------------------------------
+-
+-Title[smtps]: SMTP SSL Concurrency - FQDN
+-MaxBytes[smtps]: 100
+-AbsMax[smtps]: 500
+-Options[smtps]: gauge
+-Target[smtps]: `/usr/local/bin/qmailmrtg7 t /var/log/smtps`
+-PageTop[smtps]: <B>FQDN - SMTP Concurrency</B><BR>
+-ShortLegend[smtps]: SMTP
+-YLegend[smtps]: max SMTP
+-Legend1[smtps]: SMTP&nbsp;
+-LegendI[smtps]: SMTP&nbsp;
+-LegendO[smtps]: SMTP&nbsp;
+-WithPeak[smtps]: ymwd
+-XSize[smtps]: 350
+-YSize[smtps]: 150
+-
+-#-------------------------------------------------------------------
+-
+-Title[smtpsad]: SMTP SSL Totals - FQDN
+-MaxBytes[smtpsad]: 1000
+-AbsMax[smtpsad]: 100000
+-Options[smtpsad]: gauge
+-Target[smtpsad]: `/usr/local/bin/qmailmrtg7 a /var/log/smtps`
+-PageTop[smtpsad]: <B>FQDN - SMTP Totals</B><BR>
+-ShortLegend[smtpsad]: SMTP
+-YLegend[smtpsad]: SMTP/hour
+-Legend1[smtpsad]: SMTP&nbsp;
+-LegendI[smtpsad]: Allow&nbsp;
+-LegendO[smtpsad]: Deny&nbsp;
+-WithPeak[smtpsad]: ymwd
+-XSize[smtpsad]: 350
+-YSize[smtpsad]: 150
++#Title[ftpd]: ftpd concurrency - FQDN 
++#MaxBytes[ftpd]: 100
++#AbsMax[ftpd]: 500
++#Options[ftpd]: gauge
++#Target[ftpd]: `/usr/local/bin/qmailmrtg7 t /var/log/ftpd`
++#PageTop[ftpd]: <font face=arial size=3><B>FQDN</B> - ftpd (concurrency)</font><br>
++#ShortLegend[ftpd]: ftpd
++#YLegend[ftpd]: ftpd
++#Legend1[ftpd]: ftpd
++#LegendI[ftpd]: &nbsp;ftpd:
++#LegendO[ftpd]:
++#WithPeak[ftpd]: ymwd
++#XSize[ftpd]: 350
++#YSize[ftpd]: 150
++
++#-------------------------------------------------------------------
++
++#Title[ftpdad]: ftpd allow/deny - FQDN 
++#MaxBytes[ftpdad]: 1000
++#AbsMax[ftpdad]: 10000
++#Options[ftpdad]: gauge
++#Target[ftpdad]: `/usr/local/bin/qmailmrtg7 a /var/log/ftpd`
++#PageTop[ftpdad]: <font face=arial size=3><B>FQDN</B> - ftpd (allow/deny)</font><br>
++#ShortLegend[ftpdad]: ftpd
++#YLegend[ftpdad]: ftpd
++#Legend1[ftpdad]: ftpd
++#LegendI[ftpdad]: &nbsp;Allow:
++#LegendO[ftpdad]: &nbsp;Deny:
++#WithPeak[ftpdad]: ymwd
++#XSize[ftpdad]: 350
++#YSize[ftpdad]: 150
++
++#-------------------------------------------------------------------
++
++#Title[smtps]: SMTP SSL Concurrency - FQDN
++#MaxBytes[smtps]: 100
++#AbsMax[smtps]: 500
++#Options[smtps]: gauge
++#Target[smtps]: `/usr/local/bin/qmailmrtg7 t /var/log/smtps`
++#PageTop[smtps]: <B>FQDN - SMTP Concurrency</B><BR>
++#ShortLegend[smtps]: SMTP
++#YLegend[smtps]: max SMTP
++#Legend1[smtps]: SMTP&nbsp;
++#LegendI[smtps]: SMTP&nbsp;
++#LegendO[smtps]: SMTP&nbsp;
++#WithPeak[smtps]: ymwd
++#XSize[smtps]: 350
++#YSize[smtps]: 150
++
++#-------------------------------------------------------------------
++
++#Title[smtpsad]: SMTP SSL Totals - FQDN
++#MaxBytes[smtpsad]: 1000
++#AbsMax[smtpsad]: 100000
++#Options[smtpsad]: gauge
++#Target[smtpsad]: `/usr/local/bin/qmailmrtg7 a /var/log/smtps`
++#PageTop[smtpsad]: <B>FQDN - SMTP Totals</B><BR>
++#ShortLegend[smtpsad]: SMTP
++#YLegend[smtpsad]: SMTP/hour
++#Legend1[smtpsad]: SMTP&nbsp;
++#LegendI[smtpsad]: Allow&nbsp;
++#LegendO[smtpsad]: Deny&nbsp;
++#WithPeak[smtpsad]: ymwd
++#XSize[smtpsad]: 350
++#YSize[smtpsad]: 150
+ 
+ #-------------------------------------------------------------------
+ Title[pop3s]: POP3 SSL Concurrency - FQDN
+ MaxBytes[pop3s]: 100
+ AbsMax[pop3s]: 500 
+ Options[pop3s]: gauge
+-Target[pop3s]: `/usr/local/bin/qmailmrtg7 t /var/log/pop3s`
++Target[pop3s]: `/usr/local/bin/qmailmrtg7 t /var/log/qmail/pop3ds`
+ PageTop[pop3s]: <B>FQDN POP3 Concurrency</B><BR>
+ ShortLegend[pop3s]: POP3
+ YLegend[pop3s]: max POP3
+@@ -368,7 +368,7 @@
+ MaxBytes[pop3sad]: 1000
+ AbsMax[pop3sad]: 100000
+ Options[pop3sad]: gauge
+-Target[pop3sad]: `/usr/local/bin/qmailmrtg7 a /var/log/pop3s`
++Target[pop3sad]: `/usr/local/bin/qmailmrtg7 a /var/log/qmail/pop3ds`
+ PageTop[pop3sad]: <B>FQDN - POP3 Totals</B><BR>
+ ShortLegend[pop3sad]: POP3
+ YLegend[pop3sad]: POP3/hour
+@@ -381,35 +381,35 @@
+ 
+ #-------------------------------------------------------------------
+ 
+-Title[tinydns]: Tinydns Queries - FQDN
+-MaxBytes[tinydns]: 1000
+-AbsMax[tinydns]: 100000
+-Options[tinydns]: gauge
+-Target[tinydns]: `/usr/local/bin/qmailmrtg7 l /var/log/tinydns`
+-PageTop[tinydns]: <B>FQDN - Tinyds Queries</B><BR>
+-ShortLegend[tinydns]: Queries
+-YLegend[tinydns]: Queries/hour
+-Legend1[tinydns]: Queries&nbsp;
+-LegendI[tinydns]: Queries&nbsp;
+-LegendO[tinydns]: &nbsp;
+-WithPeak[tinydns]: ymwd
+-XSize[tinydns]: 350
+-YSize[tinydns]: 150
++#Title[tinydns]: Tinydns Queries - FQDN
++#MaxBytes[tinydns]: 1000
++#AbsMax[tinydns]: 100000
++#Options[tinydns]: gauge
++#Target[tinydns]: `/usr/local/bin/qmailmrtg7 l /var/log/tinydns`
++#PageTop[tinydns]: <B>FQDN - Tinyds Queries</B><BR>
++#ShortLegend[tinydns]: Queries
++#YLegend[tinydns]: Queries/hour
++#Legend1[tinydns]: Queries&nbsp;
++#LegendI[tinydns]: Queries&nbsp;
++#LegendO[tinydns]: &nbsp;
++#WithPeak[tinydns]: ymwd
++#XSize[tinydns]: 350
++#YSize[tinydns]: 150
+ 
+ #-------------------------------------------------------------------
+ 
+-Title[dnscache]: Dnscache Queries - FQDN
+-MaxBytes[dnscache]: 1000
+-AbsMax[dnscache]: 100000
+-Options[dnscache]: gauge
+-Target[dnscache]: `/usr/local/bin/qmailmrtg7 Q /var/log/dnscache`
+-PageTop[dnscache]: <B>FQDN - Dnscache Queries</B><BR>
+-ShortLegend[dnscache]: &nbsp;
+-YLegend[dnscache]: Queries/hour
+-Legend1[dnscache]: Queries&nbsp;
+-LegendI[dnscache]: Cached&nbsp;
+-LegendO[dnscache]: Queries&nbsp;
+-WithPeak[dnscache]: ymwd
+-XSize[dnscache]: 350
+-YSize[dnscache]: 150
++#Title[dnscache]: Dnscache Queries - FQDN
++#MaxBytes[dnscache]: 1000
++#AbsMax[dnscache]: 100000
++#Options[dnscache]: gauge
++#Target[dnscache]: `/usr/local/bin/qmailmrtg7 Q /var/log/dnscache`
++#PageTop[dnscache]: <B>FQDN - Dnscache Queries</B><BR>
++#ShortLegend[dnscache]: &nbsp;
++#YLegend[dnscache]: Queries/hour
++#Legend1[dnscache]: Queries&nbsp;
++#LegendI[dnscache]: Cached&nbsp;
++#LegendO[dnscache]: Queries&nbsp;
++#WithPeak[dnscache]: ymwd
++#XSize[dnscache]: 350
++#YSize[dnscache]: 150
+ 

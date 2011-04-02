@@ -1,0 +1,61 @@
+--- etc/clamav.conf.orig	2004-04-13 12:58:02.000000000 -0400
++++ etc/clamav.conf	2004-04-13 12:58:08.000000000 -0400
+@@ -5,12 +5,12 @@
+ 
+ 
+ # Comment or remove the line below.
+-Example
++#Example
+ 
+ # Uncomment this option to enable logging.
+ # LogFile must be writable for the user running the daemon.
+ # Full path is required.
+-#LogFile /tmp/clamd.log
++LogFile stderr
+ 
+ # By default the log file is locked for writing - the lock protects against
+ # running clamd multiple times (if want to run another clamd, please
+@@ -31,7 +31,7 @@
+ 
+ # Log also clean files. May be useful in debugging but will drastically
+ # increase the log size.
+-#LogClean
++LogClean
+ 
+ # Use system logger (can work together with LogFile).
+ #LogSyslog
+@@ -78,7 +78,7 @@
+ 
+ # When activated, input stream (see STREAM command) will be saved to disk before
+ # scanning - this allows scanning within archives.
+-#StreamSaveToDisk
++StreamSaveToDisk
+ 
+ # Close the connection if this limit is exceeded.
+ #StreamMaxLength 10M
+@@ -119,14 +119,14 @@
+ 
+ # Run as selected user (clamd must be started by root).
+ # By default it doesn't drop privileges.
+-#User clamav
++User Gqscanq
+ 
+ # Initialize the supplementary group access (for all groups in /etc/group
+ # user is added in. clamd must be started by root).
+ #AllowSupplementaryGroups
+ 
+ # Don't fork into background. Useful in debugging.
+-#Foreground
++Foreground
+ 
+ # Enable debug messages in libclamav.
+ #Debug
+@@ -143,7 +143,7 @@
+ ##
+ 
+ # Uncomment this option if you are planning to scan mail files.
+-#ScanMail
++ScanMail
+ 
+ ##
+ ## Archive support

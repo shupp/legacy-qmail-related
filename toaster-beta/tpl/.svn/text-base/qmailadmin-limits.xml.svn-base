@@ -1,0 +1,9 @@
+<title><?php echo _("Options")?></title>
+
+<itemizedlist>
+    <listitem>
+        <para><anchor id="qmailadmin-limits" /><emphasis><?php echo _("QmailAdmin Limits")?></emphasis></para>
+        <para><?php echo _("QmailAdmin can set per domain limits/defaults, which is really useful for hosting companies with different mail packages. This is covered in detail in the INSTALL file of qmailadmin ({varsrc}/qmailadmin-{qmailadmin}/INSTALL).")?></para>
+    </listitem>
+
+</itemizedlist>

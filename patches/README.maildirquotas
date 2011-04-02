@@ -1,0 +1,55 @@
+VPOPMAIL SUPPORT FOR MAILDIRQUOTA                       (updated 11/14/2001)
+
+* OVERVIEW
+
+    While Vpopmail's quota mechanism works fine for POP accounts, it doesn't 
+    support Sam Varshavchik's maildirquota mechanism, which accounts for mail 
+    not only in the user's Maildir/new and Maildir/cur, but in maildirfolders 
+    as well.  This is only relevant to people who use vpopmail along with an
+    agent that utilizes Maildir++ to support folders (i.e. courier-imap or 
+    sqwebmail).  See http://inter7.com/courierimap/README.maildirquota.html 
+    for details on the Maildir++ specificattion, maildirquotas, and 
+    maildirfolders.
+
+    What I've done as a workaround is patch vdelivermail (vpopmail's delivery 
+    agent) to optionally support the Maildir++ quota mechanism.  This is 
+    accomplished by integrating the source code from vdeliverquota, a tool 
+    shipped with courier-imap (among others) to allow non-Maildir++ delivery 
+    agents to utilize maildirquotas.
+
+* INSTALL
+
+    Run configure with --enable-maildirquota=y (n is default)
+
+* CONFIGURATION
+
+    Quota settings are still stored in vpopmail's authentication module. Just
+    set them as you have in the past with vmoduser -q or vsetuserquota.  But two
+    different formats are now supported:
+    
+    Vpopmail style: 1000000 or 1MB or 1000KB 
+        (1MB quota)
+    maildirquota style: 1000000S or 1000000S,1000C 
+        (1MB quota, or 1MB Quota / 1000 Count limit, whichever comes first)
+
+    While both styles will work with --enable-maildirquota=y, the maildirquota  
+    style will ONLY work with --enable-maildirquota=y.  See the man page for 
+    deliverquota (which gets installed with courier-imap) on how the second 
+    format works.
+
+* BUGS
+
+    This is still being tested, and it is highly recommended that you use
+    caution before deploying it in a production environment.  Please report 
+    your experience, good or bad, to the vpopmail list (vchkpw@inter7.com) or 
+    directly to me.
+
+* CREDITS
+
+    deliverquota was written by Sam Varshavchik <mrsam@courier-mta.com>
+
+
+Cheers,
+
+Bill Shupp
+hostmaster@shupp.org

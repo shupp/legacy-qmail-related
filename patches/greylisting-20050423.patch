@@ -1,0 +1,573 @@
+20050423
+
+
+For use with http://shupp.org/patches/qmail-toaster-0.7.2.patch.bz2
+
+
+
+
+diff -urN ../../netqmail-1.05-orig/netqmail-1.05/FILES ./FILES
+--- ../../netqmail-1.05-orig/netqmail-1.05/FILES	Sat Apr 23 12:33:09 2005
++++ ./FILES	Sat Apr 23 12:33:29 2005
+@@ -461,3 +461,7 @@
+ qmail-spamt.9
+ qmail-spamthrottle.9
+ scan_2long.c
++local_scan.c
++qmail-envelope-scanner.c
++dbdef.sql
++local_scan.h 
+diff -urN ../../netqmail-1.05-orig/netqmail-1.05/Makefile ./Makefile
+--- ../../netqmail-1.05-orig/netqmail-1.05/Makefile	Sat Apr 23 12:33:09 2005
++++ ./Makefile	Sat Apr 23 12:33:29 2005
+@@ -860,7 +860,7 @@
+ predate datemail mailsubj qmail-upq qmail-showctl qmail-newst qmail-newu \
+ qmail-pw2u qmail-qread qmail-qstat qmail-tcpto qmail-tcpok \
+ qmail-pop3d qmail-popup qmail-qmqpc qmail-qmqpd qmail-qmtpd \
+-qmail-smtpd sendmail tcp-env qmail-newmrh config config-fast dnscname \
++qmail-smtpd qmail-envelope-scanner sendmail tcp-env qmail-newmrh config config-fast dnscname \
+ dnsptr dnsip dnsmxip dnsfq dnstxt hostname ipmeprint qreceipt qsmhook qbiff \
+ forward preline condredirect bouncesaying except maildirmake \
+ maildir2mbox maildirwatch qail elq pinq idedit install-big install \
+@@ -1678,6 +1678,18 @@
+ 	alloc.a strerr.a substdio.a error.a str.a fs.a auto_qmail.o auto_uids.o base64.o  `cat \
+ 	socket.lib tai.lib dns.lib` dns.o lock.a $(VPOPMAIL_LIBS)
+ 
++qmail-envelope-scanner: \
++load qmail-envelope-scanner.o local_scan.o /usr/lib/libmysqlclient.a
++	./load qmail-envelope-scanner -lz -lm local_scan.o /usr/lib/libmysqlclient.a
++
++qmail-envelope-scanner.o: \
++compile qmail-envelope-scanner.c local_scan.h
++	./compile qmail-envelope-scanner.c
++
++local_scan.o: \
++compile local_scan.c local_scan.h
++	./compile local_scan.c
++
+ qmail-smtpd.0: \
+ qmail-smtpd.8
+ 	nroff -man qmail-smtpd.8 > qmail-smtpd.0
+@@ -1943,7 +1955,7 @@
+ qmail-lspawn.c qmail-newmrh.c qmail-newu.c qmail-pop3d.c \
+ qmail-popup.c qmail-pw2u.c qmail-qmqpc.c qmail-qmqpd.c qmail-qmtpd.c \
+ qmail-qread.c qmail-qstat.sh qmail-queue.c qmail-remote.c \
+-qmail-rspawn.c qmail-send.c qmail-showctl.c qmail-smtpd.c \
++qmail-rspawn.c qmail-send.c qmail-showctl.c qmail-smtpd.c qmail-envelope-scanner.c \
+ qmail-start.c qmail-tcpok.c qmail-tcpto.c spawn.c dnscname.c dnsfq.c \
+ dnsip.c dnsmxip.c dnsptr.c dnstxt.c hostname.c ipmeprint.c tcp-env.c \
+ sendmail.c qreceipt.c qsmhook.c qbiff.c forward.c preline.c predate.c \
+diff -urN ../../netqmail-1.05-orig/netqmail-1.05/TARGETS ./TARGETS
+--- ../../netqmail-1.05-orig/netqmail-1.05/TARGETS	Sat Apr 23 12:33:09 2005
++++ ./TARGETS	Sat Apr 23 12:33:29 2005
+@@ -429,3 +429,6 @@
+ qmail-spamthrottle.5
+ qmail-spamthrottle.0
+ chkuser.o
++local_scan.o
++qmail-envelope-scanner.o
++qmail-envelope-scanner
+diff -urN ../../netqmail-1.05-orig/netqmail-1.05/dbdef.sql ./dbdef.sql
+--- ../../netqmail-1.05-orig/netqmail-1.05/dbdef.sql	Wed Dec 31 16:00:00 1969
++++ ./dbdef.sql	Sat Apr 23 12:33:29 2005
+@@ -0,0 +1,73 @@
++
++#######################################################################
++# Database definitions
++#######################################################################
++
++# Using Mysql 3.23.2 or later (required for NULLs allowed in indexed fields
++
++#CREATE DATABASE relaydelay;
++#grant select,insert,update,delete tables on relaydelay.* to milter@"localhost" identified by 'milter';
++
++USE relaydelay;
++
++# NOTE: We allow nulls in the 3 "triplet" fields for manual white/black listing.  A null indicates that that field 
++#   should not be considered when looking for a match.  Automatic entries will always have all three populated.
++# Note: Since we index the triplet fields, and allow them to be null, this requires at least Mysql 3.23.2 and MYISAM
++#   tables.
++create table relaytofrom     # Stores settings for each [relay, to, from] triplet
++(
++        id              bigint          NOT NULL        auto_increment, # unique triplet id
++        relay_ip        char(16),                                       # sending relay in IPV4 ascii dotted quad notation
++        mail_from       varchar(255),                                   # ascii address of sender
++        rcpt_to         varchar(255),                                   # the recipient address.
++        block_expires   datetime        NOT NULL,                       # the time that an initial block will/did expire
++        record_expires  datetime        NOT NULL,                       # the date after which this record is ignored
++        
++        blocked_count   bigint          default 0 NOT NULL,             # num of blocked attempts to deliver
++        passed_count    bigint          default 0 NOT NULL,             # num of passed attempts we have allowed
++        aborted_count   bigint          default 0 NOT NULL,             # num of attempts we have passed, but were later aborted
++        origin_type     enum("MANUAL","AUTO") NOT NULL,                 # indicates the origin of this record (auto, or manual)
++        create_time     datetime        NOT NULL,                       # timestamp of creation time of this record
++        last_update     timestamp       NOT NULL,                       # timestamp of last change to this record (automatic)
++
++        primary key(id),
++        key(relay_ip),
++        key(mail_from(20)),                                             # To keep the index size down, only index first 20 chars
++        key(rcpt_to(20))
++);
++
++create table dns_name        # Stores the reverse dns name lookup for records
++(
++       relay_ip      varchar(18)       NOT NULL,
++       relay_name    varchar(255)      NOT NULL,                       # dns name, stored in reversed character order (for index)
++       last_update   timestamp         NOT NULL,                       # timestamp of last change to this record (automatic)
++       primary key(relay_ip),
++       key(relay_name(20))
++);
++
++# This table is not used yet, possibly never will be
++create table mail_log        # Stores a record for every mail delivery attempt
++(
++        id              bigint          NOT NULL        auto_increment, # unique log entry id
++        relay_ip        varchar(16)     NOT NULL,                       # sending relay in IPV4 ascii dotted quad notation
++        relay_name      varchar(255),                                   # sending relay dns name
++        dns_mismatch    bool            NOT NULL,                       # true if does not match, false if matches or no dns
++        mail_from       varchar(255)    NOT NULL,                       # the mail from: address
++        rcpt_to         varchar(255)    NOT NULL,                       # the rcpt to: address
++        rcpt_host       varchar(80)     NOT NULL,                       # the id (hostname) of the host that generated this row
++        create_time     datetime        NOT NULL,                       # timestamp of inserted time, since no updates
++
++        primary key(id),
++        key(relay_ip),
++        key(mail_from(20)),
++        key(rcpt_to(20))
++);
++
++# Example wildcard whitelists for subnets
++insert into relaytofrom values (0,"127.0.0.1"   ,NULL,NULL,"0000-00-00 00:00:00","9999-12-31 23:59:59",0,0,0,"MANUAL",NOW(),NOW());
++insert into relaytofrom values (0,"192.168"     ,NULL,NULL,"0000-00-00 00:00:00","9999-12-31 23:59:59",0,0,0,"MANUAL",NOW(),NOW());
++
++# Example wildcard whitelist entry for a recieved domain or subdomain
++insert into relaytofrom values (0,NULL,NULL,"sub.domain.com","0000-00-00 00:00:00","9999-12-31 23:59:59",0,0,0,"MANUAL",NOW(),NOW());
++
++
+diff -urN ../../netqmail-1.05-orig/netqmail-1.05/hier.c ./hier.c
+--- ../../netqmail-1.05-orig/netqmail-1.05/hier.c	Sat Apr 23 12:33:09 2005
++++ ./hier.c	Sat Apr 23 12:33:29 2005
+@@ -130,6 +130,7 @@
+   c(auto_qmail,"bin","qmail-qmqpd",auto_uido,auto_gidq,0755);
+   c(auto_qmail,"bin","qmail-qmtpd",auto_uido,auto_gidq,0755);
+   c(auto_qmail,"bin","qmail-smtpd",auto_uido,auto_gidq,0755);
++  c(auto_qmail,"bin","qmail-envelope-scanner",auto_uido,auto_gidq,0755);
+   c(auto_qmail,"bin","sendmail",auto_uido,auto_gidq,0755);
+   c(auto_qmail,"bin","tcp-env",auto_uido,auto_gidq,0755);
+   c(auto_qmail,"bin","qreceipt",auto_uido,auto_gidq,0755);
+diff -urN ../../netqmail-1.05-orig/netqmail-1.05/install-big.c ./install-big.c
+--- ../../netqmail-1.05-orig/netqmail-1.05/install-big.c	Sat Apr 23 12:33:09 2005
++++ ./install-big.c	Sat Apr 23 12:33:29 2005
+@@ -128,6 +128,7 @@
+   c(auto_qmail,"bin","qmail-qmqpd",auto_uido,auto_gidq,0755);
+   c(auto_qmail,"bin","qmail-qmtpd",auto_uido,auto_gidq,0755);
+   c(auto_qmail,"bin","qmail-smtpd",auto_uido,auto_gidq,0755);
++  c(auto_qmail,"bin","qmail-envelope-scanner",auto_uido,auto_gidq,0755);
+   c(auto_qmail,"bin","sendmail",auto_uido,auto_gidq,0755);
+   c(auto_qmail,"bin","tcp-env",auto_uido,auto_gidq,0755);
+   c(auto_qmail,"bin","qreceipt",auto_uido,auto_gidq,0755);
+diff -urN ../../netqmail-1.05-orig/netqmail-1.05/local_scan.c ./local_scan.c
+--- ../../netqmail-1.05-orig/netqmail-1.05/local_scan.c	Wed Dec 31 16:00:00 1969
++++ ./local_scan.c	Sat Apr 23 12:33:29 2005
+@@ -0,0 +1,258 @@
++/**************
++ * Copyright (c) mjd@digitaleveryware.com 2003 
++ * GPL Licensed see http://www.gnu.org/licenses/gpl.html
++ * Version 0.04: I don't even have it in cvs yet 
++ * ChangeHistory:
++ * Version 0.04: support for qmail
++ * Version 0.03: added whitelisting by incoming domain address
++ * Version 0.02: added relay_ip matching by /24 subnet
++ *************/
++
++#include "local_scan.h"
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include "/usr/include/mysql/mysql.h"
++
++/************************/
++#define MYSQLHOST "localhost"
++#define MYSQLUSER "milter"
++#define MYSQLPASS "milter"
++#define MYSQLDB   "relaydelay"
++#define BLOCK_EXPIRE  55   /* minutes until email is accepted */
++#define RECORD_EXPIRE 500  /* minutes until record expires */
++#define RECORD_EXPIRE_GOOD  36 /* days until record expires after accepting email */
++
++/*************************/
++
++#define DBGSCAN 1
++#define SQLCMDSIZE 1024
++
++FILE *dbglog = NULL;
++
++int mysql_query_wrapper(MYSQL *mysql, char *sqltext) 
++{
++  int result;
++
++  result = mysql_query(mysql,sqltext);
++  if (dbglog)
++    fprintf(dbglog,"SQL: ret=%d  |%s|\n",result,sqltext);
++  return result;
++}
++
++void AddOrClause(char *subquery,char *in_ipaddr)
++{
++ int loop;
++ char *ptr;
++ char ipaddr[256];
++ 
++
++ strncpy(ipaddr, in_ipaddr, sizeof(ipaddr));
++ for (loop = 0; loop < 4; loop++) {
++   if (loop)
++     strcat(subquery, " OR ");
++   strcat(subquery , "relay_ip = '" );
++   strcat(subquery ,ipaddr);
++   strcat(subquery , "'");
++   ptr = strrchr(ipaddr,'.'); // strip off the last octet
++   if(ptr)
++     *ptr = '\0';
++ }
++}
++
++/* returns TRUE FALSE if record exists in database */
++int checkWhiteListIP( MYSQL *mysql,  int *action) 
++{
++  MYSQL_RES *myres; 
++  MYSQL_ROW myrow;
++
++  char sql[SQLCMDSIZE], sid[32];
++  int  white, black,exists = FALSE;
++
++  /* check for whitelisted sender ip address */
++     sprintf(sql, "SELECT id, block_expires > NOW(), block_expires < NOW() FROM relaytofrom WHERE record_expires > NOW()  AND mail_from IS NULL AND rcpt_to IS NULL AND (");
++    AddOrClause(sql, sender_host_address);
++    strcat(sql, ") ORDER BY length(relay_ip)");
++    //#ifdef DBGSCAN
++    //   fprintf(dbglog,"check whitelist: %s\n",sql);
++    //#endif
++    if(!mysql_query_wrapper(mysql,sql)) {
++      myres = mysql_store_result(mysql);
++      while ((myrow = mysql_fetch_row(myres)) != NULL) {
++	exists = TRUE;
++	strncpy(sid,myrow[0],sizeof(sid));
++	black = atoi(myrow[1]);
++	white = atoi(myrow[2]);
++      }
++      mysql_free_result(myres); // free memory used by result
++    }
++    if (exists && white) {
++#ifdef DBGSCAN
++      fprintf(dbglog,"%s -> xxx (%s) Whitelist IP Accept id = %s  \n",sender_address, sender_host_address,sid);
++#endif
++      *action = LOCAL_SCAN_ACCEPT;
++    }
++    else if (exists && black) {
++#ifdef DBGSCAN
++      fprintf(dbglog,"%s -> xxx (%s) Blacklist IP Permanent Reject id = %s  \n",sender_address, sender_host_address,sid);
++#endif
++      *action = LOCAL_SCAN_REJECT;
++    }
++
++  return exists;
++}
++
++
++/* returns TRUE FALSE if record exists in database */
++int checkWhiteListDomain( MYSQL *mysql,  int *action, int i) 
++{
++  MYSQL_RES *myres; 
++  MYSQL_ROW myrow;
++
++  char sql[SQLCMDSIZE], sid[32], *indomain;
++  int  white, black,exists = FALSE;
++
++  indomain = strrchr(recipients_list[i].address,'@');
++  if(indomain != NULL) {
++    indomain++; /* skip the '@' char */
++
++    /* check for whitelisted receiver domain address */
++    sprintf(sql, "SELECT id, block_expires > NOW(), block_expires < NOW() FROM relaytofrom WHERE record_expires > NOW()  AND mail_from IS NULL AND relay_ip IS NULL AND rcpt_to = '%s'",indomain);
++    if(!mysql_query_wrapper(mysql,sql)) {
++      myres = mysql_store_result(mysql);
++      while ((myrow = mysql_fetch_row(myres)) != NULL) {
++	exists = TRUE;
++	strncpy(sid,myrow[0],sizeof(sid));
++	black = atoi(myrow[1]);
++	white = atoi(myrow[2]);
++      }
++      mysql_free_result(myres); // free memory used by result
++    }
++    if (exists && white) {
++#ifdef DBGSCAN
++      fprintf(dbglog,"%s -> %s (%s) Whitelist Domain Accept id = %s  \n",sender_address, recipients_list[i].address, sender_host_address,sid);
++#endif
++      *action = LOCAL_SCAN_ACCEPT;
++    }
++    else if (exists && black) {
++#ifdef DBGSCAN
++      fprintf(dbglog,"%s -> xxx (%s) Blacklist Domain Permanent Reject id = %s  \n",sender_address, sender_host_address,sid);
++#endif
++      *action = LOCAL_SCAN_REJECT;
++    }
++  }
++  return exists;
++}
++
++void  buildLookupSql(char *sql, int recipIndex) 
++{
++  char hostip[32];
++  char *ptr;
++
++  if (FALSE) {
++    /* this first sprintf does an exact match on ipaddr */
++    sprintf(sql,"SELECT id, NOW() > block_expires FROM relaytofrom WHERE record_expires > NOW() AND mail_from = '%s'  AND rcpt_to   = '%s' AND relay_ip  = '%s' order by block_expires desc",sender_address,  recipients_list[recipIndex].address,sender_host_address);
++  }
++  else {
++    /* this second version matches anything in the same /24 subnet */
++    sprintf(sql,"SELECT id, NOW() > block_expires FROM relaytofrom WHERE record_expires > NOW() AND mail_from = '%s'  AND rcpt_to   = '%s' AND relay_ip  like '",sender_address,  recipients_list[recipIndex].address);
++    strcpy(hostip,sender_host_address);
++    /* now remove the last octet and add a '%' */
++    ptr = strrchr(hostip,'.'); // strip off the last octet    
++    if(ptr)
++      *ptr = '\0';
++    strcat(sql,hostip);
++    strcat(sql, "%' order by block_expires desc");
++  }
++}
++
++
++int checkGreylist( MYSQL *mysql,  int *action, int i) 
++{
++ MYSQL_RES *myres; 
++ MYSQL_ROW myrow;
++
++ char sql[SQLCMDSIZE], sid[32];
++ int notexpired, exists = FALSE;
++
++ // lookup to see if record exists
++ buildLookupSql(sql,i);
++ if(!mysql_query_wrapper(mysql,sql)) {
++   myres = mysql_store_result(mysql);
++   while ((myrow = mysql_fetch_row(myres)) != NULL) {
++     exists = TRUE;
++     strncpy(sid,myrow[0],sizeof(sid));
++     notexpired = atoi(myrow[1]);
++     //fprintf(dbglog,"id = %s  expire = %d\n",sid,notexpired);
++   }
++   mysql_free_result(myres); // free memory used by result
++   // if it exists and is not record expired and the block_expired passes
++   if (exists && notexpired) {
++     // update expire time to 36 days, and pass count
++     sprintf(sql,"update relaytofrom set record_expires = NOW() + INTERVAL %d DAY, passed_count = passed_count + 1 where id ='%s'",RECORD_EXPIRE_GOOD,sid);
++     mysql_query_wrapper(mysql, sql);
++#ifdef DBGSCAN
++     fprintf(dbglog,"%s -> %s (%s) Exists Accept id = %s  expire = %d\n",sender_address,recipients_list[i].address, sender_host_address,sid,notexpired);
++#endif
++     *action = LOCAL_SCAN_ACCEPT;
++   }
++   else if ( exists && ! notexpired) {
++     // update fail count
++     sprintf(sql,"update relaytofrom set blocked_count = blocked_count + 1 where id = %s",sid);
++     mysql_query_wrapper(mysql, sql);
++#ifdef DBGSCAN
++     fprintf(dbglog,"%s -> %s (%s) Exists Block id = %s  expire = %d\n",sender_address,recipients_list[i].address, sender_host_address,sid,notexpired);
++#endif
++     *action = LOCAL_SCAN_TEMPREJECT;
++   }
++   else /* doesn't exist */ {
++     // it doesn't exist make and entry
++     sprintf(sql,"insert into relaytofrom values (0,'%s','%s','%s',NOW() + INTERVAL %d MINUTE,NOW() + INTERVAL %d MINUTE,1,0,0,'AUTO',NOW(),NOW())",sender_host_address,sender_address,  recipients_list[i].address,BLOCK_EXPIRE,RECORD_EXPIRE);
++     mysql_query_wrapper(mysql,sql);
++#ifdef DBGSCAN
++     fprintf(dbglog,"%s -> %s (%s) Doesn't Exists Block\n",sender_address,recipients_list[i].address, sender_host_address);
++#endif
++     *action = LOCAL_SCAN_TEMPREJECT;
++   }
++ }
++}
++
++
++int local_scan(int fd, uschar **return_text)
++{
++ MYSQL *mysql = NULL;
++ int i,  ret = LOCAL_SCAN_ACCEPT;
++
++
++
++#ifdef DBGSCAN
++ dbglog = fopen("/tmp/greylist_dbg.txt","a");
++ fprintf(dbglog,"protocol = %s %s  \n",received_protocol,sender_address);
++#endif
++
++
++ fd = fd;                      /* Keep picky compilers happy */
++ return_text = return_text;                     /* Keep picky compilers happy */
++ mysql = mysql_init(NULL);
++ if (mysql && strcmp(received_protocol,"local") ) {
++   if (mysql_real_connect(mysql,MYSQLHOST,MYSQLUSER,MYSQLPASS,MYSQLDB,0,NULL,0)) {
++     if ( !checkWhiteListIP( mysql, &ret )) {      /* check for whitelisted sender ip address */
++       for(i= 0 ; i <  recipients_count; i++ ) {
++	 if(strlen(sender_host_address) + strlen(sender_address) +
++	    strlen(recipients_list[i].address) < SQLCMDSIZE - 200) { /* check to avoid buffer overflows */
++	   if(!checkWhiteListDomain( mysql, &ret,i ))
++	     checkGreylist(mysql, &ret,i);
++	 }
++       }
++     }
++   }
++ }
++ if(mysql) mysql_close(mysql);
++ if(dbglog) {
++   fprintf(dbglog, "--------\n");
++   fclose(dbglog);
++ }
++ return ret;
++}
++
++/* End of local_scan.c */
+diff -urN ../../netqmail-1.05-orig/netqmail-1.05/local_scan.h ./local_scan.h
+--- ../../netqmail-1.05-orig/netqmail-1.05/local_scan.h	Wed Dec 31 16:00:00 1969
++++ ./local_scan.h	Sat Apr 23 12:33:29 2005
+@@ -0,0 +1,33 @@
++/**************
++ * Copyright (c) mjd@digitaleveryware.com 2003 
++ * GPL Licensed see http://www.gnu.org/licenses/gpl.html
++ * Version 0.04: I don't even have it in cvs yet 
++ * ChangeHistory:
++ * Version 0.04: support for qmail
++ * Version 0.03: added whitelisting by incoming domain address
++ * Version 0.02: added relay_ip matching by /24 subnet
++ *************/
++
++#define FALSE 0
++#define TRUE 1
++#define uschar char
++
++#define LOCAL_SCAN_ACCEPT  0
++#define LOCAL_SCAN_REJECT  100
++#define LOCAL_SCAN_TEMPREJECT  101
++#define SOMETHING_BAD      102
++
++struct recipients_list {
++  char *address;
++};
++
++
++int local_scan(int fd, uschar **return_text);
++
++/* globals used by exim */
++
++extern int recipients_count;
++extern char *received_protocol;
++extern char *sender_host_address;
++extern char *sender_address;
++extern struct recipients_list recipients_list[];
+diff -urN ../../netqmail-1.05-orig/netqmail-1.05/qmail-envelope-scanner.c ./qmail-envelope-scanner.c
+--- ../../netqmail-1.05-orig/netqmail-1.05/qmail-envelope-scanner.c	Wed Dec 31 16:00:00 1969
++++ ./qmail-envelope-scanner.c	Sat Apr 23 12:33:29 2005
+@@ -0,0 +1,33 @@
++/**************
++ * Copyright (c) mjd@digitaleveryware.com 2003 
++ * GPL Licensed see http://www.gnu.org/licenses/gpl.html
++ * Version 0.04: I don't even have it in cvs yet 
++ * ChangeHistory:
++ * Version 0.04: support for qmail
++ * Version 0.03: added whitelisting by incoming domain address
++ * Version 0.02: added relay_ip matching by /24 subnet
++ *************/
++
++#include <stdio.h>
++#include <stdlib.h>
++#include "local_scan.h"
++
++
++char *received_protocol;
++char *sender_host_address;
++char *sender_address;
++struct recipients_list recipients_list[1];
++int recipients_count = 1;
++
++int main(int argv, char *argc[])
++{
++  received_protocol = "notneeded4qmail";
++  sender_host_address = getenv("TCPREMOTEIP");
++  recipients_list[0].address = argc[2];
++  sender_address = argc[1];
++
++  if (argv == 3 && sender_host_address != NULL)
++    return local_scan(1,NULL);
++  else
++    return SOMETHING_BAD;
++}
+diff -urN ../../netqmail-1.05-orig/netqmail-1.05/qmail-smtpd.c ./qmail-smtpd.c
+--- ../../netqmail-1.05-orig/netqmail-1.05/qmail-smtpd.c	Sat Apr 23 12:33:09 2005
++++ ./qmail-smtpd.c	Sat Apr 23 12:34:43 2005
+@@ -30,6 +30,8 @@
+ #include "env.h"
+ #include "now.h"
+ #include "exit.h"
++#include "fork.h"
++#include "wait.h"
+ #include "rcpthosts.h"
+ #include "timeoutread.h"
+ #include "timeoutwrite.h"
+@@ -95,6 +97,8 @@
+ void die_ipme() { out("421 unable to figure out my IP addresses (#4.3.0)\r\n"); flush(); _exit(1); }
+ void straynewline() { out("451 See http://pobox.com/~djb/docs/smtplf.html.\r\n"); flush(); _exit(1); }
+ 
++void err_tempfail() { out("421 temporary envelope failure (#4.3.0)\r\n"); }
++void err_permfail() { out("553 sorry, permanent envelope failure (#5.7.1)\r\n"); }
+ void err_size() { out("552 sorry, that message size exceeds my databytes limit (#5.3.4)\r\n"); }
+ void err_bmf() { out("553 sorry, your envelope sender has been denied (#5.7.1)\r\n"); }
+ void err_bmt() { out("553 sorry, your envelope recipient has been denied (#5.7.1)\r\n"); }
+@@ -460,6 +464,37 @@
+     }
+ }
+ 
++int envelope_scanner()
++{
++  int child;
++  int wstat;
++  char *envelope_scannerarg[] = { "bin/qmail-envelope-scanner", mailfrom.s, addr.s, 0 };
++
++  switch(child = vfork()) {
++    case -1:
++      return 1;
++    case 0:
++      execv(*envelope_scannerarg,envelope_scannerarg);
++      _exit(111);
++  }
++
++  wait_pid(&wstat,child);
++  if (wait_crashed(wstat)) {
++    return 1;
++  }
++
++  switch(wait_exitcode(wstat)) {
++    case 101:
++      err_tempfail();
++      return 0;
++    case 100:
++      err_permfail();
++      return 0;
++    default:
++      return 1;
++  }
++}
++
+ void smtp_helo(arg) char *arg;
+ {
+   smtp_greet("250 "); out("\r\n");
+@@ -591,6 +626,9 @@
+     return;
+   }
+   if (flagbarfspf) { err_spf(); return; }
++  if (!relayclient) {
++    if (!envelope_scanner()) return;
++  }
+   switch (chkuser_realrcpt (&mailfrom, &addr)) {
+ 
+         case CHKUSER_KO:

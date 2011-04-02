@@ -1,0 +1,25 @@
+<versions>
+    <tversion>0.9.3</tversion>
+    <daemontools>0.76</daemontools>
+    <ucspitcp>0.88</ucspitcp>
+    <netqmail>1.05</netqmail>
+    <libdomainkeys>0.68</libdomainkeys>
+    <toasterpatch>0.9.1</toasterpatch>
+    <vpopmail>5.4.19</vpopmail>
+    <autorespond>2.0.4</autorespond>
+    <qmailadmin>1.2.11</qmailadmin>
+    <qmailadminhelp>1.0.8</qmailadminhelp>
+    <ezmlm>0.53</ezmlm>
+    <ezmlmidx>0.443</ezmlmidx>
+    <courierauthlib>0.59.1</courierauthlib>
+    <courierimap>4.1.2</courierimap>
+    <squirrelmail>1.4.9a</squirrelmail>
+    <quotausage>1.3.1-1.2.7</quotausage>
+    <toasterscripts>0.9.1</toasterscripts>
+    <ripmime>1.4.0.6</ripmime>
+    <simscan>1.3.1.shupp2</simscan>
+    <clamav>0.91.1</clamav>
+    <qmailmrtg7>4.2</qmailmrtg7>
+    <tmda>1.1.11</tmda>
+    <tmdacgi>0.16.3</tmdacgi>
+</versions>

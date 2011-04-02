@@ -1,0 +1,31 @@
+<title><?php echo _("Install Software") ?></title>
+
+<itemizedlist>
+    <listitem>
+        <para><emphasis><?php echo _("QmailAdmin")?></emphasis></para>
+
+        <para><?php echo _("QmailAdmin can handle nearly all virtual email administration tasks for you from a web browser, except for adding and removing virtual domains.")?></para>
+
+        <para><?php echo _("Info: ")?><ulink url="http://sourceforge.net/projects/qmailadmin">http://sourceforge.net/projects/qmailadmin</ulink></para>
+
+        <para><?php echo _("Install:")?></para>
+
+        <programlisting>
+            <literal>cd {varsrc}</literal>
+            <literal>tar -xzf tar/qmailadmin-{qmailadmin}.tar.gz</literal>
+            <literal>cd qmailadmin-{qmailadmin}</literal>
+            <literal>./configure --enable-help --enable-htmldir=/var/www/html --enable-cgibindir=/var/www/cgi-bin</literal>
+            <literal>make</literal>
+            <literal>make install-strip</literal>
+            <literal></literal>
+            <literal>cd ../</literal>
+            <literal>tar -xzf tar/qmailadmin-help-{qmailadminhelp}.tar.gz</literal>
+            <literal>cd qmailadmin-help-{qmailadminhelp}</literal>
+            <literal>mkdir /var/www/html/images/qmailadmin/help</literal>
+            <literal>cp -rp * /var/www/html/images/qmailadmin/help</literal>
+        </programlisting>
+
+        <para><?php echo _("Your toaster installation is done! Now we're ready to take it for a test drive.")?></para>
+
+    </listitem>
+</itemizedlist>

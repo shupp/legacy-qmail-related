@@ -1,0 +1,84 @@
+<title><?php echo _("Test Drive")?></title>
+
+<para><?php echo _("Here we'll add a virtual domain, 'test.com', and test sending/receiving mail. Substitue 'test.com' for whatever domain you setup DNS for.")?></para>
+
+<programlisting>
+    <lineannotation><?php echo _("Add the domain to vpopmail")?></lineannotation>
+    <literal>/home/vpopmail/bin/vadddomain test.com <?php echo _("[password]")?></literal>
+</programlisting>
+
+<para><?php echo _("This creates the default <quote>postmaster</quote> account for test.com. You will use this account with qmailadmin. Try adding/removing users with qmailadmin here:")?></para>
+
+<para>http://mail.test.com/cgi-bin/qmailadmin</para>
+
+<para><?php echo _("To test out quota usage support, create a user with a 6MB quota like so:")?></para>
+
+<programlisting>
+    <literal>/home/vpopmail/bin/vadduser -q 6MB user@test.com <?php echo _("[password]")?></literal>
+    <literal></literal>
+    <lineannotation><?php echo _("verify the user settings, and create the <quote>maildirsize</quote> file")?></lineannotation>
+    <literal>/home/vpopmail/bin/vuserinfo user@test.com</literal>
+</programlisting>
+
+<para><?php echo _("Now, to log into SquirrelMail as user@test.com, point your browser here:")?></para>
+
+<para>http://mail.test.com/squirrelmail-{squirrelmail}/</para>
+
+<para><?php echo _("Send yourself a message. If you get it, it's likely you're up and running.")?></para>
+
+<para><?php echo _("To test your POP server, try telnetting to port 110 and logging in.")?></para>
+
+<blockquote role="configure">
+    <literallayout># telnet localhost 110</literallayout>
+    <literallayout>Trying 127.0.0.1...</literallayout>
+    <literallayout>Connected to localhost.localdomain.</literallayout>
+    <literallayout>Escape character is '^]'.</literallayout>
+    <literallayout>+OK &lt;25248.1175148975@localhost&gt;</literallayout>
+    <literallayout>user user@test.com</literallayout>
+    <literallayout>+OK</literallayout>
+    <literallayout>pass <?php echo _("[password]")?></literallayout>
+    <literallayout>+OK logged in.</literallayout>
+    <literallayout>quit</literallayout>
+    <literallayout>+OK</literallayout>
+    <literallayout>Connection closed by foreign host.</literallayout>
+</blockquote>
+
+<para><?php echo _("Test your IMAP server in the same way:")?></para>
+
+<blockquote role="configure">
+    <literallayout># telnet localhost 143</literallayout>
+    <literallayout>Trying 127.0.0.1...</literallayout>
+    <literallayout>Connected to localhost.localdomain.</literallayout>
+    <literallayout>Escape character is '^]'.</literallayout>
+    <literallayout>* OK Courier-IMAP ready. Copyright 1998-2001 Double Precision, Inc. See COPYING for distribution information.</literallayout>
+    <literallayout>a001 login user@test.com <?php echo _("[password]")?></literallayout>
+    <literallayout>a001 OK LOGIN Ok.</literallayout>
+    <literallayout>a001 logout</literallayout>
+    <literallayout>* BYE Courier-IMAP server shutting down</literallayout>
+    <literallayout>a001 OK LOGOUT completed</literallayout>
+    <literallayout>Connection closed by foreign host.</literallayout>
+</blockquote>
+
+<para><?php echo _("To test our SSL/TLS connections, all you need to do is duplicate the same tests above, but use openssl's s_client tool to handle encryption.")?></para>
+
+<blockquote role="configure">
+    <literallayout># for pop:</literallayout>
+    <literallayout>openssl s_client -connect localhost:995</literallayout>
+    <literallayout></literallayout>
+    <literallayout># for imap:</literallayout>
+    <literallayout>openssl s_client -connect localhost:993</literallayout>
+    <literallayout></literallayout>
+    <literallayout># for smtp/tls:</literallayout>
+    <literallayout>openssl s_client -crlf -starttls smtp -connect localhost:25</literallayout>
+</blockquote>
+
+<para><?php echo _("<emphasis>NOTE:</emphasis> If you get an error like this:")?></para>
+
+<para>20656:error:14077410:SSL routines:SSL23_GET_SERVER_HELLO:sslv3 alert handshake failure:s23_clnt.c:473:</para>
+
+<para><?php echo _("your qmail install might need the cipher lists. Debian does this, I don't know why. The following commands will fix it:")?></para>
+
+<programlisting>
+    <literal>openssl ciphers > /var/qmail/control/tlsclientciphers</literal>
+    <literal>openssl ciphers > /var/qmail/control/tlsserverciphers</literal>
+</programlisting>

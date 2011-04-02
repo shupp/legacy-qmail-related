@@ -1,0 +1,71 @@
+<title><?php echo _("Install Software") ?></title>
+
+<itemizedlist>
+    <listitem>
+        <para><emphasis><?php echo _("Vpopmail")?> </emphasis></para>
+
+        <para><?php echo _("Vpopmail is a virtual domain package add-on for qmail. It can handle multiple domains
+on a single IP address, and none of the user accounts are /etc/passwd or <quote>system</quote> accounts.")?></para>
+
+        <para><?php echo _("Info: ")?><ulink url="http://vpopmail.sf.net">http://vpopmail.sf.net</ulink></para>
+
+        <para><?php echo _("Install:")?></para>
+
+        <programlisting>
+			<literal>groupadd -g 89 vchkpw</literal>
+			<literal>useradd -u 89 -g vchkpw vpopmail</literal>
+			<literal></literal>
+			<literal>cd {varsrc}</literal>
+			<literal>tar -xzf tar/vpopmail-{vpopmail}.tar.gz</literal>
+			<literal>cd vpopmail-{vpopmail}</literal>
+			<literal>patch -p0 &lt; ../tar/vpopmail-{vpopmail}-cumulative.patch</literal>
+			<literal></literal>
+			<lineannotation><?php echo _("NOTE: If you are on the x86_64 platform, you need to set the CFLAGS compiler environment by prefacing the next command with <quote>CFLAGS=-fPIC</quote>, like so: <quote>CFLAGS=-fPIC ./configure ...</quote>")?></lineannotation>
+			<literal></literal>
+			<literal>./configure --enable-logging=v</literal>
+			<literal>make</literal>
+			<literal>make install-strip</literal>
+			<literal></literal>
+			<lineannotation><?php echo _('NOTE: If you are on the x86_64 platform, you need to edit cdb/compile to add the -fPIC argument to cc. It should look something like this: \'exec gcc -fPIC -02 -c ${1+"$@"}\' After editing compile, do <quote>make &amp;&amp; make install-strip</quote> again.  see this post for more details')?></lineannotation>
+			<literal></literal>
+			<literal>echo '127.:allow,RELAYCLIENT=""' &gt; ~vpopmail/etc/tcp.smtp</literal>
+			<literal>(cd ~vpopmail/etc ; tcprules tcp.smtp.cdb tcp.smtp.tmp &lt; tcp.smtp)</literal>
+			<literal></literal>
+			<lineannotation><?php echo _("install the vpopmail start script")?></lineannotation>
+			<literal>cp ../toaster-scripts-{toasterscripts}/vpopmailctl /var/qmail/bin/vpopmailctl</literal>
+			<literal></literal>
+			<literal>chmod 755 /var/qmail/bin/vpopmailctl</literal>
+			<literal>ln -s /var/qmail/bin/vpopmailctl /usr/bin</literal>
+			<literal></literal>
+			<lineannotation><?php echo _("add qmail toaster patch now that vpopmail is installed")?></lineannotation>
+			<literal>cd {varsrc}/netqmail-{netqmail}/netqmail-{netqmail}</literal>
+			<literal>bunzip2 -c ../../tar/qmail-toaster-{toasterpatch}.patch.bz2 | patch -p0</literal>
+			<literal>make clean</literal>
+			<literal>make</literal>
+			<literal>qmailctl stop</literal>
+			<literal>make setup check</literal>
+			<literal></literal>
+			<lineannotation><?php echo _("NOTE: the following command needs to be run after any future re-installs of qmail as it will chown this directory back to qmail")?></lineannotation>
+			<literal></literal>
+			<literal>chown -R vpopmail:vchkpw /var/qmail/spam</literal>
+			<literal></literal>
+			<literal>make cert</literal>
+			<lineannotation><?php echo _("enter your company's information")?></lineannotation>
+			<literal>make tmprsadh</literal>
+			<lineannotation><?php echo _("NOTE: This may take a LONG time")?></lineannotation>
+			<literal></literal>
+			<lineannotation><?php echo _("now add the followowing line to your crontab via `crontab -e` to update these temp keys each night")?></lineannotation>
+			<literal>01 01 * * * /var/qmail/bin/update_tmprsadh &gt; /dev/null 2&gt;&amp;1</literal>
+			<literal></literal>
+			<lineannotation><?php echo _("start qmail back up")?></lineannotation>
+			<literal>qmailctl start</literal>
+			<literal></literal>
+			<lineannotation><?php echo _("allow daemontools to start vpopmail")?></lineannotation>
+			<literal>ln -s /var/qmail/supervise/qmail-pop3d /var/qmail/supervise/qmail-pop3ds /service</literal>
+			<literal></literal>
+			<lineannotation>verify that it's running with vpopmailctl</lineannotation>
+			<literal>sleep 5</literal>
+			<literal>vpopmailctl stat </literal>
+        </programlisting>
+    </listitem>
+</itemizedlist>

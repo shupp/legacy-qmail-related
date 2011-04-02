@@ -1,0 +1,76 @@
+diff -urN ../clamav-0.90.1/etc/clamd.conf ./etc/clamd.conf
+--- ../clamav-0.90.1/etc/clamd.conf	2007-02-22 07:01:50.000000000 -0800
++++ ./etc/clamd.conf	2007-03-22 17:11:58.747640632 -0700
+@@ -5,13 +5,13 @@
+ 
+ 
+ # Comment or remove the line below.
+-Example
++#Example
+ 
+ # Uncomment this option to enable logging.
+ # LogFile must be writable for the user running daemon.
+ # A full path is required.
+ # Default: disabled
+-#LogFile /tmp/clamd.log
++# /tmp/clamd.log
+ 
+ # By default the log file is locked for writing - the lock protects against
+ # running clamd multiple times (if want to run another clamd, please
+@@ -36,7 +36,7 @@
+ # Also log clean files. Useful in debugging but drastically increases the
+ # log size.
+ # Default: no
+-#LogClean yes
++LogClean yes
+ 
+ # Use system logger (can work together with LogFile).
+ # Default: no
+@@ -49,7 +49,7 @@
+ 
+ # Enable verbose logging.
+ # Default: no
+-#LogVerbose yes
++LogVerbose yes
+ 
+ # This option allows you to save a process identifier of the listening
+ # daemon (main thread).
+@@ -153,7 +153,7 @@
+ 
+ # Don't fork into background.
+ # Default: no
+-#Foreground yes
++Foreground yes
+ 
+ # Enable debug messages in libclamav.
+ # Default: no
+@@ -211,7 +211,7 @@
+ 
+ # Enable internal e-mail scanner.
+ # Default: yes
+-#ScanMail yes
++ScanMail yes
+ 
+ # If an email contains URLs ClamAV can download and scan them.
+ # WARNING: This option may open your system to a DoS attack.
+diff -urN ../clamav-0.90.1/etc/freshclam.conf ./etc/freshclam.conf
+--- ../clamav-0.90.1/etc/freshclam.conf	2007-02-17 11:13:49.000000000 -0800
++++ ./etc/freshclam.conf	2007-03-22 17:11:06.468588256 -0700
+@@ -5,7 +5,7 @@
+ 
+ 
+ # Comment or remove the line below.
+-Example
++#Example
+ 
+ # Path to the database directory.
+ # WARNING: It must match clamd.conf's directive!
+@@ -14,7 +14,7 @@
+ 
+ # Path to the log file (make sure it has proper permissions)
+ # Default: disabled
+-#UpdateLogFile /var/log/freshclam.log
++UpdateLogFile /var/log/freshclam.log
+ 
+ # Enable verbose logging.
+ # Default: no

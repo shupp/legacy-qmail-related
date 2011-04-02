@@ -1,0 +1,66 @@
+<title><?php echo _("Getting Started")?></title>
+<itemizedlist>
+    <listitem>
+        <para><anchor id="dns" /><emphasis><?php echo _("DNS")?></emphasis></para>
+        <para><?php echo _("Before we begin, make sure DNS (mx record) is properly setup. If you were using <quote>merchbox.com</quote> as your virtual domain, here's how your host lookups would look after setting up dns:")?></para>
+
+        <blockquote role="configure">
+            <literallayout><?php echo _("[shupp@ns1 toaster]$ host -t mx merchbox.com")?></literallayout>
+            <literallayout><?php echo _("merchbox.com. mail is handled by 0 mail.merchbox.com.")?></literallayout>
+            <literallayout><?php echo _("[shupp@ns1 toaster]$ host -t a mail.merchbox.com")?></literallayout>
+            <literallayout><?php echo _("mail.merchbox.com. has address 216.234.249.114")?></literallayout>
+        </blockquote>
+    </listitem>
+
+    <listitem>
+        <para><anchor id="remove" /><emphasis><?php echo _("Remove existing smtp/pop/imap servers")?></emphasis></para>
+        <para><?php echo _("Now we must remove any existing installations of sendmail/postfix and disable pop/imap servers. To remove sendmail and postfix from an rpm based distribution, try this:")?></para>
+        <programlisting role="gen-rpm"><literal>rpm -e --nodeps sendmail postfix</literal></programlisting>
+
+        <para><?php echo _(" Unless you have other services that absolutely have to run on this machine, I recommend shutting down inetd or xinetd altogether and removing it from your startup scripts. The only thing you'll need (outside of what we're about to isntall) is ssh, which is probably installed already. This will likely shut off any pop3 or imap servers, as well as other unneccessary ports. Otherwise, disable them manually.")?></para>
+        <para><?php echo _("To be sure that these services are disabled, try telnetting to ports 25, 110, and 143 and make sure your connections are refused.")?></para>
+</listitem>
+
+<listitem>
+    <para><anchor id="download" /><emphasis><?php echo _("Download Packages") ?></emphasis></para>
+    <para><?php echo _(" I keep my software source in /var/src. If you want to put it in another location, set the location below, and all paths will be updated.")?></para>
+
+    <literallayout>
+        <userinput role="varsrc"></userinput>
+    </literallayout>
+
+
+    <programlisting>
+        <literal>umask 0022</literal>
+        <literal>mkdir -p {varsrc}/tar</literal>
+        <literal>cd {varsrc}/tar</literal>
+        <literal>wget http://cr.yp.to/daemontools/daemontools-{daemontools}.tar.gz</literal>
+        <literal>wget http://cr.yp.to/ucspi-tcp/ucspi-tcp-{ucspitcp}.tar.gz</literal>
+        <literal>wget http://shupp.org/software/netqmail-{netqmail}.tar.gz</literal>
+        <literal>wget http://shupp.org/software/libdomainkeys-{libdomainkeys}.tar.gz</literal>
+        <literal>wget http://shupp.org/patches/libdomainkeys.diff</literal>
+        <literal>wget http://shupp.org/patches/qmail-toaster-{toasterpatch}.patch.bz2</literal>
+        <literal>wget http://shupp.org/patches/doublebounce-trim.patch</literal>
+        <literal>wget http://shupp.org/software/vpopmail-{vpopmail}.tar.gz</literal>
+        <literal>wget http://shupp.org/patches/vpopmail-{vpopmail}-cumulative.patch</literal>
+        <literal>wget http://shupp.org/software/autorespond-{autorespond}.tar.gz</literal>
+        <literal>wget http://shupp.org/patches/autorespond-2.0.4-2.0.5.patch</literal>
+        <literal>wget http://shupp.org/software/qmailadmin-{qmailadmin}.tar.gz</literal>
+        <literal>wget http://shupp.org/software/qmailadmin-help-{qmailadminhelp}.tar.gz</literal>
+        <literal>wget http://cr.yp.to/software/ezmlm-{ezmlm}.tar.gz</literal>
+        <literal>wget http://shupp.org/software/ezmlm-idx-{ezmlmidx}.tar.gz</literal>
+        <literal>wget http://shupp.org/software/courier-imap-{courierimap}.tar.bz2</literal>
+        <literal>wget http://shupp.org/software/courier-authlib-{courierauthlib}.tar.bz2</literal>
+        <literal>wget http://shupp.org/patches/vpopmail_courier_cram-1.diff</literal>
+        <literal>wget http://shupp.org/software/squirrelmail-{squirrelmail}.tar.bz2</literal>
+        <literal>wget http://shupp.org/software/quota_usage-{quotausage}.tar.gz</literal>
+        <literal>wget http://shupp.org/software/toaster-scripts-{toasterscripts}.tar.gz</literal>
+        <literal>cd ../</literal>
+        <literal>tar -xzf tar/netqmail-{netqmail}.tar.gz</literal>
+        <literal>cd netqmail-{netqmail}</literal>
+        <literal>./collate.sh</literal>
+    </programlisting>
+
+</listitem>
+
+</itemizedlist>

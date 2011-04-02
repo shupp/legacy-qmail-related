@@ -1,0 +1,21 @@
+<title><?php echo _("Options")?></title>
+
+<itemizedlist>
+    <listitem>
+        <para><anchor id="ripmime" /><emphasis><?php echo _("ripmime")?></emphasis></para>
+        <para><?php echo _("ripmime is a tool for extracting MIME attachments from email, and is used by simscan.")?></para>
+        <para><?php echo _("Info: ")?> <ulink url="http://www.pldaniels.com/ripmime/">http://www.pldaniels.com/ripmime/</ulink></para>
+        <para><?php echo _("Install:")?></para>
+
+        <programlisting>
+            <literal>cd {varsrc}/tar</literal>
+            <literal>wget http://shupp.org/software/ripmime-{ripmime}.tar.gz</literal>
+            <literal>cd ..</literal>
+            <literal>tar -xzf tar/ripmime-{ripmime}.tar.gz</literal>
+            <literal>cd ripmime-{ripmime}</literal>
+            <literal>make</literal>
+            <literal>make install</literal>
+        </programlisting>
+    </listitem>
+
+</itemizedlist>

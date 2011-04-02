@@ -1,0 +1,20 @@
+--- etc/freshclam.conf.orig	Wed Dec 15 22:08:07 2004
++++ etc/freshclam.conf	Wed Dec 15 22:09:13 2004
+@@ -6,7 +6,7 @@
+ 
+ 
+ # Comment or remove the line below.
+-Example
++#Example
+ 
+ # Path to the database directory.
+ # WARNING: It must match clamd.conf's directive!
+@@ -15,7 +15,7 @@
+ 
+ # Path to the log file (make sure it has proper permissions)
+ # Default: disabled
+-#UpdateLogFile /var/log/freshclam.log
++UpdateLogFile /var/log/freshclam.log
+ 
+ # Enable verbose logging.
+ # Default: disabled

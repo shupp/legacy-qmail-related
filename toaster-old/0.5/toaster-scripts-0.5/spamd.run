@@ -1,0 +1,2 @@
+#!/bin/sh
+exec /usr/bin/spamd -F0 -L -x -u vpopmail

@@ -1,0 +1,105 @@
+<title><?php echo _("Install Software") ?></title>
+
+<itemizedlist>
+    <listitem>
+        <para><emphasis><?php echo _("Courier-IMAP")?> </emphasis></para>
+
+        <para><?php echo _("Courier-IMAP will supply IMAP/SIMAP access.")?></para>
+
+        <para><?php echo _("Info: ")?><ulink url="http://www.courier-mta.org/imap/">http://www.courier-mta.org/imap/</ulink></para>
+        <para><?php echo _("<emphasis>NOTE:</emphasis> If you are on a system that does not use GNU make, such as FreeBSD, install GNU make and substitue 'gmake' for 'make' during the install of courier-authlib and courier-imap.  Most Linux systems use GNU make.")?></para>
+
+        <para><?php echo _("Install Courier's Auth Library: ")?></para>
+
+
+        <programlisting>
+			<literal>cd {varsrc}</literal>
+			<literal>tar -xjf tar/courier-authlib-{courierauthlib}.tar.bz2</literal>
+			<literal>cd courier-authlib-{courierauthlib}</literal>
+			<literal>patch -p0 &lt; ../tar/vpopmail_courier_cram-1.diff</literal>
+			<literal>./configure</literal>
+			<lineannotation>NOTE: RedHat/Fedora users need to add "--with-redhat"</lineannotation>
+			<literal></literal>
+			<literal>make</literal>
+			<literal>make install-strip</literal>
+			<literal>make install-configure</literal>
+			<literal></literal>
+			<literal>cp courier-authlib.sysvinit /etc/init.d/courier-authlib</literal>
+			<literal>chmod 755 /etc/init.d/courier-authlib</literal>
+			<literal>ln -s ../init.d/courier-authlib /etc/rc0.d/K30courier-authlib</literal>
+			<literal>ln -s ../init.d/courier-authlib /etc/rc1.d/K30courier-authlib</literal>
+			<literal>ln -s ../init.d/courier-authlib /etc/rc2.d/S80courier-authlib</literal>
+			<literal>ln -s ../init.d/courier-authlib /etc/rc3.d/S80courier-authlib</literal>
+			<literal>ln -s ../init.d/courier-authlib /etc/rc4.d/S80courier-authlib</literal>
+			<literal>ln -s ../init.d/courier-authlib /etc/rc5.d/S80courier-authlib</literal>
+			<literal>ln -s ../init.d/courier-authlib /etc/rc6.d/K30courier-authlib</literal>
+			<literal></literal>
+        </programlisting>
+
+	    <para><?php echo _("Configure:")?></para>
+
+        <blockquote role="configure">
+	        <literallayout>Edit /usr/local/etc/authlib/authdaemonrc</literallayout>
+            <itemizedlist>
+			    <listitem><literallayout><?php echo _("Change authmodulelist=<quote>...</quote> to authmodulelist=<quote>authvchkpw</quote>")?></literallayout></listitem>
+			    <listitem><literallayout><?php echo _("Start Authlib's Authdaemon Server")?></literallayout></listitem>
+			    <listitem><literallayout>/etc/init.d/courier-authlib start</literallayout></listitem>
+            </itemizedlist>
+        </blockquote>
+
+	<para><?php echo _("Install Courier-IMAP:")?></para>
+
+    <programlisting>
+        <literal>cd {varsrc}</literal>
+		<literal>tar -xjf tar/courier-imap-{courierimap}.tar.bz2</literal>
+		<literal>cd courier-imap-{courierimap}</literal>
+		<lineannotation><?php echo _("build as vpopmail")?></lineannotation>
+		<literal>chown -R vpopmail:vchkpw ../courier-imap-{courierimap}</literal>
+		<literal>su vpopmail</literal>
+		<literal>umask 0022</literal>
+		<lineannotation><?php echo _("configure may take some time...")?></lineannotation>
+		<literal>./configure</literal>
+		<lineannotation><?php echo _("NOTE: RedHat/Fedora users need to add '--with-redhat'")?></lineannotation>
+		<literal></literal>
+		<literal>make</literal>
+		<literal>exit</literal>
+		<literal>make install-strip</literal>
+		<literal>make install-configure</literal>
+		<literal></literal>
+		<literal>cp courier-imap.sysvinit /etc/init.d/courier-imap</literal>
+		<literal>chmod 755 /etc/init.d/courier-imap</literal>
+		<literal>ln -s ../init.d/courier-imap /etc/rc0.d/K30courier-imap</literal>
+		<literal>ln -s ../init.d/courier-imap /etc/rc1.d/K30courier-imap</literal>
+		<literal>ln -s ../init.d/courier-imap /etc/rc2.d/S80courier-imap</literal>
+		<literal>ln -s ../init.d/courier-imap /etc/rc3.d/S80courier-imap</literal>
+		<literal>ln -s ../init.d/courier-imap /etc/rc4.d/S80courier-imap</literal>
+		<literal>ln -s ../init.d/courier-imap /etc/rc5.d/S80courier-imap</literal>
+		<literal>ln -s ../init.d/courier-imap /etc/rc6.d/K30courier-imap</literal>
+    </programlisting>
+
+    
+	<para><?php echo _("Configure:")?></para>
+    <blockquote role="configure">
+		<literallayout>Edit /usr/lib/courier-imap/etc/imapd</literallayout>
+		<itemizedlist>
+               <listitem><literallayout><?php echo _("Change 'IMAPDSTART=NO' to 'IMAPDSTART=YES'")?></literallayout></listitem>
+               <listitem><literallayout><?php echo _('add " AUTH=CRAM-MD5" to IMAP_CAPABILITY to enable secure authentication (CRAM-MD5)')?></literallayout></listitem>
+		</itemizedlist>
+		<literallayout><?php echo _("Edit /usr/lib/courier-imap/etc/imapd-ssl")?></literallayout>
+		<itemizedlist>
+               <listitem><literallayout><?php echo _("Change 'IMAPDSSLSTART=NO' to 'IMAPDSSLSTART=YES'")?></literallayout></listitem>
+           </itemizedlist>
+		<itemizedlist>
+		    <listitem><literallayout><?php echo _("optional: The first time courier-imap is started, the SSL certificate is first created using 'localhost' as the 'common name'.  If you want to change this to match your hostname, you can customize the CN line in /usr/lib/courier-imap/etc/imapd.cnf (and pop3d.cnf of you choose to use courier's pop3d) so that the common name matches your server name BEFORE you start the server for the first time.")?></literallayout></listitem>
+        </itemizedlist>
+
+    </blockquote>
+
+	<para><?php echo ("Start IMAP server")?></para>
+
+    <programlisting>
+			<literal>/etc/init.d/courier-imap start</literal>
+    </programlisting>
+
+    </listitem>
+</itemizedlist>

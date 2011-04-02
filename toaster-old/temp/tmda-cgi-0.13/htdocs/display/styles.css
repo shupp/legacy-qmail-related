@@ -1,0 +1,7 @@
+a            { color: #4E508F                                               }
+.body        { padding-right: 15px; padding-bottom: 20px                    }
+.matte       { background-image: url(left_bg.gif);
+               background-repeat: repeat-y; background-position: left       }
+.example td  { background-color: #DEDFED; font-size: x-small;
+               font-family: "Courier New", Courier, mono;
+               white-space: nowrap; padding: 5px 10px                       }

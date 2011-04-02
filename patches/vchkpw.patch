@@ -1,0 +1,487 @@
+*** vchkpw.c.old	Tue Feb 12 13:34:17 2002
+--- vchkpw.c	Tue Feb 12 13:44:08 2002
+***************
+*** 48,53 ****
+--- 48,59 ----
+  /* For tracking ip of client asking for pop service */
+  char *IpAddr;
+  
++ /* Embed the port in the log when smtp-auth is used */
++ char VchkpwLogName[12];
++ 
++ /* For logging, relay info */
++ char *LocalPort;
++ 
+  /* storage of authentication information */
+  #define AUTH_SIZE 156
+  #define AUTH_INC_SIZE 155
+***************
+*** 87,99 ****
+  {
+  
+      if ( (IpAddr = getenv("TCPREMOTEIP")) == NULL) IpAddr="";
+  
+      /* read in the user name and password from file descriptor 3 */
+      read_user_pass();
+  
+      if ( parse_email( TheName, TheUser, TheDomain, AUTH_SIZE) != 0 ) {
+          snprintf(LogLine, LOG_LINE_SIZE, 
+!             "vchkpw: invalid user/domain characters %s:%s", TheName, IpAddr);
+  	vlog(VLOG_ERROR_PASSWD, TheUser, TheDomain, ThePass, TheName, 
+            IpAddr, LogLine);
+          vchkpw_exit(20);
+--- 93,115 ----
+  {
+  
+      if ( (IpAddr = getenv("TCPREMOTEIP")) == NULL) IpAddr="";
++     if ( (LocalPort = getenv("TCPLOCALPORT")) == NULL) LocalPort="";
++ 
++     if(strcmp(LocalPort, "25") == 0) {
++         strcpy(VchkpwLogName, "vchkpw-smtp");
++     } else if (strcmp(LocalPort, "465") == 0) {
++         strcpy(VchkpwLogName, "vchkpw-smtps");
++     } else {
++         strcpy(VchkpwLogName, "vchkpw");
++     }
++ 
+  
+      /* read in the user name and password from file descriptor 3 */
+      read_user_pass();
+  
+      if ( parse_email( TheName, TheUser, TheDomain, AUTH_SIZE) != 0 ) {
+          snprintf(LogLine, LOG_LINE_SIZE, 
+!             "%s: invalid user/domain characters %s:%s", VchkpwLogName, TheName, IpAddr);
+  	vlog(VLOG_ERROR_PASSWD, TheUser, TheDomain, ThePass, TheName, 
+            IpAddr, LogLine);
+          vchkpw_exit(20);
+***************
+*** 119,126 ****
+  
+      } else {
+          snprintf(LogLine, LOG_LINE_SIZE, 
+!             "vchkpw: vpopmail user not found %s@%s:%s", 
+!             TheUser, TheDomain, IpAddr);
+  	vlog(VLOG_ERROR_LOGON, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+          vchkpw_exit(3);
+      }
+--- 135,142 ----
+  
+      } else {
+          snprintf(LogLine, LOG_LINE_SIZE, 
+!             "%s: vpopmail user not found %s@%s:%s", 
+!             VchkpwLogName, TheUser, TheDomain, IpAddr);
+  	vlog(VLOG_ERROR_LOGON, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+          vchkpw_exit(3);
+      }
+***************
+*** 133,140 ****
+      /* Set the programs effective group id */ 
+      if ( setgid(pw_gid) == -1 ) {
+          snprintf(LogLine, LOG_LINE_SIZE, 
+!             "vchkpw: setgid %lu failed errno %d %s@%s:%s", 
+!           (long unsigned)pw_gid, errno, TheUser, TheDomain, IpAddr);
+  	vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+          vchkpw_exit(4);
+      }
+--- 149,156 ----
+      /* Set the programs effective group id */ 
+      if ( setgid(pw_gid) == -1 ) {
+          snprintf(LogLine, LOG_LINE_SIZE, 
+!             "%s: setgid %lu failed errno %d %s@%s:%s", 
+!           VchkpwLogName, (long unsigned)pw_gid, errno, TheUser, TheDomain, IpAddr);
+  	vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+          vchkpw_exit(4);
+      }
+***************
+*** 142,149 ****
+      /* Set the programs effective user id */ 
+      if ( setuid(pw_uid) == -1 ) {
+          snprintf(LogLine, LOG_LINE_SIZE, 
+!             "vchkpw: setuid %lu failed errno %d %s@%s:%s", 
+!           (long unsigned)pw_uid, errno, TheUser, TheDomain, IpAddr);
+  	vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+          vchkpw_exit(5);
+      }
+--- 158,165 ----
+      /* Set the programs effective user id */ 
+      if ( setuid(pw_uid) == -1 ) {
+          snprintf(LogLine, LOG_LINE_SIZE, 
+!             "%s: setuid %lu failed errno %d %s@%s:%s", 
+!           VchkpwLogName, (long unsigned)pw_uid, errno, TheUser, TheDomain, IpAddr);
+  	vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+          vchkpw_exit(5);
+      }
+***************
+*** 153,160 ****
+        if ( vpw!=NULL) { 
+          if ( vmake_maildir(TheDomain, vpw->pw_dir )!= VA_SUCCESS ) {
+            snprintf(LogLine, LOG_LINE_SIZE, 
+!             "vchkpw: autocreate dir errno %d %s %s@%s:%s", 
+!             errno, pw_dir, TheUser, TheDomain, IpAddr);
+  	  vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, 
+              TheName, IpAddr, LogLine);
+            vchkpw_exit(6);
+--- 169,176 ----
+        if ( vpw!=NULL) { 
+          if ( vmake_maildir(TheDomain, vpw->pw_dir )!= VA_SUCCESS ) {
+            snprintf(LogLine, LOG_LINE_SIZE, 
+!             "%s: autocreate dir errno %d %s %s@%s:%s", 
+!             VchkpwLogName, errno, pw_dir, TheUser, TheDomain, IpAddr);
+  	  vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, 
+              TheName, IpAddr, LogLine);
+            vchkpw_exit(6);
+***************
+*** 162,169 ****
+          chdir(pw_dir);
+        } else {
+          snprintf(LogLine, LOG_LINE_SIZE, 
+!           "vchkpw: chdir failed errno %d %s %s@%s:%s", 
+!           errno, pw_dir, TheUser, TheDomain, IpAddr);
+  	vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, 
+            TheName, IpAddr, LogLine);
+          vchkpw_exit(6);
+--- 178,185 ----
+          chdir(pw_dir);
+        } else {
+          snprintf(LogLine, LOG_LINE_SIZE, 
+!           "%s: chdir failed errno %d %s %s@%s:%s", 
+!           VchkpwLogName, errno, pw_dir, TheUser, TheDomain, IpAddr);
+  	vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, 
+            TheName, IpAddr, LogLine);
+          vchkpw_exit(6);
+***************
+*** 175,182 ****
+      strncat(envbuf1,TheUser,MAX_ENV_BUF);
+      if ( putenv(envbuf1) == -1 ) {
+          snprintf(LogLine, LOG_LINE_SIZE, 
+!             "vchkpw: putenv(USER) failed errno %d %s@%s:%s", 
+!           errno, TheUser, TheDomain, IpAddr);
+  	vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+          vchkpw_exit(7);
+      }
+--- 191,198 ----
+      strncat(envbuf1,TheUser,MAX_ENV_BUF);
+      if ( putenv(envbuf1) == -1 ) {
+          snprintf(LogLine, LOG_LINE_SIZE, 
+!             "%s: putenv(USER) failed errno %d %s@%s:%s", 
+!           VchkpwLogName, errno, TheUser, TheDomain, IpAddr);
+  	vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+          vchkpw_exit(7);
+      }
+***************
+*** 186,193 ****
+      strncat(envbuf2,pw_dir,MAX_ENV_BUF);
+      if ( putenv(envbuf2) == -1 ) {
+          snprintf(LogLine, LOG_LINE_SIZE, 
+!             "vchkpw: putenv(HOME) failed errno %d %s@%s:%s", 
+!           errno, TheUser, TheDomain, IpAddr);
+  	vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+          vchkpw_exit(8);
+      }
+--- 202,209 ----
+      strncat(envbuf2,pw_dir,MAX_ENV_BUF);
+      if ( putenv(envbuf2) == -1 ) {
+          snprintf(LogLine, LOG_LINE_SIZE, 
+!             "%s: putenv(HOME) failed errno %d %s@%s:%s", 
+!           VchkpwLogName, errno, TheUser, TheDomain, IpAddr);
+  	vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+          vchkpw_exit(8);
+      }
+***************
+*** 196,203 ****
+      strncpy(envbuf3,VCHKPW_SHELL,MAX_ENV_BUF);
+      if ( putenv(envbuf3) == -1 ) {
+          snprintf(LogLine, LOG_LINE_SIZE, 
+!             "vchkpw: putenv(SHELL) failed errno %d %s@%s:%s", 
+!           errno, TheUser, TheDomain, IpAddr);
+  	vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+          vchkpw_exit(9);
+      }
+--- 212,219 ----
+      strncpy(envbuf3,VCHKPW_SHELL,MAX_ENV_BUF);
+      if ( putenv(envbuf3) == -1 ) {
+          snprintf(LogLine, LOG_LINE_SIZE, 
+!             "%s: putenv(SHELL) failed errno %d %s@%s:%s", 
+!           VchkpwLogName, errno, TheUser, TheDomain, IpAddr);
+  	vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+          vchkpw_exit(9);
+      }
+***************
+*** 207,214 ****
+      strncat(envbuf4,TheName,MAX_ENV_BUF);
+      if ( putenv(envbuf4) == -1 ) {
+          snprintf(LogLine, LOG_LINE_SIZE,
+!             "vchkpw: putenv(VPOPUSER) failed errno %d %s@%s:%s", 
+!             errno, TheUser, TheDomain, IpAddr);
+  	vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+          vchkpw_exit(10);
+      }
+--- 223,230 ----
+      strncat(envbuf4,TheName,MAX_ENV_BUF);
+      if ( putenv(envbuf4) == -1 ) {
+          snprintf(LogLine, LOG_LINE_SIZE,
+!             "%s: putenv(VPOPUSER) failed errno %d %s@%s:%s", 
+!             VchkpwLogName, errno, TheUser, TheDomain, IpAddr);
+  	vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+          vchkpw_exit(10);
+      }
+***************
+*** 256,262 ****
+  
+          /* on error exit out */
+          if ( j == -1 ) {     
+!             printf("vchkpw: what the hell are you doing running vchkpw on the command line!! It's only for talking with qmail-popup and qmail-pop3d.\n");
+              vchkpw_exit(11);
+          } else if ( j == 0 ) {
+              break;
+--- 272,278 ----
+  
+          /* on error exit out */
+          if ( j == -1 ) {     
+!             printf("%s: what the hell are you doing running vchkpw on the command line!! It's only for talking with qmail-popup and qmail-pop3d.\n", VchkpwLogName);
+              vchkpw_exit(11);
+          } else if ( j == 0 ) {
+              break;
+***************
+*** 289,302 ****
+  
+      if ( TheName[0] == 0 ) {
+          snprintf(LogLine, LOG_LINE_SIZE, 
+!             "vchkpw: null user name given %s:%s", TheName, IpAddr);
+  	vlog(VLOG_ERROR_LOGON, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+          vchkpw_exit(12);
+      }
+  
+      if ( ThePass[0] == 0 ) {
+          snprintf(LogLine, LOG_LINE_SIZE, 
+!             "vchkpw: null password given %s:%s", TheName, IpAddr);
+  	vlog(VLOG_ERROR_PASSWD, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+          vchkpw_exit(13);
+      }
+--- 305,318 ----
+  
+      if ( TheName[0] == 0 ) {
+          snprintf(LogLine, LOG_LINE_SIZE, 
+!             "%s: null user name given %s:%s", VchkpwLogName, TheName, IpAddr);
+  	vlog(VLOG_ERROR_LOGON, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+          vchkpw_exit(12);
+      }
+  
+      if ( ThePass[0] == 0 ) {
+          snprintf(LogLine, LOG_LINE_SIZE, 
+!             "%s: null password given %s:%s", VchkpwLogName, TheName, IpAddr);
+  	vlog(VLOG_ERROR_PASSWD, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+          vchkpw_exit(13);
+      }
+***************
+*** 308,315 ****
+      if ( vpw->pw_dir == NULL || vpw->pw_dir[0]==0 ) {
+          if ( make_user_dir(vpw->pw_name, TheDomain, pw_uid, pw_gid)==NULL){
+         	    snprintf(LogLine, LOG_LINE_SIZE, 
+!                     "vchkpw: dir auto create failed %s@%s:%s", 
+!         	    TheUser, TheDomain, IpAddr);
+  	    vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+              vchkpw_exit(14);
+          }
+--- 324,331 ----
+      if ( vpw->pw_dir == NULL || vpw->pw_dir[0]==0 ) {
+          if ( make_user_dir(vpw->pw_name, TheDomain, pw_uid, pw_gid)==NULL){
+         	    snprintf(LogLine, LOG_LINE_SIZE, 
+!                     "%s: dir auto create failed %s@%s:%s", 
+!         	    VchkpwLogName, TheUser, TheDomain, IpAddr);
+  	    vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+              vchkpw_exit(14);
+          }
+***************
+*** 331,338 ****
+  #else
+      if ( vpw->pw_passwd==NULL||vpw->pw_passwd[0]==0) {
+         	snprintf(LogLine, LOG_LINE_SIZE, 
+!           "vchkpw: user has no password %s@%s:%s", 
+!           TheUser, TheDomain, IpAddr);
+  	vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, TheName, 
+            IpAddr, LogLine);
+          vchkpw_exit(15);
+--- 347,354 ----
+  #else
+      if ( vpw->pw_passwd==NULL||vpw->pw_passwd[0]==0) {
+         	snprintf(LogLine, LOG_LINE_SIZE, 
+!           "%s: user has no password %s@%s:%s", 
+!           VchkpwLogName, TheUser, TheDomain, IpAddr);
+  	vlog(VLOG_ERROR_INTERNAL, TheUser, TheDomain, ThePass, TheName, 
+            IpAddr, LogLine);
+          vchkpw_exit(15);
+***************
+*** 347,358 ****
+       */
+      if ( strcmp(crypt(ThePass,vpw->pw_passwd),vpw->pw_passwd) != 0 ) {
+          if ( ENABLE_LOGGING==1||ENABLE_LOGGING==2){
+!             snprintf(LogLine, LOG_LINE_SIZE, "vchkpw: password fail %s@%s:%s",
+!                 TheUser, TheDomain, IpAddr);
+          } else if ( ENABLE_LOGGING==3||ENABLE_LOGGING==4){
+              snprintf(LogLine, LOG_LINE_SIZE,
+!                 "vchkpw: password fail %s %s@%s:%s",
+!                 ThePass, TheUser, TheDomain, IpAddr);
+          } else { 
+              LogLine[0] = 0;
+          }
+--- 363,374 ----
+       */
+      if ( strcmp(crypt(ThePass,vpw->pw_passwd),vpw->pw_passwd) != 0 ) {
+          if ( ENABLE_LOGGING==1||ENABLE_LOGGING==2){
+!             snprintf(LogLine, LOG_LINE_SIZE, "%s: password fail %s@%s:%s",
+!                 VchkpwLogName, TheUser, TheDomain, IpAddr);
+          } else if ( ENABLE_LOGGING==3||ENABLE_LOGGING==4){
+              snprintf(LogLine, LOG_LINE_SIZE,
+!                 "%s: password fail %s %s@%s:%s",
+!                 VchkpwLogName, ThePass, TheUser, TheDomain, IpAddr);
+          } else { 
+              LogLine[0] = 0;
+          }
+***************
+*** 379,393 ****
+       */
+      if ( vpw->pw_gid & NO_POP ) {
+          snprintf(LogLine, LOG_LINE_SIZE, 
+!             "vchkpw: pop access denied %s@%s:%s", 
+!             TheUser, TheDomain, IpAddr);
+  	vlog(VLOG_ERROR_ACCESS, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+          vchkpw_exit(0);
+      }
+  
+      /* They are authenticated, log the success if configured */
+!     snprintf(LogLine, LOG_LINE_SIZE, "vchkpw: login success %s@%s:%s",
+!       TheUser, TheDomain, IpAddr);
+      vlog(VLOG_AUTH, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+  
+  
+--- 395,409 ----
+       */
+      if ( vpw->pw_gid & NO_POP ) {
+          snprintf(LogLine, LOG_LINE_SIZE, 
+!             "%s: pop access denied %s@%s:%s", 
+!             VchkpwLogName, TheUser, TheDomain, IpAddr);
+  	vlog(VLOG_ERROR_ACCESS, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+          vchkpw_exit(0);
+      }
+  
+      /* They are authenticated, log the success if configured */
+!     snprintf(LogLine, LOG_LINE_SIZE, "%s: login success %s@%s:%s",
+!       VchkpwLogName, TheUser, TheDomain, IpAddr);
+      vlog(VLOG_AUTH, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+  
+  
+***************
+*** 400,406 ****
+  
+  #ifdef POP_AUTH_OPEN_RELAY
+      /* Check if we should open up relay for this account */
+!     if ( (vpw->pw_gid & NO_RELAY) == 0 ) {
+          open_smtp_relay();        
+      }
+  #endif
+--- 416,423 ----
+  
+  #ifdef POP_AUTH_OPEN_RELAY
+      /* Check if we should open up relay for this account */
+!     if ( (vpw->pw_gid & NO_RELAY) == 0 && (strcmp(LocalPort, "25") != 0)
+!         && (strcmp(LocalPort, "465") != 0)) {
+          open_smtp_relay();        
+      }
+  #endif
+***************
+*** 418,433 ****
+    struct spwd *spw;
+  #endif
+      if ((pw=getpwnam(TheUser)) == NULL ) {
+!         snprintf(LogLine, LOG_LINE_SIZE, "vchkpw: system user not found %s:%s", 
+!           TheUser, IpAddr);
+          vlog(VLOG_ERROR_LOGON, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+          vchkpw_exit(21);
+      }
+  #ifdef HAS_SHADOW
+      if ((spw = getspnam(TheUser)) == NULL) {
+          snprintf(LogLine, LOG_LINE_SIZE, 
+!             "vchkpw: system user shadow entry not found %s:%s", 
+!             TheName, IpAddr);
+  	vlog(VLOG_ERROR_LOGON, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+          vchkpw_exit(22);
+      }
+--- 435,450 ----
+    struct spwd *spw;
+  #endif
+      if ((pw=getpwnam(TheUser)) == NULL ) {
+!         snprintf(LogLine, LOG_LINE_SIZE, "%s: system user not found %s:%s", 
+!           VchkpwLogName, TheUser, IpAddr);
+          vlog(VLOG_ERROR_LOGON, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+          vchkpw_exit(21);
+      }
+  #ifdef HAS_SHADOW
+      if ((spw = getspnam(TheUser)) == NULL) {
+          snprintf(LogLine, LOG_LINE_SIZE, 
+!             "%s: system user shadow entry not found %s:%s", 
+!             VchkpwLogName, TheName, IpAddr);
+  	vlog(VLOG_ERROR_LOGON, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+          vchkpw_exit(22);
+      }
+***************
+*** 438,448 ****
+  #endif
+          if (ENABLE_LOGGING==1||ENABLE_LOGGING==2) {
+              snprintf(LogLine, LOG_LINE_SIZE,
+!                 "vchkpw: system password fail %s:%s", TheName, IpAddr);
+          } else if (ENABLE_LOGGING==3||ENABLE_LOGGING==4) {
+              snprintf(LogLine, LOG_LINE_SIZE,
+!                 "vchkpw: system password fail %s %s:%s",
+!                 ThePass, TheName, IpAddr);
+          } else { 
+              LogLine[0] = 0;
+          }
+--- 455,465 ----
+  #endif
+          if (ENABLE_LOGGING==1||ENABLE_LOGGING==2) {
+              snprintf(LogLine, LOG_LINE_SIZE,
+!                 "%s: system password fail %s:%s", VchkpwLogName, TheName, IpAddr);
+          } else if (ENABLE_LOGGING==3||ENABLE_LOGGING==4) {
+              snprintf(LogLine, LOG_LINE_SIZE,
+!                 "%s: system password fail %s %s:%s",
+!                 VchkpwLogName, ThePass, TheName, IpAddr);
+          } else { 
+              LogLine[0] = 0;
+          }
+***************
+*** 453,459 ****
+      pw_gid = pw->pw_gid;
+      pw_dir = pw->pw_dir;
+  #ifdef POP_AUTH_OPEN_RELAY
+!     open_smtp_relay();    
+  #endif
+  
+  }
+--- 470,478 ----
+      pw_gid = pw->pw_gid;
+      pw_dir = pw->pw_dir;
+  #ifdef POP_AUTH_OPEN_RELAY
+!     if ( (strcmp(LocalPort, "25") != 0) && (strcmp(LocalPort, "465") != 0)) {
+!         open_smtp_relay();    
+!     }
+  #endif
+  
+  }
+***************
+*** 488,494 ****
+      /* always log to mysql if mysql logging is enabled and it is not internal error */
+      if ( (ENABLE_MYSQL_LOGGING > 0) && (verror != VLOG_ERROR_INTERNAL) ) {
+          if ( (logmysql(verror, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine) ) != 0 ) {
+!             syslog(LOG_NOTICE,"vchkpw: can't write MySQL logs");
+          }
+      }
+  #endif
+--- 507,513 ----
+      /* always log to mysql if mysql logging is enabled and it is not internal error */
+      if ( (ENABLE_MYSQL_LOGGING > 0) && (verror != VLOG_ERROR_INTERNAL) ) {
+          if ( (logmysql(verror, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine) ) != 0 ) {
+!             syslog(LOG_NOTICE,"%s: can't write MySQL logs", VchkpwLogName);
+          }
+      }
+  #endif

@@ -1,0 +1,25 @@
+<title><?php echo _("Install Software") ?></title>
+
+<itemizedlist>
+    <listitem>
+        <para><emphasis><?php echo _("ucspi-tcp")?></emphasis></para>
+
+        <para><?php echo _("ucspi-tcp contains tcpserver and tcpclient, command line tools for building client-server applications.")?></para>
+
+        <para><?php echo _("Info: ")?><ulink url="http://cr.yp.to/ucspi-tcp.html">http://cr.yp.to/ucspi-tcp.html</ulink></para>
+
+        <para><?php echo _("Install:")?></para>
+
+        <programlisting>
+            <literal>cd {varsrc}</literal>
+            <literal>tar -xzf tar/ucspi-tcp-0.88.tar.gz</literal>
+            <literal>cd ucspi-tcp-0.88</literal>
+            <literal>patch -p1 &lt; {varsrc}/netqmail-1.05/other-patches/ucspi-tcp-0.88.errno.patch</literal>
+            <literal></literal>
+            <lineannotation><?php echo _("NOTE: If you are on the x86_64 platform, you need to remove the <quote>-02</quote> argument to gcc in conf-cc. See <ulink url='http://marc.info/?l=qmail&amp;m=111725518121864&amp;w=2'>this</ulink> for details")?></lineannotation>
+            <literal></literal>
+            <literal>make</literal>
+            <literal>make setup check</literal>
+        </programlisting>
+    </listitem>
+</itemizedlist>

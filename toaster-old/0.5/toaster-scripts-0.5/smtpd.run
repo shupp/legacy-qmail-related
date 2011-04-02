@@ -1,0 +1,10 @@
+#!/bin/sh
+QMAILDUID=`id -u vpopmail`
+NOFILESGID=`id -g vpopmail`
+MAXSMTPD=`cat /var/qmail/control/concurrencyincoming`
+exec /usr/local/bin/softlimit -m 8000000 \
+    /usr/local/bin/tcpserver -v -H -R -l 0 \
+    -x /home/vpopmail/etc/tcp.smtp.cdb -c "$MAXSMTPD" \
+    -u "$QMAILDUID" -g "$NOFILESGID" 0 smtp \
+    /var/qmail/bin/qmail-smtpd domain.com \
+    /home/vpopmail/bin/vchkpw /bin/true 2>&1

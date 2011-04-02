@@ -1,0 +1,90 @@
+<title><?php echo _("Options")?></title>
+
+<itemizedlist>
+    <listitem>
+        <para><anchor id="tmda" /><emphasis><?php echo _("TMDA")?></emphasis></para>
+        <para><?php echo _("If you want the option to be very aggressive about spam control, TMDA (Tagged Message Delivery Agent) is a challenge based tool that requires a sender to confirm their sending address before the incoming message is delivered. I don't use it myself, but many people do.")?></para>
+        <para><?php echo _("Info: ")?> <ulink url="http://www.tmda.net">http://www.tmda.net</ulink></para>
+        <para><?php echo _("Install:")?></para>
+
+        <programlisting>
+			<literal>cd {varsrc}/tar</literal>
+			<literal>wget http://shupp.org/software/tmda-{tmda}.tgz</literal>
+			<literal>wget http://shupp.org/software/tmda-cgi-{tmdacgi}.tar.bz2</literal>
+			<literal>wget http://shupp.org/patches/tmda-cgi-parent_re.patch</literal>
+			<literal></literal>
+			<literal>cd ../</literal>
+			<literal>tar -xzf tar/tmda-{tmda}.tgz</literal>
+			<literal>cd tmda-{tmda}</literal>
+			<literal>./compileall</literal>
+			<literal>cd ../</literal>
+			<literal>mv tmda-{tmda} /usr/local/</literal>
+			<literal>ln -s /usr/local/tmda-{tmda} /usr/local/tmda</literal>
+			<literal></literal>
+			<lineannotation><?php echo _("Now we'll install the vpopmail related scripts")?></lineannotation>
+			<literal></literal>
+			<literal>cp {varsrc}/toaster-scripts-{toasterscripts}/vadduser-tmda /home/vpopmail/bin/</literal>
+			<literal>cp {varsrc}/toaster-scripts-{toasterscripts}/vpopmail-vdir.sh /home/vpopmail/bin/</literal>
+			<literal>cp {varsrc}/toaster-scripts-{toasterscripts}/vtmdarc /home/vpopmail/etc/</literal>
+			<literal></literal>
+			<lineannotation><?php echo _("Setup tmda-ofmipd")?></lineannotation>
+			<literal></literal>
+			<literal>mkdir -p /var/qmail/supervise/tmda-ofmipd/log</literal>
+			<literal>mkdir -p /var/qmail/supervise/tmda-ssl/log</literal>
+			<literal>mkdir /var/log/tmda-ofmipd/</literal>
+			<literal>mkdir /var/log/tmda-ssl/</literal>
+			<literal>chown vpopmail /var/log/tmda-*</literal>
+			<literal>cp {varsrc}/toaster-scripts-{toasterscripts}/tmda-ofmipd.run /var/qmail/supervise/tmda-ofmipd/run</literal>
+			<literal>cp {varsrc}/toaster-scripts-{toasterscripts}/tmda-ofmipd.log.run /var/qmail/supervise/tmda-ofmipd/log/run</literal>
+			<literal></literal>
+			<lineannotation><?php echo _("NOTE: If you are using stunnel version 4, you should use tmda.ssl.run.v4 instead of tmda-ofmipd.ssl.run below.  Type 'stunnel -V' (v. 3) or 'stunnel -version' (v. 4) to see what version is installed.  You will also need to copy over stunnel.conf like so: cp {varsrc}/toaster-scripts-{toasterscripts}/tmda-stunnel.conf /var/qmail/supervise/tmda-ssl/stunnel.conf")?></lineannotation>
+			<literal></literal>
+			<literal>cp {varsrc}/toaster-scripts-{toasterscripts}/tmda-ofmipd.ssl.run /var/qmail/supervise/tmda-ssl/run</literal>
+			<literal></literal>
+			<literal>cp {varsrc}/toaster-scripts-{toasterscripts}/tmda-ofmipd.ssl.log.run /var/qmail/supervise/tmda-ssl/log/run</literal>
+			<literal>chmod 755 /var/qmail/supervise/tmda-ofmipd/run</literal>
+			<literal>chmod 755 /var/qmail/supervise/tmda-ofmipd/log/run</literal>
+			<literal>chmod 755 /var/qmail/supervise/tmda-ssl/run</literal>
+			<literal>chmod 755 /var/qmail/supervise/tmda-ssl/log/run</literal>
+			<literal>ln -s /var/qmail/supervise/tmda-ofmipd /var/qmail/supervise/tmda-ssl /service/</literal>
+			<literal></literal>
+			<lineannotation><?php echo _("Setup tmda-cgi")?></lineannotation>
+			<literal></literal>
+			<literal>cd {varsrc}</literal>
+			<literal>tar -xjf tar/tmda-cgi-{tmdacgi}.tar.bz2</literal>
+			<literal>cd tmda-cgi-{tmdacgi}</literal>
+			<literal>patch -p0 &lt; ../tar/tmda-cgi-parent_re.patch</literal>
+			<literal>rm -r skel/uninstall/%\(Parent\)s/</literal>
+			<literal>cd ../</literal>
+			<literal>mv tmda-cgi-{tmdacgi} /usr/local/</literal>
+			<literal>cd /usr/local/tmda-cgi-{tmdacgi}</literal>
+			<literal></literal>
+			<literal>./configure \</literal>
+			<literal>-t /var/www/cgi-bin/tmda.cgi \</literal>
+			<literal>-p /home/vpopmail/bin/vchkpw \</literal>
+			<literal>-m single-user \</literal>
+			<literal>-l "vpopmail1 /home/vpopmail/bin/vuserinfo ~" \</literal>
+			<literal>-i /usr/local/tmda-cgi-{tmdacgi}/ \</literal>
+			<literal>-d /display</literal>
+			<lineannotation><?php echo _("NOTE: If you installed vpopmail somewhere other than /home/vpopmail, you'll need to update refernces in defaults.ini here")?></lineannotation>
+			<literal></literal>
+			<literal>make</literal>
+			<literal>make install</literal>
+			<literal>chown vpopmail:vchkpw /var/www/cgi-bin/tmda.cgi</literal>
+			<literal>chmod ug+s /var/www/cgi-bin/tmda.cgi </literal>
+		</programlisting>
+        <blockquote role="configure">
+            <itemizedlist>
+                <listitem><literallayout><?php echo _("Now, you'll need to add an alias directive to your web server. Add the following to /etc/httpd/httpd.conf (or where ever your conf file is), and restart Apache:")?></literallayout>
+                            <literallayout></literallayout>
+			                <literallayout>Alias /display /usr/local/tmda-cgi-{tmdacgi}/display/</literallayout>
+                </listitem>
+            </itemizedlist>
+        </blockquote>
+
+        <para><?php echo _("Now, you should be able to point your browser to /cgi-bin/tmda.cgi, log in with your email address and password, and add/edit/remove tmda for your account. Note that the .qmail files created by tmda WILL show up in QmailAdmin.")?></para>
+
+    </listitem>
+
+
+</itemizedlist>

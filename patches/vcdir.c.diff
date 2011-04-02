@@ -1,0 +1,182 @@
+--- vcdir.c.orig	Wed Aug 25 19:59:51 2004
++++ vcdir.c	Wed Aug 25 20:45:21 2004
+@@ -40,29 +40,43 @@
+ char Domain[MAX_BUFF];
+ char Dir[MAX_BUFF];
+ int  DisplayDebug;
++int  AllDomains;
++uid_t Uid;
++gid_t Gid;
+ static vdir_type vdir;
++#define TOKENS ":\n"
+ 
+ void usage();
+ void get_options(int argc, char **argv);
+ int vread_cdb_dir_control(vdir_type *vdir, char *domain);
++void load_all_domains();
+ 
+ int main(int argc, char **argv)
+ {
+  
+     get_options(argc,argv);
+ 
+-    sprintf(Dir, "%s/domains/%s", VPOPMAILDIR, Domain);
+-    if ( chdir(Dir) != 0 ) {
+-	perror("Change to domain directory");
+-	exit(-1);
+-    }
+-
+-    memset(&vdir,0,sizeof(vdir_type));
+-    vread_cdb_dir_control(&vdir, Domain);
+-    vwrite_dir_control(&vdir, Domain, 0, 0);
+-
+-    exit(0);
++    if(AllDomains == 1) {
++        load_all_domains();
++        exit(0);
++    } else {
++        if ( vget_assign(Domain, Dir, sizeof(Dir), &Uid, &Gid ) == NULL ) {
++            printf("domain %s does not exist\n", Domain );
++            vexit(-1);
++        }
++        if ( chdir(Dir) != 0 ) {
++	        perror("Change to domain directory");
++	        exit(-1);
++        }
++
++	printf ("Loading dir_control values for %s ... ", Domain);
++        memset(&vdir,0,sizeof(vdir_type));
++        vread_cdb_dir_control(&vdir, Domain);
++        vwrite_dir_control(&vdir, Domain, 0, 0);
++	printf (" done \n");
+ 
++        exit(0);
++    }
+ }
+ 
+ void usage()
+@@ -70,6 +84,7 @@
+ 	printf("vcdir: usage: [options] domain\n");
+ 	printf("options: -v (print version number)\n");
+ 	printf("         -p (display debug info)\n");
++	printf("         -a (all domains)\n");
+ }
+ 
+ void get_options(int argc, char **argv)
+@@ -78,11 +93,12 @@
+  int errflag;
+ 
+     DisplayDebug = 0;
++    AllDomains = 0;
+ 
+     memset(Domain, 0, MAX_BUFF);
+ 
+     errflag = 0;
+-    while( !errflag && (c=getopt(argc,argv,"anpugcdqv")) != -1 ) {
++    while( !errflag && (c=getopt(argc,argv,"vpa")) != -1 ) {
+ 	switch(c) {
+ 	    case 'v':
+ 		printf("version: %s\n", VERSION);
+@@ -90,6 +106,9 @@
+ 	    case 'p':
+ 		DisplayDebug = 1;	
+ 		break;
++	    case 'a':
++		AllDomains = 1;	
++		break;
+ 	    default:
+ 		errflag = 1;
+ 		break;
+@@ -106,7 +125,7 @@
+ 	++optind;
+     }
+ 
+-    if ( Domain[0] == 0 ) {
++    if ( Domain[0] == 0 && AllDomains != 1) {
+ 	usage();
+ 	exit(-1);
+     }
+@@ -158,4 +177,83 @@
+ 	fclose(fs);
+ 
+ 	return(0);
++}
++
++
++void load_all_domains()
++{
++ FILE *fs;
++ char *tmpstr;
++ char TmpBuf[MAX_BUFF];
++ char RealName[MAX_BUFF];
++
++    snprintf(TmpBuf, sizeof(TmpBuf), "%s/users/assign", QMAILDIR);
++    if ((fs=fopen(TmpBuf, "r"))==NULL) {
++        printf("could not open assign file %s\n", TmpBuf);
++        vexit(-1);
++    }
++
++    /* users/assign looks like
++     * +alias.domain.com-:real.domain.com:89:89:/var/vpopmail/domains/real.domain.com:-::
++     */
++
++    while( fgets(TmpBuf, sizeof(TmpBuf), fs) != NULL ) {
++
++        /* skip over any lines that do not contain tokens */
++	if ( (tmpstr=strtok(TmpBuf, TOKENS)) == NULL ) continue;
++
++	/* ignore lines that don't start with "+" */
++	if (*tmpstr != '+') continue;
++
++	/* suck out the "alias name" of the domain 
++         * (we have to drop the leading '+' and the trailing "-") 
++         */
++	snprintf(Domain, sizeof(Domain), "%s", tmpstr+1);
++        Domain[strlen(Domain)-1] = 0;
++
++	/* ignore domains without '.' in them (non-vpopmail entries */
++	if (strchr (Domain, '.') == NULL) continue;
++
++        /* jump over the token between the alias and real domain */
++	if ( (tmpstr=strtok(NULL, TOKENS)) == NULL ) continue;
++
++        /* suck out the "real name" of the domain */
++	snprintf(RealName, sizeof(RealName), "%s", tmpstr);
++
++	/* jump over the token between real domain and uid */
++	if ( (tmpstr=strtok(NULL, TOKENS)) == NULL ) continue;
++
++	/* suck out the uid */
++	Uid = atol(tmpstr);
++
++	/* jump over the token between the uid and the gid */
++	if ( (tmpstr=strtok(NULL, TOKENS)) == NULL ) continue;
++
++	/* suck out the gid */
++	Gid = atol(tmpstr);
++
++	/* jump over the token between the gid and the dir */
++	if ( (tmpstr=strtok(NULL, TOKENS)) == NULL ) continue;
++
++        /* suck out the dir */
++	snprintf(Dir, sizeof(Dir), "%s", tmpstr);
++
++	if (strcmp(Domain, RealName) != 0) {
++ 		printf ("Note:   %s is an alias for %s, skipping\n",
++			Domain,RealName);
++	} else {
++        if ( chdir(Dir) != 0 ) {
++            perror("Change to domain directory");
++            exit(-1);
++        }
++
++	printf ("Loading dir_control values for %s ... ", Domain);
++        memset(&vdir,0,sizeof(vdir_type));
++        vread_cdb_dir_control(&vdir, Domain);
++        vwrite_dir_control(&vdir, Domain, 0, 0);
++	printf (" done \n");
++    }
++     
++    }
++    fclose(fs);
+ }

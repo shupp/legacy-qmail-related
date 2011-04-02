@@ -1,0 +1,42 @@
+<title><?php echo _("Options")?></title>
+
+<itemizedlist>
+    <listitem>
+        <para><anchor id="simscan" /><emphasis><?php echo _("Simscan")?></emphasis></para>
+        <para><?php echo _("Your qmail installation is already patched (qmail-queue patch) to support simscan, a new tool for using virus/spam scanners with qmail. The nice thing is that it prevents viruses (and optionally spam) from even getting into your queue. This is different from qmail-scanner, which will quarantine infected messages instead of stopping them at the SMTP level.")?></para>
+        <para><?php echo _("Info: ")?> <ulink url="http://inter7.com/?page=simscan">http://inter7.com/?page=simscan</ulink></para>
+        <para><?php echo _("Install:")?></para>
+
+        <programlisting>
+			<literal>cd {varsrc}/tar</literal>
+			<literal>wget http://shupp.org/software/simscan-{simscan}.tar.gz</literal>
+			<literal>cd ../</literal>
+			<literal>tar -xzf tar/simscan-{simscan}.tar.gz</literal>
+			<literal>cd simscan-{simscan}</literal>
+			<literal></literal>
+			<literal>./configure --enable-user=clamav \</literal>
+			<literal>--enable-clamav=y \</literal>
+			<literal>--enable-spam=y \</literal>
+			<literal>--enable-spam-passthru=y \</literal>
+			<literal>--enable-per-domain=y \</literal>
+			<literal>--enable-ripmime \</literal>
+			<literal>--enable-attach=y \</literal>
+			<literal>--enable-received=y</literal>
+			<literal></literal>
+			<literal>make</literal>
+			<literal>make install-strip</literal>
+			<literal></literal>
+			<lineannotation><?php echo _("add default rules for simscan")?></lineannotation>
+			<literal>echo ":clam=yes,spam=yes,spam_passthru=yes,attach=.vbs:.lnk:.scr:.wsh:.hta:.pif" > /var/qmail/control/simcontrol</literal>
+			<lineannotation><?php echo _("update /var/qmail/control/simcontrol.cdb")?></lineannotation>
+			<literal>/var/qmail/bin/simscanmk</literal>
+			<lineannotation><?php echo _("put versions for received header in /var/qmail/control/simversions.cdb")?></lineannotation>
+			<literal>/var/qmail/bin/simscanmk -g</literal>
+			<literal></literal>
+			<lineannotation><?php echo _("turn on scanning")?></lineannotation>
+			<literal>echo ':allow,QMAILQUEUE="/var/qmail/bin/simscan"' &gt;&gt; ~vpopmail/etc/tcp.smtp</literal>
+			<literal>qmailctl cdb</literal>
+        </programlisting>
+    </listitem>
+
+</itemizedlist>

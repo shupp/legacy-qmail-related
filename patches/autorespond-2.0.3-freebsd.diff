@@ -1,0 +1,38 @@
+diff -ur ../autorespond-2.0.3/Makefile ./Makefile
+--- ../autorespond-2.0.3/Makefile	Tue Nov 27 11:25:04 2001
++++ ./Makefile	Fri Jun 13 14:03:11 2003
+@@ -12,7 +12,7 @@
+ INSTALL_DIR = /usr/local/bin
+ INSTALL_BIN = autorespond
+ INSTALL_UID = root
+-INSTALL_GID = root
++INSTALL_GID = wheel
+ 
+ all:
+ 	$(CC) $(DEFS) -o autorespond autorespond.c
+diff -ur ../autorespond-2.0.3/autorespond.c ./autorespond.c
+--- ../autorespond-2.0.3/autorespond.c	Fri Feb 22 08:39:46 2002
++++ ./autorespond.c	Fri Jun 13 14:02:44 2003
+@@ -194,7 +194,7 @@
+ int wstat;
+ int i;
+ struct tm * dt;
+-unsigned long msgwhen;
++time_t msgwhen;
+ FILE * fdm;
+ FILE * fde;
+ pid_t pid;
+@@ -257,11 +257,11 @@
+ 
+ 	/*prepare to add date and message-id*/
+ 	msgwhen = time(NULL);
+-	dt = gmtime((long *)&msgwhen);
++	dt = gmtime(&msgwhen);
+ 	/*start outputting to qmail-queue
+ 	  date is in 822 format
+ 	  message-id could be computed a little better*/
+-	fprintf(fdm,"Date: %u %s %u %02u:%02u:%02u -0000\nMessage-ID: <%lu.%u.blah>\n"
++	fprintf(fdm,"Date: %u %s %u %02u:%02u:%02u -0000\nMessage-ID: <%u.%u.blah>\n"
+ 		,dt->tm_mday,montab[dt->tm_mon],dt->tm_year+1900,dt->tm_hour,dt->tm_min,dt->tm_sec,msgwhen,getpid() );
+ 
+ 	mfp = fopen( msg, "rb" );

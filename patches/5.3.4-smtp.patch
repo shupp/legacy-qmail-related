@@ -1,0 +1,150 @@
+diff -crN ../vpopmail-5.3.4/vchkpw.c ./vchkpw.c
+*** ../vpopmail-5.3.4/vchkpw.c	Wed Mar 27 15:52:06 2002
+--- ./vchkpw.c	Sun Apr 14 16:53:52 2002
+***************
+*** 430,440 ****
+    /* They are authenticated now, check for restrictions
+     * Check if they are allowed pop access 
+     */
+!   if ( vpw->pw_gid & NO_POP ) {
+      snprintf(LogLine, LOG_LINE_SIZE, "%s: pop access denied %s@%s:%s", 
+!       VchkpwLogName, TheUser, TheDomain, IpAddr);
+!     vlog(VLOG_ERROR_ACCESS, TheUser, TheDomain, ThePass, 
+!                             TheName, IpAddr, LogLine);
+      vchkpw_exit(0);
+    }
+  
+--- 430,448 ----
+    /* They are authenticated now, check for restrictions
+     * Check if they are allowed pop access 
+     */
+!   if ( ( vpw->pw_gid & NO_POP ) && ConnType == POP_CONN ) {
+      snprintf(LogLine, LOG_LINE_SIZE, "%s: pop access denied %s@%s:%s", 
+!              VchkpwLogName, TheUser, TheDomain, IpAddr);
+!     vlog(VLOG_ERROR_ACCESS, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+!     vchkpw_exit(0);
+!   }
+!  
+!      /* Check if they are allowed smtp access 
+!       */
+!   if ( ( vpw->pw_gid & NO_SMTP ) && ConnType == SMTP_CONN ) {
+!     snprintf(LogLine, LOG_LINE_SIZE, "%s: smtp access denied %s@%s:%s", 
+!              VchkpwLogName, TheUser, TheDomain, IpAddr);
+!     vlog(VLOG_ERROR_ACCESS, TheUser, TheDomain, ThePass, TheName, IpAddr, LogLine);
+      vchkpw_exit(0);
+    }
+  
+diff -crN ../vpopmail-5.3.4/vmoduser.c ./vmoduser.c
+*** ../vpopmail-5.3.4/vmoduser.c	Wed Mar 27 15:53:13 2002
+--- ./vmoduser.c	Sun Apr 14 16:22:49 2002
+***************
+*** 133,138 ****
+--- 133,139 ----
+      printf("         -u ( set no dialup flag )\n");
+      printf("         -d ( set no password changing flag )\n");
+      printf("         -p ( set no pop access flag )\n");
++     printf("         -s ( set no smtp access flag )\n");
+      printf("         -w ( set no web mail access flag )\n");
+      printf("         -i ( set no imap access flag )\n");
+      printf("         -b ( set bounce mail flag )\n");
+***************
+*** 165,171 ****
+      NoMakeIndex = 0;
+  
+      errflag = 0;
+!     while( (c=getopt(argc,argv,"avunxc:q:dpwibr0123he:C:")) != -1 ) {
+          switch(c) {
+              case 'v':
+                  printf("version: %s\n", VERSION);
+--- 166,172 ----
+      NoMakeIndex = 0;
+  
+      errflag = 0;
+!     while( (c=getopt(argc,argv,"avunxc:q:dpswibr0123he:C:")) != -1 ) {
+          switch(c) {
+              case 'v':
+                  printf("version: %s\n", VERSION);
+***************
+*** 194,199 ****
+--- 195,203 ----
+                  break;
+              case 'p':
+                  GidFlag |= NO_POP;
++                 break;
++             case 's':
++                 GidFlag |= NO_SMTP;
+                  break;
+              case 'w':
+                  GidFlag |= NO_WEBMAIL;
+diff -crN ../vpopmail-5.3.4/vpopmail.c ./vpopmail.c
+*** ../vpopmail-5.3.4/vpopmail.c	Mon Apr  1 18:16:16 2002
+--- ./vpopmail.c	Sun Apr 14 16:46:49 2002
+***************
+*** 1418,1431 ****
+    line[i] = 0;
+  
+    ++i; pwent.pw_shell = &line[i];
+!   for(;line[i]!=0&&line[i]!=':';++i);
+    if ( line[i] == 0 ) {  
+      pwent.pw_clear_passwd = "";
+    } else {
+      line[i] = 0;
+  
+      ++i; pwent.pw_clear_passwd = &line[i];
+!     for(;line[i]!=0&&line[i]!=':';++i);
+    }
+  
+    return &pwent;
+--- 1418,1431 ----
+    line[i] = 0;
+  
+    ++i; pwent.pw_shell = &line[i];
+!   for(;line[i]!=0&&line[i]!=':'&&line[i]!='\n';++i);
+    if ( line[i] == 0 ) {  
+      pwent.pw_clear_passwd = "";
+    } else {
+      line[i] = 0;
+  
+      ++i; pwent.pw_clear_passwd = &line[i];
+!     for(;line[i]!=0&&line[i]!=':'&&line[i]!='\n';++i);
+    }
+  
+    return &pwent;
+diff -crN ../vpopmail-5.3.4/vpopmail.h ./vpopmail.h
+*** ../vpopmail-5.3.4/vpopmail.h	Wed Mar 27 15:50:16 2002
+--- ./vpopmail.h	Sun Apr 14 16:22:49 2002
+***************
+*** 91,96 ****
+--- 91,97 ----
+  #define V_USER1       0x100
+  #define V_USER2       0x200
+  #define V_USER3       0x400
++ #define NO_SMTP       0x800
+  #define QA_ADMIN     0x1000
+  
+  extern int OptimizeAddDomain;
+diff -crN ../vpopmail-5.3.4/vuserinfo.c ./vuserinfo.c
+*** ../vpopmail-5.3.4/vuserinfo.c	Wed Mar 27 15:54:25 2002
+--- ./vuserinfo.c	Sun Apr 14 16:22:49 2002
+***************
+*** 252,257 ****
+--- 252,259 ----
+              printf("        user flag 2 is set\n");
+  	if ( mypw->pw_gid & V_USER3 ) 
+              printf("        user flag 3 is set\n");
++ 	if ( mypw->pw_gid & NO_SMTP ) 
++             printf("        smtp access is closed\n");
+  
+          printf("dir:       %s\n", mypw->pw_dir);
+          printf("quota:     %s\n", mypw->pw_shell);
+***************
+*** 317,322 ****
+--- 319,326 ----
+  		    printf("user flag 2 is set\n");
+  	    if ( mypw->pw_gid & V_USER3 )
+  		    printf("user flag 3 is set\n");
++ 	    if ( mypw->pw_gid & NO_SMTP )
++ 		    printf("no smtp flag has been set\n");
+          }
+          if ( DisplayComment ) printf("%s\n", mypw->pw_gecos);
+          if ( DisplayDir ) printf("%s\n", mypw->pw_dir);

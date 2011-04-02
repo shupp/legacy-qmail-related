@@ -1,0 +1,407 @@
+2004-03-11  Jim Ramsay	    <i.am@jimramsay.com>
+
+	* Fixes for Solaris
+
+	* Version 0.13 is released
+
+2004-02-18  Jim Ramsay      <i.am@jimramsay.com>
+
+	* Went through the mailing lists and fixed a number of smallish bugs
+
+	* Added the first version of my new TMDA-X theme
+
+2004-02-04  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Allow AccessPaths configuration settings to be in local configuration
+	  files as well.
+
+	* Make sure a list file location passes an AccessPaths test before
+	  bringing it up in an editor.
+
+	* Catch an unusual error when handling a pending e-mail.
+
+2003-12-10  Jim Ramsay      <i.am@jimramsay.com>
+
+	* ./configure now checks for 'cc' and 'gcc' for those few systems
+	  without 'cc' installed (like cygwin)
+
+2003-12-08  Jim Ramsay      <i.am@jimramsay.com>
+
+	* Improved the themeability of the editlist page.
+
+2003-12-06  Jim Ramsay      <i.am@jimramsay.com>
+
+	* Improved efficiency for header searching.
+
+2003-12-04  Jim Ramsay      <i.am@jimramsay.com>
+
+	* Added preliminary searching in the Pending List and the Blue theme.
+	  This should be refined / bugtested.
+
+	* Moved some theme specific data (graphic filenames for inactive 
+	  first/prev/next/last buttons) from PendList.py and View.py into pending.ht
+	  and view.ht instead.
+
+2003-11-24  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Changed configure to strip slashes from DispDir to keep Netscape
+	  FastTrack happy.  (As per Tim Rice's request.)
+
+2003-11-17  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Fixed a stupid type-o in configure.
+
+2003-11-16  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Force user names to be lowercase.
+
+	* Applied Tim Legant's patch to reporter.py (SpamCop reporter).
+
+	* Version 0.12B is released.
+
+	* Added PendingList:ShowDelete and PendingList:ShowBlack (both with
+	  default values of "No") to discourage deleting and blacklisting
+	  from the pending list.  These can be re-enabled in the defaults.ini
+	  or with the settings page.
+
+	* Added a nasty hack to prevent import errors in Python 2.3.
+
+2003-11-15  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Changed timestamp call in dynamic address tester for compatibility
+	  with new member function definition introduced in TMDA 0.81.
+
+	* tmda-cgi now requires TMDA 0.81.
+
+2003-10-04  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Caught an extra exception in Session.
+
+	* Added a stub for xams.
+
+	* Ignored GID returned by vpopmail's utilities.  It is not the virtual
+	  user's GID.  It is a set of flags.
+
+	* Applied a patch from Dario Gomes which makes select all for SpamCop
+	  work correctly.
+
+2003-09-22  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Bugfix to avoid spilling errors if a message is repeatedly deleted.
+
+2003-08-23  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Made sure users can only edit/view files in approved directories.
+
+2003-08-22  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Improved virtual-user domain guesser logic.
+
+2003-08-20  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Before installing, check to see if we have write permission to home
+	  directory.
+
+	* Modified install skeleton so it defines HOSTNAME.
+
+	* Changed umask before and after writing session file in /tmp so that
+	  permissions are 0600.
+
+2003-08-18  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Applied a patch to configure for Bernard Johnson which I believe is
+	  used in making RPMs.
+
+	* Fixed list editor.  If a list cannot be found, the list editor used
+	  to blow up.
+
+2003-08-11  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Modified autoinstaller so it can handle user names with dots in them
+	  (qmail requires specific .qmail filenames!).
+	* Added horizontal scrolls to text input boxes, so wide text blocks can be
+	  more easily manipulated.
+
+2003-08-09  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* tmda-cgi 0.11B is released.
+	* Submitting a form with a blank template threw an uncaught exception.
+
+2003-08-06  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Fixed a bug that broke virtual user installs if there are many users
+	  in a domain.
+
+2003-08-05  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Caught an extra exception in the generate addresses module.
+
+2003-07-23  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Caught an extra exception in the configure program.
+
+	* Fixed a weird little bug in Template.py that caused an extra space
+	  to be printed before the Content-Type: string.
+
+2003-07-14  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Fixed some of Jim's type-o's.  Fixed a stub reference I broke.
+
+2003-07-13  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Completed mailing list tutorial.
+
+2003-06-25  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Simplified the anomalies file.
+
+2003-06-19  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Added support for the iso-2022-jp (Japanese) codec.
+
+2003-06-16  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Added readline module to configure program.  We now have tab-
+	  completion!
+
+2003-06-14  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Fixed a bug that messed up URL confirmations for real users with
+	  virtual user URL format.
+
+	* Added a link to log back in to the "IP has changed error".
+
+2003-06-11  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Added %(Name)s as a substitution variable during auto-install.
+
+	* Added login cookie to TODO list.
+
+	* Tweaked pending list code so it won't complain if it can't find a
+	  batch message.
+
+	* Don't automatically save list on sort.
+
+2003-06-06  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Added %(RealHome)s as a substitution variable during auto-install.
+
+	* Captured remote authentication failure.
+
+2003-06-03  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Improved domain guessing logic in installer.  Added CONFIRM_ADDRESS
+	  as one of the pre-populated variables in the install skel.
+
+2003-05-31  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Changed installer/uninstaller to support multiple type of
+	  MAIL_TRANSFER_AGENT in a single install or uninstall skel directory.
+
+	* Change sort to be case insensative and added a domain sort feature.
+
+2003-05-29  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* tmda-cgi 0.10 is released.
+
+2003-05-24  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Fixed a bug in the e-mail viewer which could cause the wrong item
+	  to be handled.
+
+2003-05-23  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Made %(UrlDomain)s, %(ShortUrlDom)s, and %(VirtUser)d available
+	  during auto-install.
+
+2003-05-22  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Added optional message filter to use before reporting messages.
+
+	* Added JS confirmation to uninstaller.
+
+	* Widened the list editor text box.
+
+2003-05-21  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* tmda-cgi 0.09 is released.
+
+	* Closed a security hole.  We strongly recommend that any system using
+	  "default" authentication be upgraded.
+
+2003-05-20  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Removed Python 2.2 dependency.
+
+	* Removed permissions.ini from install and added anomalies which will
+	  let the sysadmin configure more stuff.
+
+	* Extended iso-8859-1 codec so it works for us-ascii character set.
+
+	* Minor tweak to the short header format in the e-mail viewer.
+
+2003-05-14  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Changed the configure program so users can do the "make install" as
+	  root if the current user doesn't have permission to write to the
+	  web tree.
+
+2003-05-13  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Replaced standard Python iso-8859-1 decoder with my own that seems
+	  to work better.
+
+	* Removed some Python 2.2 dependencies.  Seems to work fine with 2.1
+	  now.
+
+2003-05-06  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Display international characters in both pending lists and e-mails.
+
+	* Added a stub for decoding /var/qmail/users/assign
+
+2003-05-04  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* tmda-cgi 0.08 is released.
+
+	* Replaced compile with new, improved configure.  Makes better guesses
+	  about where TMDA is installed.  A little more standard to use.
+
+2003-05-03  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Added override.py for overriding user variables.  See docs.
+
+	* Automatically detect web user.  No longer needs to be set in compile.
+
+	* Added a mechanism for reporting spam to SpamCop.
+
+	* Added a template editor.
+
+2003-05-02  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Added buttons on the pending list for set all to "skip", "release",
+	  "delete", "blacklist", and "whitelist".
+
+	* Added a button on the ending list that marks all messages "read".
+
+	* Removed unimplemented change password menu item.  Re-arranged theme
+	  option.
+
+	* Added a form mode where users can change a bunch of stuff without
+	  editing the config file.
+
+	* Added a To parameter to the pending list which can be put in
+	  templates to display who the e-mail was to.
+
+	* Added a selectable way to pick which page is shown first after login,
+	  "pending" or "gen_addr".
+
+	* Don't use environment variable TMDA_VUSER if no virtual users are on
+	  the system.
+
+2003-05-01  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Do not save config file if it has a syntax error in it.
+
+2003-04-30  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Added a preference as to which equivilant part of an e-mail you would
+	  prefer to see.
+
+	* Added fixed or proportion font selection in viewing e-mail.
+
+	* Added date format selection.
+
+	* Added HTML crap stripping (Javascript, iframe, etc.) when viewing
+	  e-mails.
+
+	* Added code so preferences may be set on theme selection page.
+
+2003-04-28  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* tmda-cgi 0.07 is released.
+
+2003-04-27  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Added install/uninstall/restore code.  It's quite huge so I won't be
+	  the least bit surprised if it is buggy (despite the million install/
+	  uninstall cycles I've run!).
+
+	* Minor tweaks to the info pages.  More stuff shown to help diagnose
+	  problems.
+
+2003-04-24  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* tmda-cgi 0.06 is released.
+
+	* Correct line feeds in filter file before saving.
+
+	* Made some of the templates look a little nicer.  Change logo.
+
+	* Fixed a bad path that made the Theme icon a bad link on some
+	  installs.
+
+2003-04-23  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Added a custom ExpandUser to CgiUtil that handles virtual users.
+
+2003-04-21  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* tmda-cgi 0.05 is released.
+
+	* Added code for "edit list" and "edit filter" buttons.
+
+	* Some bugfixes.
+
+2003-04-20  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* tmda-cgi 0.04 is released.
+
+	* Added code for "generate address", "test address", "local config",
+	  and "info" buttons.
+
+	* Added a bugfix that was causing some users to get an error when
+	  the pending list tried to find the size of a message.  No idea why
+	  it was doing that!
+
+2003-04-19  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Added code for "theme picker", "logout", and "global config" buttons.
+
+2003-04-19  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* tmda-cgi 0.03 is released.
+
+	* What hasn't changed?  Tons of bug fixes.  New display templates.
+	  You won't even recognize tmda-cgi now!
+
+	* We no longer support ?debug=1 mode.  If you are having problems
+	  logging in, do a "View/Source" on the login page and look for a
+	  rather large block of comments at the top of the page.  If the
+	  program found any hints as to why the login failed, they will be
+	  detailed there.  You can edit the login.html template if you don't
+	  wish for this information to be available.
+
+	* SECURITY ADVISORY *
+	  A rather large security hole was plugged.  Users running in system-
+	  wide mode were vulnerable to real users running privileged commands
+	  in their config files.  Users with releases prior to 0.03 are
+	  STRONGLY ENCOURAGED to upgrade to the latest version.
+
+	* Incorporated some compiler requests from Time Rice like the -D
+	  option.
+
+2003-04-12  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* tmda-cgi 0.02 is released.
+
+2003-04-09  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Added support for virtual users.
+
+	* Jim Ramsay changed the authentication so it would use almost any
+	  kind of authentication one could want.
+
+2003-03-28  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* tmda-cgi 0.01 is released.

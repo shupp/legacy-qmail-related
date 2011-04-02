@@ -1,0 +1,95 @@
+diff -urN ../../netqmail-1.05-tls-orig/netqmail-1.05/qmail-remote.c ./qmail-remote.c
+--- ../../netqmail-1.05-tls-orig/netqmail-1.05/qmail-remote.c	2005-12-19 11:25:53.256394032 -0800
++++ ./qmail-remote.c	2005-12-19 11:25:24.234805984 -0800
+@@ -127,7 +127,7 @@
+ #ifdef TLS
+   if (ssl) {
+     r = ssl_timeoutread(timeout, smtpfd, smtpfd, ssl, buf, len);
+-    if (r < 0) ssl_err_str = ssl_strerror();
++    if (r < 0) ssl_err_str = ssl_error_str();
+   } else
+ #endif
+   r = timeoutread(timeout,smtpfd,buf,len);
+@@ -140,7 +140,7 @@
+ #ifdef TLS
+   if (ssl) {
+     r = ssl_timeoutwrite(timeout, smtpfd, smtpfd, ssl, buf, len);
+-    if (r < 0) ssl_err_str = ssl_strerror();
++    if (r < 0) ssl_err_str = ssl_error_str();
+   } else
+ #endif 
+   r = timeoutwrite(timeout,smtpfd,buf,len);
+@@ -267,7 +267,7 @@
+ #ifdef TLS
+   /* shouldn't talk to the client unless in an appropriate state */
+   int state = ssl ? ssl->state : SSL_ST_BEFORE;
+-  if (state & SSL_ST_OK || !smtps && state & SSL_ST_BEFORE)
++  if (state & SSL_ST_OK || (!smtps && state & SSL_ST_BEFORE))
+ #endif
+   substdio_putsflush(&smtpto,"QUIT\r\n");
+   /* waiting for remote side is just too ridiculous */
+@@ -455,7 +455,7 @@
+ 
+   ssl = myssl;
+   if (ssl_timeoutconn(timeout, smtpfd, smtpfd, ssl) <= 0)
+-    tls_quit("ZTLS connect failed", ssl_strerror());
++    tls_quit("ZTLS connect failed", ssl_error_str());
+ 
+   if (servercert) {
+     X509 *peercert;
+diff -urN ../../netqmail-1.05-tls-orig/netqmail-1.05/qmail-smtpd.c ./qmail-smtpd.c
+--- ../../netqmail-1.05-tls-orig/netqmail-1.05/qmail-smtpd.c	2005-12-19 11:25:53.254394336 -0800
++++ ./qmail-smtpd.c	2005-12-19 11:25:24.231806440 -0800
+@@ -544,7 +544,7 @@
+   }
+ 
+   if (ssl_timeoutrehandshake(timeout, ssl_rfd, ssl_wfd, ssl) <= 0) {
+-    const char *err = ssl_strerror();
++    const char *err = ssl_error_str();
+     tls_out("rehandshake failed", err); die_read();
+   }
+ 
+@@ -656,7 +656,7 @@
+ 
+   if (ssl_timeoutaccept(timeout, ssl_rfd, ssl_wfd, myssl) <= 0) {
+     /* neither cleartext nor any other response here is part of a standard */
+-    const char *err = ssl_strerror();
++    const char *err = ssl_error_str();
+     ssl_free(myssl); tls_out("connection failed", err); die_read();
+   }
+   ssl = myssl;
+diff -urN ../../netqmail-1.05-tls-orig/netqmail-1.05/tls.c ./tls.c
+--- ../../netqmail-1.05-tls-orig/netqmail-1.05/tls.c	2005-12-19 11:25:53.265392664 -0800
++++ ./tls.c	2005-12-19 11:25:24.243804616 -0800
+@@ -9,7 +9,6 @@
+ void ssl_free(SSL *myssl) { SSL_shutdown(myssl); SSL_free(myssl); }
+ void ssl_exit(int status) { if (ssl) ssl_free(ssl); _exit(status); }
+ 
+-const char *strerror(int);
+ const char *ssl_error()
+ {
+   int r = ERR_get_error();
+@@ -17,10 +16,10 @@
+   SSL_load_error_strings();
+   return ERR_error_string(r, NULL);
+ }
+-const char *ssl_strerror()
++const char *ssl_error_str()
+ {
+   const char *err = ssl_error();
+   if (err) return err;
+   if (!errno) return 0;
+-  return errno == error_timeout ? "timed out" : strerror(errno);
++  return (errno == error_timeout) ? "timed out" : error_str(errno);
+ }
+diff -urN ../../netqmail-1.05-tls-orig/netqmail-1.05/tls.h ./tls.h
+--- ../../netqmail-1.05-tls-orig/netqmail-1.05/tls.h	2005-12-19 11:25:53.266392512 -0800
++++ ./tls.h	2005-12-19 11:25:24.244804464 -0800
+@@ -11,6 +11,6 @@
+ # define _exit ssl_exit
+ 
+ const char *ssl_error();
+-const char *ssl_strerror();
++const char *ssl_error_str();
+ 
+ #endif

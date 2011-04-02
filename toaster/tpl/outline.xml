@@ -1,0 +1,58 @@
+<document>
+<defaultPage>toc</defaultPage>
+<mainWrapper>wrapper.xml</mainWrapper>
+<chapter>
+    <id>toc</id>
+    <title><?php echo _("Table of Contents")?></title>
+    <pages>toc</pages>
+</chapter>
+<chapter>
+    <id>preface</id>
+    <title><?php echo _("Preface")?></title>
+    <pages>preface</pages>
+</chapter>
+<chapter>
+    <id>gettingstarted></id>
+    <title><?php echo _("Getting Started")?></title>
+    <pages>gettingstarted</pages>
+</chapter>
+<chapter>
+    <id>baseinstall</id>
+    <title><?php echo _("Base Install")?></title>
+    <pages>daemontools</pages>
+    <pages>ucspi-tcp</pages>
+    <pages>qmail</pages>
+    <pages>vpopmail</pages>
+    <pages>courier-imap</pages>
+    <pages>squirrelmail</pages>
+    <pages>autorespond</pages>
+    <pages>ezmlm-idx</pages>
+    <pages>qmailadmin</pages>
+</chapter>
+<chapter>
+    <id>test</id>
+    <title><?php echo _("Test")?></title>
+    <pages>test</pages>
+</chapter>
+<chapter>
+    <id>options</id>
+    <title><?php echo _("Options")?></title>
+    <pages>spamassassin</pages>
+    <pages>clamav</pages>
+    <pages>ripmime</pages>
+    <pages>simscan</pages>
+    <pages>tmda</pages>
+    <pages>qmailmrtg7</pages>
+    <pages>qmailadmin-limits</pages>
+</chapter>
+<chapter>
+    <id>appendix</id>
+    <title><?php echo _("Appendix")?></title>
+    <pages>appendix</pages>
+</chapter>
+<chapter>
+    <id>changelog</id>
+    <title><?php echo _("ChangeLog")?></title>
+    <pages>changelog</pages>
+</chapter>
+</document>

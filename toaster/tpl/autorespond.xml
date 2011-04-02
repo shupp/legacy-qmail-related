@@ -1,0 +1,23 @@
+<title><?php echo _("Install Software") ?></title>
+
+<itemizedlist>
+    <listitem>
+        <para><emphasis><?php echo _("autorespond")?></emphasis></para>
+
+        <para><?php echo _("Autorespond is compatible autoresponder/vacation type tool that works well with vdelivermail and qmailadmin.")?></para>
+
+        <para><?php echo _("Info: ")?><ulink url="http://qmailadmin.sf.net">http://qmailadmin.sf.net</ulink></para>
+
+        <para><?php echo _("Install:")?></para>
+
+
+        <programlisting>
+            <literal>cd {varsrc}</literal>
+            <literal>tar -xzf tar/autorespond-{autorespond}.tar.gz</literal>
+            <literal>cd autorespond-{autorespond}</literal>
+            <literal>patch -p1 &lt; ../tar/autorespond-2.0.4-2.0.5.patch</literal>
+            <literal>make</literal>
+            <literal>make install</literal>
+        </programlisting>
+    </listitem>
+</itemizedlist>

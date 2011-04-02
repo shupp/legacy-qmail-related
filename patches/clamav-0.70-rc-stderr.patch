@@ -1,0 +1,53 @@
+diff -urN ../clamav-0.70-rc/clamd/clamd.c ./clamd/clamd.c
+--- ../clamav-0.70-rc/clamd/clamd.c	Mon Mar 15 14:03:12 2004
++++ ./clamd/clamd.c	Mon Mar 22 14:47:33 2004
+@@ -137,9 +137,14 @@
+     if((cpt = cfgopt(copt, "LogFile"))) {
+ 	logfile = cpt->strarg;
+ 	if(logfile[0] != '/') {
++	  if (strcmp(logfile,"stderr")!=0) {
+ 	    fprintf(stderr, "ERROR: LogFile requires full path.\n");
+ 	    exit(1);
+ 	}
++	  else {
++	    use_stderr=1;
++	  }
++	}
+ 	time(&currtime);
+ 	if(logg("+++ Started at %s", ctime(&currtime))) {
+ 	    fprintf(stderr, "ERROR: Problem with internal logger. Please check the permissions on the %s file.\n", logfile);
+diff -urN ../clamav-0.70-rc/clamd/others.c ./clamd/others.c
+--- ../clamav-0.70-rc/clamd/others.c	Mon Mar 15 14:03:12 2004
++++ ./clamd/others.c	Mon Mar 22 15:04:13 2004
+@@ -101,7 +101,9 @@
+ 
+ 	pthread_mutex_lock(&logg_mutex);
+ 
+-	if(!log_fd) {
++	if(use_stderr) {
++	    log_fd = stderr;
++	} else if(!log_fd) {
+ 	    old_umask = umask(0037);
+ 	    if((log_fd = fopen(logfile, "a")) == NULL) {
+ 		umask(old_umask);
+@@ -131,8 +133,7 @@
+ 	    free(timestr);
+ 	}
+ 
+-
+-	if(logsize) {
++	if(logsize && !use_stderr) {
+ 	    if(stat(logfile, &sb) != -1) {
+ 		if(sb.st_size > logsize) {
+ 		    logfile = NULL;
+diff -urN ../clamav-0.70-rc/clamd/others.h ./clamd/others.h
+--- ../clamav-0.70-rc/clamd/others.h	Mon Mar 15 14:03:12 2004
++++ ./clamd/others.h	Mon Mar 22 14:47:33 2004
+@@ -35,6 +35,7 @@
+ short int logverbose, logcompressed, loglock, logtime, logok, debug_mode;
+ int logsize;
+ const char *logfile;
++int use_stderr;
+ int logg(const char *str, ...);
+ void logg_close(void);
+ int poll_fd(int fd, int timeout_sec);

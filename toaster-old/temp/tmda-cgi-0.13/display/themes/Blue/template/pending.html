@@ -1,0 +1,467 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<?xml-stylesheet href="%(ThemeDir)s/styles.css" type="text/css"?>
+<html>
+<!-- THIS PAGE IS AUTOMATICALLY GENERATED.  DO NOT EDIT. -->
+<!-- Tue Mar 16 09:07:25 2004 -->
+<!-- USING HT2HTML 2.1 -->
+<!-- SEE http://ht2html.sf.net -->
+<!-- User-specified headers:
+Title: Pending E-mail
+
+-->
+
+<head>
+<title>Pending E-mail</title>
+<meta http-equiv="Content-Type" content="text/html; charset=%(CharSet)s">
+<meta name="generator" content="HT2HTML/2.1">
+<link rel="STYLESHEET" href="%(ThemeDir)s/styles.css" type="text/css">
+</head>
+<body bgcolor="#A6A6B3" text="#000000"
+      onload="Preloader()"
+      link="#0000bb"  vlink="#551a8b"
+      alink="#ff0000">
+<!-- start of page table -->
+<table bgcolor="#FFFFFF"  height="100%" border="0"
+cellspacing="0" cellpadding="0"><tr><td valign="top"><table class="matte"
+width="100%" height="100%" border="0" cellspacing="0" cellpadding="0"><tr>
+<td valign="top"><table width="100%" border="0" cellspacing="0" cellpadding="0">
+<!-- start of banner row -->
+<tr>
+<!-- start of corner cells -->
+<td width="194" height="135" valign="middle" bgcolor="#7B7CB6" class="corner"><img src="%(ThemeDir)s/corner.gif" width="194" height="135" alt=""></td>
+<!-- end of corner cells -->
+<!-- start of banner -->
+<td height="135" valign="top" background="%(ThemeDir)s/top_bg.gif" bgcolor="#7B7CB6" class="banner"><img src="%(ThemeDir)s/title.png" width="341" height="135"
+alt="TMDA (http://tmda.net) CGI Interface" title="TMDA (http://tmda.net) CGI Interface"></td><!-- end of banner -->
+</tr><!-- end of banner row -->
+<tr><!-- start of sidebar/body row -->
+<!-- start of sidebar cells -->
+<td width="194" background="%(ThemeDir)s/left_bg.gif" bgcolor="#7B7CB6" valign="top" class="sidebar">
+<!-- start of sidebar table -->
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+<tr><td><a href="%(Script)s?cmd=gen_addr&SID=%(SID)s"
+onmouseover="document.images.x37.src='%(ThemeDir)s/dyn_buttons/layout1_r1_c1_h.png'"
+onmouseout="document.images.x37.src='%(ThemeDir)s/dyn_buttons/layout1_r1_c1.png'"><img
+src="%(ThemeDir)s/dyn_buttons/layout1_r1_c1.png" name="x37" height="50" width="194" border="0" alt="Addresses" title="Addresses"></a></td></tr>
+<tr><td><a href="%(Script)s?cmd=pending&SID=%(SID)s"
+onmouseover="document.images.x120.src='%(ThemeDir)s/dyn_buttons/layout1_r2_c1_h.png'"
+onmouseout="document.images.x120.src='%(ThemeDir)s/dyn_buttons/layout1_r2_c1.png'"><img
+src="%(ThemeDir)s/dyn_buttons/layout1_r2_c1.png" name="x120" height="35" width="194" border="0" alt="Pending" title="Pending"></a></td></tr>
+<tr><td><a href="%(Script)s?cmd=incoming&SID=%(SID)s"
+onmouseover="document.images.x205.src='%(ThemeDir)s/dyn_buttons/layout1_r3_c1_h.png'"
+onmouseout="document.images.x205.src='%(ThemeDir)s/dyn_buttons/layout1_r3_c1.png'"><img
+src="%(ThemeDir)s/dyn_buttons/layout1_r3_c1.png" name="x205" height="35" width="194" border="0" alt="Filters" title="Filters"></a></td></tr>
+<tr><td><a href="%(Script)s?cmd=editlist&SID=%(SID)s"
+onmouseover="document.images.x290.src='%(ThemeDir)s/dyn_buttons/layout1_r4_c1_h.png'"
+onmouseout="document.images.x290.src='%(ThemeDir)s/dyn_buttons/layout1_r4_c1.png'"><img
+src="%(ThemeDir)s/dyn_buttons/layout1_r4_c1.png" name="x290" height="35" width="194" border="0" alt="Lists" title="Lists"></a></td></tr>
+<tr><td><a href="%(Script)s?cmd=theme&SID=%(SID)s"
+onmouseover="document.images.x375.src='%(ThemeDir)s/dyn_buttons/layout1_r5_c1_h.png'"
+onmouseout="document.images.x375.src='%(ThemeDir)s/dyn_buttons/layout1_r5_c1.png'"><img
+src="%(ThemeDir)s/dyn_buttons/layout1_r5_c1.png" name="x375" height="35" width="194" border="0" alt="Settings" title="Settings"></a></td></tr>
+<tr><td><a href="%(Script)s?cmd=info&SID=%(SID)s"
+onmouseover="document.images.x460.src='%(ThemeDir)s/dyn_buttons/layout1_r6_c1_h.png'"
+onmouseout="document.images.x460.src='%(ThemeDir)s/dyn_buttons/layout1_r6_c1.png'"><img
+src="%(ThemeDir)s/dyn_buttons/layout1_r6_c1.png" name="x460" height="35" width="194" border="0" alt="Info" title="Info"></a></td></tr>
+<tr><td><a href="%(Script)s?cmd=logout&SID=%(SID)s"
+onmouseover="document.images.x545.src='%(ThemeDir)s/dyn_buttons/layout1_r7_c1_h.png'"
+onmouseout="document.images.x545.src='%(ThemeDir)s/dyn_buttons/layout1_r7_c1.png'"><img
+src="%(ThemeDir)s/dyn_buttons/layout1_r7_c1.png" name="x545" height="39" width="194" border="0" alt="Logout" title="Logout"></a></td></tr>
+</table><!-- end of sidebar table -->
+
+</td>
+<!-- end of sidebar cell -->
+<!-- start of body cell -->
+<td valign="top" class="body"><script>
+<!-- Hide script
+function TestConfirm()
+{
+  ToBlacklist = 0
+  ToDelete = 0
+  ToSpamCop = 0
+  for (i = 0; i < %(PagerSize)s; i++)
+  {
+    action = document.forms.actions["a" + i]
+    if (action)
+      for (j = 0; j < action.length; j++)
+      {
+        if (action[j].checked && (action[j].value == "blacklist")) ToBlacklist++
+        if (action[j].checked && (action[j].value == "delete")) ToDelete++
+        if (action[j].checked && (action[j].value == "report")) ToSpamCop++
+      }
+  }
+  if (ToDelete)
+    if (ToBlacklist)
+      if (ToSpamCop) Msg = "Permanently delete, blacklist, and report"
+      else Msg = "Permanently delete and blacklist"
+    else
+      if (ToSpamCop) Msg = "Permanently delete and report"
+      else Msg = "Permanently delete"
+  else
+    if (ToBlacklist)
+      if (ToSpamCop) Msg = "Blacklist and report"
+      else Msg = "Blacklist"
+    else
+      if (ToSpamCop) Msg = "Report"
+      else return true
+  if ((ToDelete + ToBlacklist + ToSpamCop) == 1) Msg += " this pending message?"
+  else Msg += " these pending messages?"
+  if (ToDelete + ToSpamCop) Msg += "\nAny confirmation that follows will fail."
+  return confirm(Msg)
+}
+
+function Set(Value)
+{
+  i = 0
+  while (document.forms[0]["a" + i])
+  {
+    group = document.forms.actions["a" + i]
+    for (j = 0; j < group.length; j++)
+      if (group[j].value == Value) group[j].checked = 1
+    i++
+  }
+}
+// -->
+</script>
+<table border="2" cellpadding="0" cellspacing="0"
+  style="border-style: solid; border-color: #7A7AB6; border-width: 2px">
+  <tr>
+    <td><table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <form name="actions" method="post" %(OnSubmit)s action="%(Script)s">
+          <input type="hidden" name="SID" value="%(SID)s">
+          <input type="hidden" name="cmd" value="pending">
+          <input type="hidden" name="subcmd" value="batch">
+          <tr bgcolor="#7A7AB6" height="24">
+            <td width="20%"><input type="image"
+              src="%(ThemeDir)s/buttons/subnav_r1_c14.gif" width="98"
+              height="18" border="0"></td>
+            <td align="center">
+              <!-- var: FirstButton1Active -->
+                <a
+                  href="%(Script)s?cmd=pending&subcmd=first&SID=%(SID)s"><img
+                  src="%(ThemeDir)s/buttons/subnav_r1_c1.gif" border="0"
+                  width="26" height="18" alt="First" title="First"></a>
+              <!-- /var -->
+              <!-- var: FirstButton1Inactive -->
+                <img src="%(ThemeDir)s/buttons/subnav_r1_c10.gif"
+                     width="18" height="18" alt="First">
+              <!-- /var -->
+            </td>
+            <td align="center">
+              <!-- var: PrevButton1Active -->
+                <a
+                  href="%(Script)s?cmd=pending&subcmd=prev&msgid=%(MsgID)s&SID=%(SID)s"><img
+                  src="%(ThemeDir)s/buttons/subnav_r1_c2.gif" border="0" 
+                  width="19" height="18" alt="Prev" title="Prev"></a>
+              <!-- /var -->
+              <!-- var: PrevButton1Inactive -->
+                <img src="%(ThemeDir)s/buttons/subnav_r1_c11.gif"
+                     width="11" height="18" alt="Prev">
+              <!-- /var -->
+            </td>
+            <td align="center">
+              <!-- var: NextButton1Active -->
+              <a
+                href="%(Script)s?cmd=pending&subcmd=next&msgid=%(MsgID)s&SID=%(SID)s"><img
+                src="%(ThemeDir)s/buttons/subnav_r1_c7.gif" border="0" width="18"
+                height="18" alt="Next" title="Next"></a>
+              <!-- /var -->
+              <!-- var: NextButton1Inactive -->
+                <img src="%(ThemeDir)s/buttons/subnav_r1_c12.gif"
+                     width="11" height="18" alt="Prev">
+              <!-- /var -->
+            </td>
+            <td align="center">
+              <!-- var: LastButton1Active -->
+              <a
+                href="%(Script)s?cmd=pending&subcmd=last&SID=%(SID)s"><img
+                src="%(ThemeDir)s/buttons/subnav_r1_c8.gif" border="0" width="24"
+                height="18" alt="Last" title="Last"></a>
+              <!-- /var -->
+              <!-- var: LastButton1Inactive -->
+                <img src="%(ThemeDir)s/buttons/subnav_r1_c13.gif"
+                     width="18" height="18" alt="First">
+              <!-- /var -->
+            </td>
+            <td align="center"><a 
+              href="%(Script)s?cmd=pending&subcmd=allread&SID=%(SID)s"><img 
+              src="%(ThemeDir)s/buttons/subnav_r1_c15.gif" border="0" 
+              width="61" height="18" alt="All Read" title="All Read"></a></td>
+            <td align="center"><font color="#FFFFFF">%(DispRange)s</font></td>
+          </tr>
+          <tr bgcolor="#DADCEB">
+            <td colspan="7"><table cellspacing="0" width="100%" border=0>
+              <tr valign="bottom">
+                <td height="24" width="1%"><a 
+                  href="javascript:Set('pass')"><img 
+                  src="%(ThemeDir)s/buttons/options_r1_c1.gif" border="0" 
+                  width="20" height="15" alt="Leave" title="Leave"></a></td>
+              <!-- var: RlIcon -->
+                <td width="1%"><a href="javascript:Set('release')"><img 
+                  src="%(ThemeDir)s/buttons/options_r1_c2.gif" border="0" 
+                  width="20" height="15" alt="Release" 
+                  title="Release"></a></td>
+              <!-- /var -->
+              <!-- var: DlIcon -->
+                <td width="1%"><a href="javascript:Set('delete')"><img 
+                  src="%(ThemeDir)s/buttons/options_r1_c3.gif" border="0" 
+                  width="20" height="15" alt="Delete" title="Delete"></a></td>
+              <!-- /var -->
+              <!-- var: WhIcon -->
+                <td width="1%"><a href="javascript:Set('whitelist')"><img
+                  src="%(ThemeDir)s/buttons/options_r1_c4.gif" border="0" 
+                  width="20" height="15" alt="Whitelist" 
+                  title="Whitelist"></a></td>
+              <!-- /var -->
+              <!-- var: BlIcon -->
+                <td width="1%"><a href="javascript:Set('blacklist')"><img
+                  src="%(ThemeDir)s/buttons/options_r1_c5.gif" border="0" 
+                  width="20" height="15" alt="Blacklist" 
+                  title="Blacklist"></a></td>
+              <!-- /var -->
+              <!-- var: SCIcon -->
+                <td width="1%"><a href="javascript:Set('spamcop')"><img
+                  src="%(ThemeDir)s/buttons/options_r1_c6.gif" border="0" 
+                  width="20" height="15" alt="Report to SpamCop" 
+                  title="Report to SpamCop"></a></td>
+              <!-- /var -->
+                <th width="150" align="left" style="padding-left: 20px">
+                  Sender
+                </th>
+                <th width="250" align="left" style="padding-left: 20px">
+                  Subject
+                </th>
+                <th width="80" align="left" style="padding-left: 20px">
+                  Date
+                </th>
+                <th width="50" align="right" style="padding-right: 10px">
+                  Size
+                </th>
+              </tr>
+<!-- var: NumCols="10" --><!-- var: NumBlankCols="6" -->
+<!-- var: EvenRowColor="#DADCEB" --><!-- var: OddRowColor="#DADCEB" -->
+<!-- var: Row -->
+      <tr>
+        <td colspan="%(NumCols)s" bgcolor="#7A7AB6" height="1"></td>
+      </tr>
+      <tr class="%(MsgClass)s" bgcolor="%(RowBgColor)s">
+        <td valign="top">
+          <input type="hidden" name="%(MsgName)s" value="%(MsgID)s">
+          <input type="radio" name="%(RadioName)s" value="pass" checked>
+        </td>
+       <!-- var: RlRadio -->
+        <td valign="top">
+          <input type="radio" name="%(RadioName)s" value="release">
+        </td>
+       <!-- /var -->
+       <!-- var: DlRadio -->
+        <td valign="top">
+          <input type="radio" name="%(RadioName)s" value="delete">
+        </td>
+       <!-- /var -->
+       <!-- var: WhRadio -->
+        <td valign="top">
+          <input type="radio" name="%(RadioName)s" value="whitelist">
+        </td>
+       <!-- /var -->
+       <!-- var: BlRadio -->
+        <td valign="top">
+          <input type="radio" name="%(RadioName)s" value="blacklist">
+        </td>
+       <!-- /var -->
+       <!-- var: SCRadio -->
+        <td valign="top">
+          <input type="radio" name="%(RadioName)s" value="report">
+        </td>
+       <!-- /var -->
+        <td valign="top" style="padding-left: 8px">%(Sender)s</td>
+        <td valign="top" style="padding-left: 8px">
+          <a href="%(Script)s?cmd=view&msgid=%(MsgID)s&SID=%(SID)s">%(Subject)s</a>
+        </td>
+        <td nowrap valign="top" style="padding-left: 8px">%(Date)s</td>
+        <td align="right" valign="top" style="padding-right: 5px">%(Size)s</td>
+      </tr>
+<!-- /var -->
+<!-- var: InProcessRow -->
+      <tr>
+        <td colspan="%(NumCols)s" bgcolor="#7A7AB6" height="1"></td>
+      </tr>
+      <tr class="InProcess">
+        <td colspan="%(NumBlankCols)s">&nbsp;</td>
+        <td style="padding-left: 8px">%(Sender)s</td>
+        <td style="padding-left: 8px">%(Subject)s</td>
+        <td nowrap style="padding-left: 8px">%(Date)s</td>
+        <td align="right" style="padding-right: 5px">%(Size)s</td>
+      </tr>
+<!-- /var -->
+    </table></td>
+</tr>
+          <tr bgcolor="#7A7AB6" height="24">
+            <td width="20%"><input type="image"
+              src="%(ThemeDir)s/buttons/subnav_r1_c14.gif" width="98"
+              height="18" border="0"></td>
+            <td align="center">
+              <!-- var: FirstButton2Active -->
+                <a
+                  href="%(Script)s?cmd=pending&subcmd=first&SID=%(SID)s"><img
+                  src="%(ThemeDir)s/buttons/subnav_r1_c1.gif" border="0"
+                  width="26" height="18" alt="First" title="First"></a>
+              <!-- /var -->
+              <!-- var: FirstButton2Inactive -->
+                <img src="%(ThemeDir)s/buttons/subnav_r1_c10.gif"
+                     width="18" height="18" alt="First">
+              <!-- /var -->
+            </td>
+            <td align="center">
+              <!-- var: PrevButton2Active -->
+                <a
+                  href="%(Script)s?cmd=pending&subcmd=prev&msgid=%(MsgID)s&SID=%(SID)s"><img
+                  src="%(ThemeDir)s/buttons/subnav_r1_c2.gif" border="0" 
+                  width="19" height="18" alt="Prev" title="Prev"></a>
+              <!-- /var -->
+              <!-- var: PrevButton2Inactive -->
+                <img src="%(ThemeDir)s/buttons/subnav_r1_c11.gif"
+                     width="11" height="18" alt="Prev">
+              <!-- /var -->
+            </td>
+            <td align="center">
+              <!-- var: NextButton2Active -->
+              <a
+                href="%(Script)s?cmd=pending&subcmd=next&msgid=%(MsgID)s&SID=%(SID)s"><img
+                src="%(ThemeDir)s/buttons/subnav_r1_c7.gif" border="0" width="18"
+                height="18" alt="Next" title="Next"></a>
+              <!-- /var -->
+              <!-- var: NextButton2Inactive -->
+                <img src="%(ThemeDir)s/buttons/subnav_r1_c12.gif"
+                     width="11" height="18" alt="Prev">
+              <!-- /var -->
+            </td>
+            <td align="center">
+              <!-- var: LastButton2Active -->
+              <a
+                href="%(Script)s?cmd=pending&subcmd=last&SID=%(SID)s"><img
+                src="%(ThemeDir)s/buttons/subnav_r1_c8.gif" border="0" width="24"
+                height="18" alt="Last" title="Last"></a>
+              <!-- /var -->
+              <!-- var: LastButton2Inactive -->
+                <img src="%(ThemeDir)s/buttons/subnav_r1_c13.gif"
+                     width="18" height="18" alt="First">
+              <!-- /var -->
+            </td>
+            <td align="center"><a 
+              href="%(Script)s?cmd=pending&subcmd=allread&SID=%(SID)s"><img 
+              src="%(ThemeDir)s/buttons/subnav_r1_c15.gif" border="0" 
+              width="61" height="18" alt="All Read" title="All Read"></a></td>
+            <td align="center"><font color="#FFFFFF">%(DispRange)s</font></td>
+          </tr>
+        </form>
+      </table>
+      <table width="100%" cellspacing="0" cellpadding="0" border="0">
+<!-- var: InProcess -->
+        <tr>
+          <td colspan="2" bgcolor="#DADCEB" height="1"></td>
+        </tr>
+        <tr bgcolor="#7A7AB6">
+          <td valign="top" width="45"><font
+            color="#FFFFFF"><b><i>Note:</i></b></font></td>
+          <td>
+            <font color="#FFFFFF"><span class="InProcess">Marked</span>
+              messages are being processed by the mail server. They will be
+              removed from the pending list when released.</font>
+          </td>
+        </tr>
+<!-- /var -->
+      </table>
+    </td>
+  </tr>
+</table>
+
+<!-- var: searchForm-->
+<BR>
+<table align=center style="border-style: solid; border-color: #7A7AB6; border-width: 2px; color: #FFFFFF; background: #DADCEB"><tr><td>
+<form name="search" method="get" %(OnSubmit)s action="%(Script)s">
+  <input type="hidden" name="SID" value="%(SID)s">
+  <input type="hidden" name="cmd" value="pending">
+<table>
+  <tr>
+    <td style="font-family: sans-serif; font-weight: bold">
+      Search
+    </td>
+    <td>
+      <!-- This sets up the search pattern:
+           - If the value contains '%%s', the user's search argument will be
+             placed into the regular expression and the entire message searched
+             (using a multi-line regular expression search) for that term.
+             This is very slow, especially with a lot of messages.
+           - If the value is of the format '_header:h1,h2,h3...'
+             The user's search argument will be searched for in the headers h1,
+             h2, h3, and so on.  This is much quicker than a regular expression
+             search on the entire message
+           - Theme designers can allow users to type in their own header list.
+             In this case, the search pattern must be '_header' (with no colon)
+             and the form must also supply the field 'searchHeaderList' which is
+             expected to be a comma-delimited list of headers to be searched.
+       -->
+      <select name="searchPattern" style="font-weight: bold; text-align: right">
+        <option value="_header:from">From:&nbsp;
+        <option value="_header:to,cc,x-tmda-recipient">Recipient (To:/CC:)&nbsp;
+        <option value="_header:subject">Subject:&nbsp;
+        <option value="_header:date">Date:&nbsp;
+        <option value="^\n.*%%s.*">Body containing:&nbsp;
+        <option value="%%s">Pure Regular Expression:&nbsp;
+      </select>
+    </td>
+    <td>
+      <!-- This is the user's search argument which will be inserted into the
+           searchPattern above -->
+      <input name="search" size=30>
+    </td>
+  </tr>
+  <tr>
+    <td></td>
+    <td align=Left>
+      <input type="checkbox" name="searchCaseSensitive">Case Sensitive
+    </td>
+    <td>
+      <input type="submit" value="Search">
+    </td>
+  </tr>
+</table>
+</form>
+</td></tr></table>
+<P align=center>
+  <i><b>Note:</b> Body searches and "Pure regular expression" searches may take a long time, especially if you have many pending mesages, so please be patient.</i>
+</P>
+<!-- /var -->
+<!-- var: clearSearch -->
+<BR>
+<table align=center style="border-style: solid; border-color: #7A7AB6; border-width: 2px; color: #FFFFFF; background: #DADCEB"><tr><td>
+  <A href="%(Script)s?cmd=pending&SID=%(SID)s" style="font-family: sans-serif; font-size: 14pt">Clear search results</A>
+</td></tr></table>
+<!-- /var -->
+</td>
+<!-- end of body cell -->
+</tr><!-- end of sidebar/body row -->
+</table></td></tr></table></td></tr></table><!-- end of page table -->
+<script>
+<!--
+function Preloader()
+{
+  var x37 = new Image();
+x37.src = "%(ThemeDir)s/dyn_buttons/layout1_r1_c1_h.png";
+  var x120 = new Image();
+x120.src = "%(ThemeDir)s/dyn_buttons/layout1_r2_c1_h.png";
+  var x205 = new Image();
+x205.src = "%(ThemeDir)s/dyn_buttons/layout1_r3_c1_h.png";
+  var x290 = new Image();
+x290.src = "%(ThemeDir)s/dyn_buttons/layout1_r4_c1_h.png";
+  var x375 = new Image();
+x375.src = "%(ThemeDir)s/dyn_buttons/layout1_r5_c1_h.png";
+  var x460 = new Image();
+x460.src = "%(ThemeDir)s/dyn_buttons/layout1_r6_c1_h.png";
+  var x545 = new Image();
+x545.src = "%(ThemeDir)s/dyn_buttons/layout1_r7_c1_h.png";
+}
+//-->
+</script>
+</body></html>

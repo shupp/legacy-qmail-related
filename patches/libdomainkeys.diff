@@ -1,0 +1,11 @@
+--- Makefile.orig	2007-03-21 18:32:36.951639696 -0700
++++ Makefile	2007-03-21 18:35:57.925087088 -0700
+@@ -37,7 +37,7 @@
+ dnstest: dnstest.o dns_txt.o libdomainkeys.a dns.lib
+ 	$(CC) $(CFLAGS) -o dnstest dnstest.o dns_txt.o `cat dns.lib` $(LIBS) 
+ dns.lib: dnstest.c
+-	(if $(MAKE) dnstest >/dev/null 2>&1; then echo -lresolv; else echo ""; fi) >dns.lib
++	(if ! $(MAKE) dnstest >/dev/null 2>&1; then echo -lresolv; else echo ""; fi) >dns.lib
+ domainkeys.h: domainkeys.c makeheader
+ 	./makeheader <domainkeys.c >domainkeys.h
+ 

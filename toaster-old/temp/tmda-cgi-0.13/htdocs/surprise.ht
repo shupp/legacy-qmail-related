@@ -1,0 +1,175 @@
+Title: Surprises & Gotcha's
+
+<h2>Surprises &amp; Gotcha's</h2>
+<p>This section of the documentation is reserved for functionality and quirks
+  that, although not erroneous, may not be what you expect. Check this list for
+  help if you experience problems with tmda-cgi.</p>
+
+<p><a href="#Whitelist">Whitelist Woes</a><br>
+<a href="#Python">Python Problems</a><br>
+<a href="#Authentication">Authentication Ailments</a><br>
+<a href="#Attach">Attachment Anxiety</a><br>
+<a href="#WhiteBlack">Whitelist, Blacklist... where are the options?</a><br>
+<a href="#Base">Bad Base</a><br>
+<a href="#Install">Install Again?</a><br>
+<a href="#NoInstall">Can't Install!</a><br>
+<a href="#BadInstall">Bad Install</a><br>
+<a href="#International">International Intrigue</a></p>
+
+<h3><a name="Whitelist"></a>Whitelist Woes</h3>
+<p>tmda-cgi's whitelist feature does not update the list pointed to by
+  configuration variable
+  <tt><a href="/config-vars.html#CONFIRM_APPEND">CONFIRM_APPEND</a></tt><tt>.</tt></p>
+<p>tmda-cgi uses configuration variable
+  <a href="/config-vars.html#PENDING_WHITELIST_APPEND"><tt>PENDING_WHITELIST_APPEND</tt></a>
+  instead of
+  <tt><a href="/config-vars.html#CONFIRM_APPEND">CONFIRM_APPEND</a>.</tt>
+  To use the whitelist feature, you must set
+  <a href="/config-vars.html#PENDING_WHITELIST_APPEND"><tt>PENDING_WHITELIST_APPEND</tt></a>
+  to a list that is handled by your incoming filter.</p>
+
+<h3><a name="Python"></a>Python Problems</h3>
+<p>TMDA requires Python version 2.1 but some flavors of Linux (such as <a
+  href="http://redhat.com">RedHat</a>) come with two different versions of
+  Python installed, one older and one newer.</p>
+<p>If tmda-cgi tries to run using the wrong version of Python, then you
+  must specify the correct version at compile time. Instead of typing:</p>
+<blockquote>
+  <pre># ./configure &lt;options&gt;</pre>
+</blockquote>
+<p>Type:</p>
+<blockquote>
+  <pre># /usr/bin/python2 configure &lt;options&gt;</pre>
+</blockquote>
+<p>(Assuming that your Python 2.1+ can be found at
+  <tt>/usr/bin/python2</tt>.) The compiler will save the correct version of
+  the Python interpreter and use it when tmda-cgi is run.</p>
+
+<h3><a name="Authentication"></a>Authentication Ailments</h3>
+<p>If no username/password combination lets you log in, your problem may be due
+  to a misconfigured authentication method. To aid in finding out precisely
+  what is misconfigured, we have added a variety of debugging messages to
+  various parts of the authentication code.</p>
+<p>The debugging messages are embedded in comments in the login page. Try
+  logging in and when you get the "Wrong password." message, do a "View/Source"
+  of the HTML page. At the top of the page, you should see something like:</p>
+<table class="example">
+  <tr>
+    <td>
+&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><br>
+&lt;!--<br>
+&nbsp;<br>
+&nbsp;<br>
+&nbsp;<br>
+Having difficulties logging in?<br>
+Here's some details of why you couldn't:<br>
+&nbsp;<br>
+Capturing the debug stream...<br>
+Setting up remote authentication with pop3://localhost<br>
+Trying pop3 authentication for gre7g@lazarus.wolfhome.com@localhost:110<br>
+pop3 authentication for gre7g@lazarus.wolfhome.com@localhost<br>
+failed: -ERR authorization failed<br>
+Authentication returned: 0<br>
+&nbsp;<br>
+&nbsp;<br>
+&nbsp;<br>
+&nbsp;<br>
+--><br>
+&lthtml><br>
+...</td>
+  </tr>
+</table>
+<p>If you do not wish for these messages to be embedded, modify the template
+  file <tt>login.html</tt> and remove the <tt>%(ErrMsg)s</tt> string.</p>
+<p>If the messages do not help you get to the root of the problem, refer to the
+  instructions on the <a href="contact.html">Contact</a> page to get some
+  assistance.  Be sure to copy and paste the debug information you are getting,
+  to make it easier for the developers to help you.</p>
+
+<h3><a name="Attach"></a>Attachment Anxiety</h3>
+<p>tmda-cgi does not let you view the attachments on a pending e-mail.</p>
+<p>If you need one of the attachments in an e-mail, simply release the e-mail
+  by clicking on the checkmark button. You can then download the e-mail as if
+  the sender had confirmed the message, and view the attachment. Remember,
+  tmda-cgi lets you manage your pending messages.  It is not a web-based mail
+  client.</p>
+
+<h3><a name="WhiteBlack"></a>Whitelist, Blacklist... where are the options?</h3>
+<p>The screenshots show whitelist and blacklist options, but I don't see
+  these!</p>
+<p>The whitelist and blacklist options are only available if you have
+  configured them in your config file. Try setting <a
+  href="/config-vars.html#PENDING_WHITELIST_APPEND"><tt>PENDING_WHITELIST_APPEND</tt></a>
+  and <a
+  href="/config-vars.html#PENDING_BLACKLIST_APPEND"><tt>PENDING_BLACKLIST_APPEND</tt></a>.
+  The radio buttons and option buttons should appear on the pending list and
+  pending e-mail viewer once you do.</p>
+
+<h3><a name="Base"></a>Bad Base</h3>
+<p>My <tt>skel</tt> files use <tt>%(Base)s/bin/</tt> to refer to TMDA's
+  <tt>bin/</tt> directory, but when my users install, the files created point
+  to the wrong directory.</p>
+<p>The variable <tt>%(Base)s</tt> asssumes you have installed TMDA from source.
+  If you installed TMDA from RPM or FreeBSD port, then the assumed relationship
+  between library files and executables is no longer valid.</p>
+<p>Simply modify the <tt>skel</tt> files, remove <tt>%(Base)s/bin/</tt> and
+  replace it with the correct path to TMDA's executables.</p>
+
+<h3><a name="Install"></a>Install Again?</h3>
+<p>I've already installed TMDA on this e-mail account, but when I login to
+  tmda-cgi, it gives me the welcome screen and asks if I want to install.</p>
+<p>If tmda-cgi cannot detect a valid TMDA install on a given e-mail account, it
+  will ask if you wish to install. The reason why it can't detect a valid
+  install are hidden in the comments at the top of HTML for this page. Do a
+  "View/Source" and at the top of the page, you should see something like:</p>
+<table class="example">
+  <tr>
+    <td>
+&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><br>
+&lt;!--<br>
+&nbsp;<br>
+&nbsp;<br>
+&nbsp;<br>
+Why did I end up here?<br>
+Here's some details:<br>
+&nbsp;<br>
+Can't find key file:<br>
+/home/vpopmail/domains/lazarus.wolfhome.com/gre7g/.tmda/crypt_key<br>
+&nbsp;<br>
+&nbsp;<br>
+&nbsp;<br>
+&nbsp;<br>
+--><br>
+&lthtml><br>
+...</td>
+  </tr>
+</table>
+<p>If you do not wish for these messages to be embedded, modify the template
+  file <tt>welcome.html</tt> and remove the <tt>%(ErrMsg)s</tt> string.</p>
+<p>If the messages do not help you get to the root of the problem, refer to the
+  instructions on the <a href="contact.html">Contact</a> page to get some
+  assistance.  Be sure to copy and paste the debug information you are getting,
+  to make it easier for the developers to help you.</p>
+
+<h3><a name="NoInstall"></a>Can't Install!</h3>
+<p>I've run <tt>configure</tt> and <tt>make</tt>, but <tt>make install</tt>
+  won't work because the user I'm compiling as doesn't have the needed
+  permissions to put a file in the web tree. Can I do <tt>make install</tt> as
+  root?</p>
+<p>Yes, you may do <tt>make install</tt> as root.</p>
+
+<h3><a name="BadInstall"></a>Bad Install</h3>
+<p>I used tmda-cgi's auto-install feature to add TMDA to my e-mail account, but
+  it didn't work. I am still receiving spam and no confirmations are being
+  sent.</p>
+<p>Did you read the <a href="autoinstall.html">auto-install page</a>?</p>
+<p>tmda-cgi comes with a default installation that it will apply to all new TMDA
+  users, but this installation may <b><i>not</i></b> match your system. You may
+  need to customize the <a href="autoinstall.html#Skel"><tt>skel</tt></a> files
+  to match your system setup.</p>
+
+<h3><a name="International"></a>International Intrigue</h3>
+<p>Instead of Chinese characters in the pending list, the subject lines are
+  showing up as random English characters!</p>
+<p>Did you remember to install the <a href="compile.html#International">Chinese
+  codec</a>? tmda-cgi can't translate Chinese without it.</p>

@@ -1,0 +1,49 @@
+<title><?php echo _("Install Software")?></title>
+<para><?php echo _("Now that you have downloaded all the software packages to {varsrc}, please go through each of these installation steps as the appear, and in this order, unless you really know what you're doing. (Because if you did, you wouldn't be reading this, right?)")?></para>
+<para><?php echo _("The below steps assume that your <quote>rc</quote> directories are in /etc/ and your <quote>init.d</quote> path is <quote>/etc/init.d</quote>. If yours are different, please substitue paths accordingly.")?></para>
+
+
+
+<itemizedlist>
+    <listitem>
+        <para><anchor id="daemontools" /><emphasis><?php echo _("daemontools")?></emphasis></para>
+        <para><?php echo _("daemontools is a collection of tools for managing UNIX services. It will monitor qmail-send, and qmail-smtpd, and qmail-pop3d services.")?></para>
+        <para><?php echo _("Info: ")?> <ulink url="http://cr.yp.to/daemontools.html">http://cr.yp.to/daemontools.html</ulink></para>
+
+        <para><?php echo _("Install:")?></para>
+
+
+        <programlisting>
+			<literal>mkdir -p /package</literal>
+			<literal>chmod 1755 /package</literal>
+			<literal>cd /package</literal>
+			<literal>tar -xpzf {varsrc}/tar/daemontools-0.76.tar.gz</literal>
+			<literal>cd admin/daemontools-0.76</literal>
+			<literal>patch -p1 &lt; {varsrc}/netqmail-1.05/other-patches/daemontools-0.76.errno.patch</literal>
+			<literal>package/install</literal>
+			<literal></literal>
+			<literal># add the "clear" service</literal>
+			<literal></literal>
+			<literal>cd ../</literal>
+			<literal>mkdir clear</literal>
+			<literal>touch clear/down</literal>
+			<literal></literal>
+			<literal>cat &gt; clear/run &lt;&lt;EOF</literal>
+			<literal>#!/bin/sh</literal>
+			<literal>yes '' | head -4000 | tr '\n' .</literal>
+			<literal></literal>
+			<literal># When you want to clear the service errors, just run this:</literal>
+			<literal># svc -o /service/clear</literal>
+			<literal>EOF</literal>
+			<literal></literal>
+			<literal>chmod +x clear/run</literal>
+			<literal>chmod a-w clear/down</literal>
+			<literal></literal>
+			<literal>ln -s /package/admin/clear /service/clear</literal>
+        </programlisting>
+    </listitem>
+
+
+</itemizedlist>
+
+<para><?php echo _("To verify that daemontools is running, make sure that `ps ax` reports '/bin/sh /command/svscanboot' and 'svscan /service' as running.") ?></para>

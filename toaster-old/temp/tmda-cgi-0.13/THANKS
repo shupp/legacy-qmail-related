@@ -1,0 +1,81 @@
+Acknowledgements:
+-----------------
+
+    * Jason R. Mastaler -- the creator of TMDA
+
+    * Guido van Rossum -- the creator of Python
+
+Contributions:
+--------------
+
+    * Andrew Armstrong -- bug finding
+
+    * Brian Benitez -- bug finding
+
+    * Ben Bullock -- bug finding
+
+    * Dan Davis -- case insensative sorting
+
+    * Julian Easterling -- bug finding
+
+    * Dan Egli -- bug finding
+
+    * Dario Gomes -- bug finding
+
+    * Jesse Guardiani -- providing valuable insight into virtual user
+                         setup and the proper way to interface to the
+                         libraries, suggesting a way to simplify anomalies
+
+    * Samuel Hill -- bug fixing
+
+    * Brian Ipsen -- bug fixing
+
+    * Bernard Johnson -- RPM & RPM guidance, bug finding, feature suggestions
+
+    * Rob Leachman -- bug finding
+
+    * Tim Legant -- authentication, bug solution suggestions
+
+    * Gre7g Luterman -- tmda-cgi head-honcho and instigator
+
+    * John Maslanik -- vmailmgr stub
+
+    * Remo Mattei -- bug finding
+
+    * Tomasz Nidecki -- sort by domain
+
+    * Kelvin D. Olson -- suggested adding UrlDomain and ShortUrlDom to the
+                         autoinstall variable list
+
+    * Jim Ramsay -- authentication, brainstorming, user interface, feature
+                    plans, alternate character set stuff
+
+    * Tim Rice -- compiler suggestions so we can work in more environments
+
+    * Jeff Ross -- suggested we use readline in configure and bug finding
+
+    * Dave Steinberg -- bug finding
+
+    * David K. Thompson -- suggestion to support spamassassin by adding an
+			   optional message filter
+
+    * Michael Toulouse -- bug finding
+
+    * Simeon Vlahov -- bug finding
+
+    * Ronald Wiplinger -- providing Chinese spam and feedback on whether
+                          tmda-cgi was rendering it correctly
+
+    * Cory Wright -- providing insight into how to use vpopmail and gently
+                     pointing out the obvious when I miss it, fixing my alt
+                     tags so they are not browser specific, adding in some neat
+                     little things that had been left out
+
+    * Harry Zink -- bug finding
+
+Includes:
+---------
+
+    * Alan Eldridge -- SpamCop Reporting Program (reporter.py)
+
+    * Barry Warsaw -- Templated Webpage Generator (ht2html)

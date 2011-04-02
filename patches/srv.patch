@@ -1,0 +1,634 @@
+diff -b --exclude md5upgrade -urN ../vegadns-0.9/index.php ./index.php
+--- ../vegadns-0.9/index.php	Sat Sep 18 16:45:18 2004
++++ ./index.php	Fri Sep 24 16:14:53 2004
+@@ -80,6 +80,9 @@
+     while((list($key,$value) = each($array)) && $trusted == 0) {
+         if(trim($value) == $_SERVER['REMOTE_ADDR']) $trusted = 1;
+     }
++
++   // DOPRY : remove before distributing
++   $trusted = 1;
+ 
+     if($trusted == 1) {
+         // EXPORT DATA
+diff -b --exclude md5upgrade -urN ../vegadns-0.9/src/add_record_form.php ./src/add_record_form.php
+--- ../vegadns-0.9/src/add_record_form.php	Thu Sep 23 08:17:20 2004
++++ ./src/add_record_form.php	Fri Sep 24 15:28:50 2004
+@@ -31,9 +31,9 @@
+ }
+ 
+ if($_REQUEST['mode'] == 'records') {
+-    $smarty->assign('typearray', array('A','NS','MX','PTR','TXT','CNAME'));
++    $smarty->assign('typearray', array('A','NS','MX','PTR','TXT','CNAME','SRV'));
+ } else if ($_REQUEST['mode'] == 'default_records') {
+-    $smarty->assign('typearray', array('A','NS','MX','TXT','CNAME'));
++    $smarty->assign('typearray', array('A','NS','MX','TXT','CNAME','SRV'));
+ }
+ if(isset($_REQUEST['type']))
+     $smarty->assign('type_selected', $_REQUEST['type']);
+@@ -45,6 +45,20 @@
+ } else {
+     $smarty->assign('distance', 0);
+ }
++
++if(isset($_REQUEST['weight'])) {
++    $smarty->assign('weight', $_REQUEST['weight']);
++} else {
++    $smarty->assign('weight', '');
++}
++
++if(isset($_REQUEST['port'])) {
++    $smarty->assign('port', $_REQUEST['port']);
++} else {
++    $smarty->assign('port', '');
++}
++
++
+ 
+ if(isset($_REQUEST['ttl'])) {
+     $smarty->assign('ttl', $_REQUEST['ttl']);
+diff -b --exclude md5upgrade -urN ../vegadns-0.9/src/create_tables.php ./src/create_tables.php
+--- ../vegadns-0.9/src/create_tables.php	Wed May 19 17:50:52 2004
++++ ./src/create_tables.php	Fri Sep 24 15:19:25 2004
+@@ -81,6 +81,8 @@
+   type char(1) default NULL,
+   val varchar(100) default NULL,
+   distance int(4) default '0',
++  weight int(4) default NULL,
++  port int(4) default NULL,
+   ttl int(11) NOT NULL default '86400',
+   UNIQUE KEY records_id (record_id),
+   KEY records_idx (domain_id,record_id,host)
+@@ -94,12 +96,14 @@
+   type char(1) default NULL,
+   val varchar(100) default NULL,
+   distance int(4) default '0',
++  weight int(4) default NULL,
++  port int(4) default NULL,
+   ttl int(11) NOT NULL default '86400',
+   default_type enum('system','group') NOT NULL default 'system',
+   UNIQUE KEY records_id (record_id)
+ ) TYPE=MyISAM";
+ mysql_query($q) or die(mysql_error());
+-$q = "INSERT INTO default_records VALUES (1,0,'hostmaster.DOMAIN:ns1.myserver.com','S','16384:2048:1048576:2560',0,86400,'system')";
++$q = "INSERT INTO default_records VALUES (1,0,'hostmaster.DOMAIN:ns1.myserver.com','S','16384:2048:1048576:2560',0,,,86400,'system')";
+ mysql_query($q) or die(mysql_error()."<br>".$q);
+ 
+ ?>
+diff -b --exclude md5upgrade -urN ../vegadns-0.9/src/data.php ./src/data.php
+--- ../vegadns-0.9/src/data.php	Sat Sep 18 16:47:17 2004
++++ ./src/data.php	Fri Sep 24 16:07:34 2004
+@@ -27,7 +27,7 @@
+ 
+ 
+ // build data
+-$q = "select a.domain, b.host, b.type, b.val, b.distance, b.ttl  from domains a left join records  b on a.domain_id = b.domain_id where a.status='active' order by a.domain, b.type, b.host, b.val";
++$q = "select a.domain, b.host, b.type, b.val, b.distance, b.weight, b.port, b.ttl  from domains a left join records  b on a.domain_id = b.domain_id where a.status='active' order by a.domain, b.type, b.host, b.val";
+ $result = mysql_query($q) or die(mysql_error());
+ $out = "";
+ 
+diff -b --exclude md5upgrade -urN ../vegadns-0.9/src/default_records.php ./src/default_records.php
+--- ../vegadns-0.9/src/default_records.php	Thu Sep 23 08:22:41 2004
++++ ./src/default_records.php	Sat Sep 25 12:43:39 2004
+@@ -56,6 +56,8 @@
+         $records[$counter]['type'] = $row['type'];
+         $records[$counter]['val'] = $row['val'];
+         $records[$counter]['distance'] = $row['distance'];
++	$records[$counter]['weight'] = $row['weight'];
++	$records[$counter]['port'] = $row['port'];
+         $records[$counter]['ttl'] = $row['ttl'];
+         $counter++;
+     }
+@@ -88,11 +90,19 @@
+             $out_array[$counter]['host'] = $array['host'];
+             $out_array[$counter]['type'] = $type;
+             $out_array[$counter]['val'] = $array['val'];
+-            if($type == 'MX') {
++            if($type == 'MX' || $type == 'SRV') {
+                 $out_array[$counter]['distance'] = $array['distance'];
+             } else {
+                 $out_array[$counter]['distance'] = 'n/a';
+             }
++	    if($type == 'SRV') {
++                $out_array[$counter]['weight'] = $array['weight'];
++		$out_array[$counter]['port'] = $array['port'];
++            } else {
++                $out_array[$counter]['weight'] = 'n/a';
++		$out_array[$counter]['port'] = 'n/a';
++            }
++
+             $out_array[$counter]['ttl'] = $array['ttl'];
+             $out_array[$counter]['delete_url'] = "$base_url&mode=default_records&record_mode=delete&record_id=".$array['record_id'];
+             $counter++;
+@@ -120,7 +130,7 @@
+ } else if($_REQUEST['record_mode'] == 'add_record_now') {
+ 
+     // verify record to be added
+-    $result = verify_record($_REQUEST['name'],$_REQUEST['type'],$_REQUEST['address'],$_REQUEST['distance'],$_REQUEST['ttl']);
++    $result = verify_record($_REQUEST['name'],$_REQUEST['type'],$_REQUEST['address'],$_REQUEST['distance'],$_REQUEST['weight'], $_REQUEST['port'],$_REQUEST['ttl']);
+     if($result != 'OK') {
+         $smarty->assign('message', "<span class=\"error\">$result</span>");
+         $smarty->display('header.tpl');
+@@ -200,6 +210,24 @@
+             '".mysql_escape_string($_REQUEST['address'])."',
+             '".$_REQUEST['ttl']."',
+             '$default_type')";
++	} else if ($_REQUEST['type'] == 'SRV') {
++	    if(!ereg("\..+$", $_REQUEST['address'])) {
++                $srvaddress = $_REQUEST['address'].".DOMAIN";
++            } else {
++                $srvaddress = $_REQUEST['address'];
++            }
++
++	    $q = "insert into default_records
++	    (group_owner_id,host,type,val,distance,weight,port,ttl,default_type) values (
++	    '".$user_info['cid']."',
++            '$name',
++            '".set_type($_REQUEST['type'])."',
++            '".mysql_escape_string($srvaddress)."',
++            '".mysql_escape_string($_REQUEST['distance'])."',
++	    '".mysql_escape_string($_REQUEST['weight'])."',
++	    '".mysql_escape_string($_REQUEST['port'])."',
++            '".$_REQUEST['ttl']."',
++            '$default_type')";
+         }
+         mysql_query($q) or die(mysql_error());
+         $smarty->assign('message', "Record added successfully!");
+@@ -248,8 +276,8 @@
+     // Get Current SOA information
+ 
+     // Get records list
+-    $sa_q = "select * from default_records where default_type='system'";
+-    $ga_q = "select * from default_records where group_owner_id='".$user_info['cid']."'";
++    $sa_q = "select * from default_records where default_type='system' and type='S'";
++    $ga_q = "select * from default_records where group_owner_id='".$user_info['cid']."' and type='S'";
+     if($user_info['Account_Type'] == 'senior_admin') {        
+         $result = mysql_query($sa_q) or die(mysql_error());
+     } else {        
+@@ -315,7 +343,7 @@
+             '$host',
+             'S',
+             '$val',
+-            0,
++            0,,,
+             '".$_REQUEST['ttl']."',
+             'group')";
+     } else {
+diff -b --exclude md5upgrade -urN ../vegadns-0.9/src/functions.php ./src/functions.php
+--- ../vegadns-0.9/src/functions.php	Fri Jun 18 11:55:26 2004
++++ ./src/functions.php	Sat Sep 25 16:40:26 2004
+@@ -176,6 +176,7 @@
+     if($type == 'P') return 'PTR';
+     if($type == 'T') return 'TXT';
+     if($type == 'C') return 'CNAME';
++    if($type == 'V') return 'SRV';
+ 
+ }
+ 
+@@ -188,6 +189,7 @@
+     if($type == 'PTR') return 'P';
+     if($type == 'TXT') return 'T';
+     if($type == 'CNAME') return 'C';
++    if($type == 'SRV') return 'V';
+ 
+ }
+ 
+@@ -213,7 +215,7 @@
+     return $return;
+ }
+ 
+-function verify_record($name,$type,$address,$distance,$ttl) {
++function verify_record($name,$type,$address,$distance,$weight,$port,$ttl) {
+ 
+     // convert type to single character format
+     $type = set_type($type);
+@@ -258,6 +260,23 @@
+         }
+     }
+ 
++    // verify SRV record
++    if ($type == 'V')  {
++
++	if (!eregi("^_.*\._.*$",$name))
++		return"SRV \"$name\" should be in the format _service._protocol";	
++	
++	if (($distance > 65535) || !eregi("^([0-9])+$", $distance)) 
++                return "SRV distance must be a numeric value between 0 and 65535";
++
++	if (($weight > 65535) || !eregi("^([0-9])+$", $weight))
++                return "SRV weight must be a numeric value between 0 and 65535";
++        
++	if (($port > 65535) || !eregi("^([0-9])+$", $port) ) 
++                return "SRV port must be a numeric value between 0 and 65535";
++
++    }
++
+     // make sure a TTL was given
+     if($ttl == "") return "no TTL given";
+ 
+@@ -325,6 +344,151 @@
+     return mysql_fetch_array($result);
+ }
+ 
++/*
++// DOPRY: old version of function
++// DOPRY: making encode_rdata_octet and  encode_qname so it will be easier to incorporate new record types on same code.
++function encode_srv_rdata($distance,$weight,$port,$target) {
++	// priotity weight   port     qname
++	// MSB LSB, MSB LSB, MSB LSB, LABEL_SEQUENCE
++
++	$rdata = '';
++
++        //pack data into 16 bit big-endian format just in case.
++        $data = pack("nnn",$distance,$weight,$port);
++
++        //get decimal value of individual bytes
++        $bytes = unpack('C*',$data);
++
++        //convert byte to oct pad to three characters and append to record
++        foreach($bytes as $byte) $rdata .= "\\".str_pad(decoct($byte),3,0, STR_PAD_LEFT);
++
++        //split the target into proper parts to become a proper QNAME see RFC1035 4.1.2
++        $qnameparts = split('\.',$target);
++
++        //write length octet, then characters... ( I think djbdbs handles converting them to octet... doesn't seem RFC compliant
++        //but produces identical output to Rob Mayoff's SRV generator...);
++        foreach ($qnameparts as $part)  $rdata .= "\\".str_pad(decoct(strlen($part)),3,0,STR_PAD_LEFT)."".$part;
++
++        //add term octet for QNAME
++       $rdata .= "\\000";
++
++        return $rdata;
++}
++*/
++
++// DOPRY: begin generic  encoding functions
++function encode_rdata_octets($value) {
++        // DOPRY: Big Endian 16 bit MSB LSB encoding for decimal values to rdata octets(tinydns-data)
++
++        // DOPRY: pack into 16 bit big endian, just in case.
++        $data = pack("n",$value);
++
++        // DOPRY: unpack bytes
++        $bytes = unpack("Cmsb/Clsb", $data);
++
++        // DOPRY: add the backslashes and pad string to length
++        $octets = "\\".str_pad(decoct($bytes['msb']),3,0, STR_PAD_LEFT).
++                 "\\".str_pad(decoct($bytes['lsb']),3,0, STR_PAD_LEFT);
++
++        return $octets;
++}
++
++function encode_rdata_qname($hostname) {
++        // DOPRY: QNAME(RFC 1035 section 4.1.2) encoding for url to octets(tinydns-data)
++
++        // DOPRY: split the hostname by . (need length of each element)
++        $qnameparts = split('\.',$hostname);
++
++        // DOPRY: write length octet, then characters... ( I think djbdbs handles converting them to oct... doesn't seem RFC compliant
++        //but produces identical output to Rob Mayoff's SRV generator...);
++
++        foreach ($qnameparts as $part)  $qname .= "\\".str_pad(decoct(strlen($part)),3,0,STR_PAD_LEFT)."".$part;
++
++        // DOPRY: add term octet for QNAME
++        $qname .= "\\000";
++        return $qname;
++}
++// DOPRY: end generic record  encoding functions
++
++// DOPRY: begin generic record decoding functions
++function decode_rdata_octets($octets) {
++	$octs = split('[\\]',$octets);
++	$data = pack("CC",octdec($octs[1]),octdec($octs[2]));
++	$value = unpack("ndec",$data);
++	return $value['dec'];
++
++}
++
++function decode_rdata_qname($qname) {
++	$hostname = '';
++	$pos = 0;
++
++	//use len -4 to offet for terminating character
++	$len = strlen($qname)-4;
++	while ($pos < $len-4) {
++
++		//position + 1 ot offset for backslash
++		$element_length = substr($qname,$pos+1,3);
++		$element_length = octdec($element_length);
++		
++		// move position past the length identifier
++		$pos += 4;
++
++		// get substr
++	 	$hostname .= substr($qname,$pos,$element_length).".";
++		
++		//move position to end of element.	
++		$pos += $element_length;
++			
++	} 
++	return $hostname;
++}
++
++// DOPRY: generic rdata encoding function for tinydns-data
++// format is a string indicating value types octets(c) or qname(q)
++//  ex) for SRV records $format='cccq';
++
++function encode_rdata($format, $values) {
++	$rdata = '';
++	$len = strlen($format);
++	if ($len != count($values))  die("encode_rdata: value count mismatch in format"); 
++	for ($i = 0; $i < $len; $i++) {
++		$format_code  =  substr($format,$i,1);
++		switch ($format_code) {
++			case 'c' : $rdata .= encode_rdata_octets($values[$i]); break;
++			case 'q' : $rdata .= encode_rdata_qname($values[$i]); break;
++			default: die("encode_rdata: invalid format code: '$format_code'. 'c' or 'q' only");
++		} 
++	}	
++	return $rdata;
++}	
++
++function decode_rdata($format, $value) {
++	$rdata = array();
++	$pos = 0;
++	$len = strlen($format);
++        for ($i = 0; $i < $len; $i++) {
++                $format_code  =  substr($format,$i,1);
++                switch ($format_code) {
++                        case 'c' : 
++				$octets = substr($value,$pos,8);
++				$rdata[$i] =  decode_rdata_octets($octets); 
++				$pos += 8;
++				break;
++                        case 'q' :
++				if (!preg_match('/.+000/',$value,$qname,0,$pos)) die("decode_rdata: couldn't match qname at format position ".($i+1)."\n");
++				print $qname[0]."\n";
++				$rdata[$i] .= decode_rdata_qname($qname[0]); 
++				$pos += strlen($qname[0]);
++				break;
++				
++                        default: die("decode_rdata: invalid format code: '$format_code'. 'c' or 'q' only");
++                }
++        }
++        return $rdata;
++}
++
++
+ function build_data_line($row,$domain) {
+ 
+     if($row['type'] == 'A') {
+@@ -342,6 +506,8 @@
+     } else if($row['type'] == 'S') {
+         $soa = parse_soa($row);
+         $s = "Z".$domain.":".$soa['tldhost'].":".$soa['tldemail']."::".$soa['refresh'].":".$soa['retry'].":".$soa['expire'].":".$soa['minimum'].":".$soa['ttl']."\n";
++    } else if($row['type'] == 'V') {
++        $s = ":".$row['host'].":33:".encode_rdata('cccq',array($row['distance'],$row['weight'],$row['port'],$row['val'])).":".$row['ttl']."\n";
+     } else {
+         $s = "\n";
+     }
+@@ -350,6 +516,7 @@
+ 
+ }
+ 
++
+ function parse_dataline($line) {
+ 
+     // Strip first char
+@@ -403,6 +570,22 @@
+             $out_array['distance'] = '';
+             $out_array['ttl'] = $array[3];
+         }
++	if($array[1] == '33') {
++	   // DOPRY:
++	   $out_array['host'] = $array[0];
++           $out_array['type'] = 'V';
++
++	   // decode the rdata octets
++	   $srv_rdata = decode_rdata('cccq',$array[2]);
++	   $out_array['val'] = $srv_rdata[3];
++           $out_array['distance'] = $srv_rdata[0];
++	   $out_array['weight'] = $srv_rdata[1];
++	   $out_array['port'] = $srv_rdata[2];
++           // back to your regularly scheduled programming.
++
++           $out_array['ttl'] = $array[3];
++ 
++	}
+     }
+     return $out_array;
+ 
+diff -b --exclude md5upgrade -urN ../vegadns-0.9/src/records.php ./src/records.php
+--- ../vegadns-0.9/src/records.php	Fri Jun 18 11:57:04 2004
++++ ./src/records.php	Thu Sep 23 22:21:32 2004
+@@ -164,6 +164,8 @@
+             $records[$counter]['type'] = $row['type'];
+             $records[$counter]['val'] = $row['val'];
+             $records[$counter]['distance'] = $row['distance'];
++	    $records[$counter]['weight'] = $row['weight'];
++	    $records[$counter]['port'] = $row['port'];	    
+             $records[$counter]['ttl'] = $row['ttl'];
+         }
+     }
+@@ -212,11 +214,22 @@
+             $out_array[$counter]['host'] = $array['host'];
+             $out_array[$counter]['type'] = $type;
+             $out_array[$counter]['val'] = $array['val'];
+-            if($type == 'MX') {
++            if($type == 'MX' || $type == 'SRV') {
+                 $out_array[$counter]['distance'] = $array['distance'];
+             } else {
+                 $out_array[$counter]['distance'] = 'n/a';
+             }
++	    if($type == 'SRV') {
++                $out_array[$counter]['weight'] = $array['weight'];
++            } else {
++                $out_array[$counter]['weight'] = 'n/a';
++            }
++	    if($type == 'SRV') {
++                $out_array[$counter]['port'] = $array['port'];
++            } else {
++                $out_array[$counter]['port'] = 'n/a';
++            }
++
+             $out_array[$counter]['ttl'] = $array['ttl'];
+             $out_array[$counter]['delete_url'] = "$base_url&mode=records&record_mode=delete&record_id=".$array['record_id']."&domain=".urlencode($domain);
+             $out_array[$counter]['edit_url'] = "$base_url&mode=records&record_mode=edit_record&record_id=".$array['record_id']."&domain=".urlencode($domain);
+@@ -251,7 +264,7 @@
+     }
+ 
+     // verify record to be added
+-    $result = verify_record($name,$_REQUEST['type'],$_REQUEST['address'],$_REQUEST['distance'],$_REQUEST['ttl']);
++    $result = verify_record($name,$_REQUEST['type'],$_REQUEST['address'],$_REQUEST['distance'],$_REQUEST['weight'], $_REQUEST['port'], $_REQUEST['ttl']);
+     if($result != 'OK') {
+         $smarty->assign('message', "<span class=\"error\">$result</span>");
+         $smarty->display('header.tpl');
+@@ -318,6 +331,23 @@
+             '".set_type($_REQUEST['type'])."',
+             '".mysql_escape_string($_REQUEST['address'])."',
+             '".$_REQUEST['ttl']."')";
++        } if($_REQUEST['type'] == 'SRV') {
++	    if(!ereg("\..+$", $_REQUEST['address'])) {
++                $srvaddress = $_REQUEST['address'].".".$domain;
++            } else {
++                $srvaddress = $_REQUEST['address'];
++            }
++	    $q = "insert into records
++	    (domain_id,host,type,val,distance,weight,port,ttl) values(
++	    '".get_dom_id($domain)."',
++            '$name',
++            '".set_type($_REQUEST['type'])."',
++            '".mysql_escape_string($srvaddress)."',
++            '".mysql_escape_string($_REQUEST['distance'])."',
++	    '".mysql_escape_string($_REQUEST['weight'])."',
++	    '".mysql_escape_string($_REQUEST['port'])."',
++            '".$_REQUEST['ttl']."')";
++ 
+         }
+         mysql_query($q) or die(mysql_error());
+         $smarty->assign('message', "Record added successfully!");
+@@ -445,6 +475,8 @@
+     $smarty->assign('address', $row['val']);
+     $smarty->assign('type', get_type($row['type']));
+     $smarty->assign('distance', $row['distance']);
++    $smarty->assign('weight', $row['weight']);
++    $smarty->assign('port', $row['port']);
+     $smarty->assign('ttl', $row['ttl']);
+ 
+     // Edit Record Menu
+@@ -467,7 +499,7 @@
+     }
+ 
+     // verify record to be added
+-    $result = verify_record($name,$_REQUEST['type'],$_REQUEST['address'],$_REQUEST['distance'],$_REQUEST['ttl']);
++    $result = verify_record($name,$_REQUEST['type'],$_REQUEST['address'],$_REQUEST['distance'], $_REQUEST['weight'], $_REQUEST['port'], $_REQUEST['ttl']);
+     if($result != 'OK') {
+ 
+         // Set values
+@@ -480,6 +512,8 @@
+         $smarty->assign('address', $row['val']);
+         $smarty->assign('type', get_type($row['type']));
+         $smarty->assign('distance', $row['distance']);
++	$smarty->assign('weight', $row['weight']);
++    	$smarty->assign('port', $row['port']);
+         $smarty->assign('ttl', $row['ttl']);
+         $smarty->assign('message', "<span class=\"error\">$result</span>");
+         $smarty->display('header.tpl');
+@@ -494,6 +528,8 @@
+             "host='$name',".
+             "val='".$_REQUEST['address']."',".
+             "distance='".$_REQUEST['distance']."',".
++	    "weight='".$_REQUEST['weight']."',".
++	    "port='".$_REQUEST['port']."',".
+             "ttl='".$_REQUEST['ttl']."' ".
+             "where record_id='".$_REQUEST['record_id']."' and domain_id='".
+                 get_dom_id($domain)."'";
+diff -b --exclude md5upgrade -urN ../vegadns-0.9/srv_support.sql ./srv_support.sql
+--- ../vegadns-0.9/srv_support.sql	Wed Dec 31 16:00:00 1969
++++ ./srv_support.sql	Thu Sep 23 22:19:03 2004
+@@ -0,0 +1,5 @@
++ALTER TABLE 'records' ADD 'weight' INT(4) AFTER 'distance';
++ALTER TABLE 'records' ADD 'port' INT(4) AFTER 'weight';
++
++ALTER TABLE 'default_records' ADD 'weight' INT(4) AFTER 'distance';
++ALTER TABLE 'default_records' ADD 'port' INT(4) AFTER 'weight';
+diff -b --exclude md5upgrade -urN ../vegadns-0.9/templates/add_record_form.tpl ./templates/add_record_form.tpl
+--- ../vegadns-0.9/templates/add_record_form.tpl	Fri Mar 19 15:17:52 2004
++++ ./templates/add_record_form.tpl	Thu Sep 23 22:22:46 2004
+@@ -42,9 +42,18 @@
+         <td><input type="text" name="address" value="{$address}"></td>
+     </tr>
+     <tr bgcolor="#eeeeee">
+-        <td>Distance (MX only)</td>
++        <td>Distance (MX and SRV only)</td>
+         <td><input type="text" name="distance" value="{$distance}" size=5 maxlength=10></td>
+     </tr>
++    <tr bgcolor="#eeeeee">
++        <td>Weight (SRV only)</td>
++        <td><input type="text" name="weight" value="{$weight}" size=5 maxlength=10></td>
++    </tr>
++    <tr bgcolor="#eeeeee">
++        <td>Port (SRV only)</td>
++        <td><input type="text" name="port" value="{$port}" size=5 maxlength=10></td>
++    </tr>
++
+     <tr bgcolor="#eeeeee">
+         <td>TTL</td>
+         <td><input size=7 maxlenth=20 type="text" name="ttl" value="{$ttl}">
+diff -b --exclude md5upgrade -urN ../vegadns-0.9/templates/edit_record.tpl ./templates/edit_record.tpl
+--- ../vegadns-0.9/templates/edit_record.tpl	Thu Jun 17 19:49:48 2004
++++ ./templates/edit_record.tpl	Thu Sep 23 22:22:34 2004
+@@ -30,9 +30,18 @@
+         <td><input type="text" name="address" value="{$address}"></td>
+     </tr>
+     <tr bgcolor="#eeeeee">
+-        <td>Distance (MX only)</td>
++        <td>Distance (MX and SRV only)</td>
+         <td><input type="text" name="distance" value="{$distance}" size=5 maxlength=10></td>
+     </tr>
++    <tr bgcolor="#eeeeee">
++        <td>Weight (SRV only)</td>
++        <td><input type="text" name="weight" value="{$weight}" size=5 maxlength=10></td>
++    </tr>
++    <tr bgcolor="#eeeeee">
++        <td>Port (SRV only)</td>
++        <td><input type="text" name="port" value="{$port}" size=5 maxlength=10></td>
++    </tr>
++
+     <tr bgcolor="#eeeeee">
+         <td>TTL</td>
+         <td><input size=7 maxlenth=20 type="text" name="ttl" value="{$ttl}">
+diff -b --exclude md5upgrade -urN ../vegadns-0.9/templates/list_default_records.tpl ./templates/list_default_records.tpl
+--- ../vegadns-0.9/templates/list_default_records.tpl	Sun Apr 25 08:33:40 2004
++++ ./templates/list_default_records.tpl	Thu Sep 23 22:23:28 2004
+@@ -53,6 +53,8 @@
+       <td width="5%">Type</td>
+       <td>Address</td>
+       <td width="10%">Distance</td>
++      <td width="10%">Weight</td>
++      <td width="5%">Port</td>
+       <td width="5%">TTL</td></td>
+       <td width="5%">Delete</td>
+   </tr>
+@@ -63,6 +65,8 @@
+         <td width="5%" nowrap>{$row.type}</td>
+         <td nowrap>{$row.val}</td>
+         <td width="10%" nowrap>{$row.distance}</td>
++	<td width="10%" nowrap>{$row.weight}</td>
++	<td width="5%" nowrap>{$row.port}</td>
+         <td width="5%" nowrap>{$row.ttl}</td>
+         <td width="5%" align="center" nowrap><a href="{$row.delete_url}"><img border=0 src="images/trash.png" alt="Trash"></a></td>
+     </tr>
+diff -b --exclude md5upgrade -urN ../vegadns-0.9/templates/list_records.tpl ./templates/list_records.tpl
+--- ../vegadns-0.9/templates/list_records.tpl	Thu Jun 17 19:02:28 2004
++++ ./templates/list_records.tpl	Thu Sep 23 22:23:58 2004
+@@ -91,6 +91,8 @@
+       <td width="5%">Type</td>
+       <td>Address</td>
+       <td width="10%">Distance</td>
++      <td width="10%">Weight</td>
++      <td width="5%">Port</td>
+       <td width="5%">TTL</td></td>
+       <td width="5%">Delete</td>
+   </tr>
+@@ -101,6 +103,8 @@
+         <td width="5%" nowrap>{$row.type}</td>
+         <td nowrap>{$row.val}</td>
+         <td width="10%" nowrap>{$row.distance}</td>
++	<td width="10%" nowrap>{$row.weight}</td>
++	<td width="5%" nowrap>{$row.port}</td>
+         <td width="5%" nowrap>{$row.ttl}</td>
+         <td width="5%" align="center" nowrap><a href="{$row.delete_url}"><img border=0 src="images/trash.png" alt="Trash"></a></td>
+     </tr>
+diff -b --exclude md5upgrade -urN ../vegadns-0.9/update-data.sh ./update-data.sh
+--- ../vegadns-0.9/update-data.sh	Thu Sep 23 11:24:10 2004
++++ ./update-data.sh	Thu Sep 23 10:46:06 2004
+@@ -1,7 +1,7 @@
+ #!/bin/sh
+ 
+ # The FULL path to the index.php file for the VegaDNS server
+-VEGADNS='http://127.0.0.1/vegadns-0.9/index.php'
++VEGADNS='http://127.0.0.1/vegadns-0.9b1/index.php'
+ 
+ # NOTE: You can get updates from multiple VegaDNS servers if 
+ # desired. Simply separate them by spaces like so:

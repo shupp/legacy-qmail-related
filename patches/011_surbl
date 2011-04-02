@@ -1,0 +1,1336 @@
+diff -ruN qmail-1.03.orig/Makefile qmail-1.03/Makefile
+--- qmail-1.03.orig/Makefile	2004-11-17 11:48:51.000000000 +0100
++++ qmail-1.03/Makefile	2004-11-17 12:51:38.000000000 +0100
+@@ -1536,13 +1536,13 @@
+ timeoutwrite.o ip.o ipme.o ipalloc.o control.o constmap.o received.o \
+ date822fmt.o now.o qmail.o cdb.a fd.a wait.a datetime.a getln.a \
+ open.a sig.a case.a env.a stralloc.a alloc.a substdio.a error.a str.a \
+-fs.a auto_qmail.o socket.lib
++fs.a auto_qmail.o socket.lib surbl.o dns.lib
+ 	./load qmail-smtpd rcpthosts.o commands.o timeoutread.o \
+ 	timeoutwrite.o ip.o ipme.o ipalloc.o control.o constmap.o \
+ 	received.o date822fmt.o now.o qmail.o cdb.a fd.a wait.a \
+ 	datetime.a getln.a open.a sig.a case.a env.a stralloc.a \
+-	alloc.a substdio.a error.a str.a fs.a auto_qmail.o  `cat \
+-	socket.lib`
++	alloc.a substdio.a error.a str.a fs.a auto_qmail.o surbl.o dns.o `cat \
++	socket.lib` `cat dns.lib`
+ 
+ qmail-smtpd.0: \
+ qmail-smtpd.8
+@@ -1676,6 +1676,10 @@
+ compile quote.c stralloc.h gen_alloc.h str.h quote.h
+ 	./compile quote.c
+ 
++surbl.o: \
++compile surbl.c surbl.h
++	./compile surbl.c
++
+ rcpthosts.o: \
+ compile rcpthosts.c cdb.h uint32.h byte.h open.h error.h control.h \
+ constmap.h stralloc.h gen_alloc.h rcpthosts.h
+diff -ruN qmail-1.03.orig/TARGETS qmail-1.03/TARGETS
+--- qmail-1.03.orig/TARGETS	2004-11-17 11:48:51.000000000 +0100
++++ qmail-1.03/TARGETS	2004-11-17 12:51:38.000000000 +0100
+@@ -21,6 +21,7 @@
+ case_lowers.o
+ case_starts.o
+ case.a
++surbl.o
+ getln.o
+ getln2.o
+ getln.a
+diff -ruN qmail-1.03.orig/dns.c qmail-1.03/dns.c
+--- qmail-1.03.orig/dns.c	2004-11-17 11:48:51.000000000 +0100
++++ qmail-1.03/dns.c	2004-11-17 12:51:38.000000000 +0100
+@@ -398,3 +398,40 @@
+  alloc_free(mx);
+  return flagsoft;
+ }
++
++/* SURBL: Query a DNS TXT field. */
++#ifndef T_TXT
++#define T_TXT 16
++#endif
++int dns_txt (stralloc *txt, stralloc *domain)
++{
++  int type, cttl, size, txtlen;
++  int i;
++
++  switch(resolve(domain, T_TXT)) {
++    case DNS_MEM: return DNS_MEM;
++    case DNS_SOFT: return DNS_SOFT;
++    case DNS_HARD: return DNS_HARD;
++  }
++
++  i = dn_expand(response.buf,responseend,responsepos,name,MAXDNAME);
++  if (i < 0)
++    return DNS_SOFT;
++  responsepos += i;
++
++  if (getshort (responsepos) != T_TXT)
++    return DNS_SOFT;
++  size = getshort (responsepos+8);
++  txtlen = responsepos[10];
++  responsepos += 11;
++
++  if(txtlen >= size || !txtlen)
++    return DNS_SOFT;
++
++  if (stralloc_copyb (txt, responsepos, txtlen) == 0)
++    return DNS_MEM;
++
++  return 0;
++}
++
++
+diff -ruN qmail-1.03.orig/dns.h qmail-1.03/dns.h
+--- qmail-1.03.orig/dns.h	2004-11-17 11:48:51.000000000 +0100
++++ qmail-1.03/dns.h	2004-11-17 12:51:38.000000000 +0100
+@@ -10,5 +10,6 @@
+ int dns_mxip();
+ int dns_ip();
+ int dns_ptr();
++int dns_txt();
+ 
+ #endif
+diff -ruN qmail-1.03.orig/qmail-smtpd.c qmail-1.03/qmail-smtpd.c
+--- qmail-1.03.orig/qmail-smtpd.c	2004-11-17 11:48:51.000000000 +0100
++++ qmail-1.03/qmail-smtpd.c	2004-11-17 12:51:38.000000000 +0100
+@@ -28,6 +28,15 @@
+ unsigned int databytes = 0;
+ int timeout = 1200;
+ 
++/* SURBL: Maximum bytes of mail body cought, and pointer to mail body. */
++unsigned int surblmax = 0;
++unsigned int surblsize = 0;
++char *surbldata = 0;
++/* SURBL: Absolute maximum number of bytes cought. */
++#define SURBLABSMAX 500000
++/* SURBL: true if a whitelisted address was found in RCPT TO. */
++int surblwhite = 0;
++
+ int safewrite(fd,buf,len) int fd; char *buf; int len;
+ {
+   int r;
+@@ -97,10 +106,17 @@
+ stralloc bmf = {0};
+ struct constmap mapbmf;
+ 
++/* SURBL: RCPT whitelist. */
++stralloc srw = {0};
++int srwok = 0;
++struct constmap mapsrw;
++
+ void setup()
+ {
+   char *x;
+   unsigned long u;
++  /* SURBL: Signed temporary */
++  int s;
+  
+   if (control_init() == -1) die_control();
+   if (control_rldef(&greeting,"control/smtpgreeting",1,(char *) 0) != 1)
+@@ -131,6 +147,41 @@
+   if (!remotehost) remotehost = "unknown";
+   remoteinfo = env_get("TCPREMOTEINFO");
+   relayclient = env_get("RELAYCLIENT");
++
++  /* SURBL: Fetch maximum surbl data length, surblmax */
++  if (control_readint(&s,"control/surblmax") == -1) die_control();
++  if (s < 0) s = 0;
++  surblmax = s;
++  if (surblmax > SURBLABSMAX)
++    surblmax = SURBLABSMAX;
++
++  /* SURBL: Disable surbl checking if env SURBL is non-existant or false. */
++  x = env_get("SURBL");
++  u = 0;
++  if (x) { scan_ulong(x,&u); };
++  if (!u)
++    surblmax = 0;
++
++  /* SURBL: Allocate room for surbl mail body */
++  if (surblmax > 0) {
++    errno = 0;
++    surbldata = alloc (surblmax+1);
++    if (surbldata != 0) {
++      /* SURBL: If alloc failed, surbldata will remain NULL and no check will
++       * be done. We log the failure in qmail-ldap. */
++      srwok = control_readfile(&srw,"control/surblrcptwhite",0);
++      if (srwok == -1) die_control();
++      if (srwok) {
++        if (!constmap_init(&mapsrw,srw.s,srw.len,0)) {
++          /* Log (in qldap), free surbldata and don't check mail. */
++          alloc_free (surbldata);
++          surbldata = 0;
++          srwok = 0;
++        }
++      }
++    }
++  }
++
+   dohelo(remotehost);
+ }
+ 
+@@ -208,6 +259,23 @@
+   return 0;
+ }
+ 
++
++/* SURBL: Check surbl rcpt whitelist. */
++int srwcheck(char *arg, int len)
++{
++  int j;
++  if (!srwok)
++    return 0;
++  if (constmap (&mapsrw, arg, len))
++    return 1;
++  j = byte_rchr(arg,len,'@');
++  if (j < len) {
++    if (constmap(&mapsrw,arg + j,len - j))
++      return 1;
++  }
++  return 0;
++}
++
+ int addrallowed()
+ {
+   int r;
+@@ -234,6 +302,10 @@
+ }
+ void smtp_rset()
+ {
++  /* SURBL: Reset stuff */
++  surblsize = 0;
++  surblwhite = 0;
++
+   seenmail = 0;
+   out("250 flushed\r\n");
+ }
+@@ -241,6 +313,10 @@
+ {
+   if (!addrparse(arg)) { err_syntax(); return; }
+   flagbarf = bmfcheck();
++
++  /* SURBL: Reset surbl whitelist */
++  surblwhite = 0;
++
+   seenmail = 1;
+   if (!stralloc_copys(&rcptto,"")) die_nomem();
+   if (!stralloc_copys(&mailfrom,addr.s)) die_nomem();
+@@ -258,6 +334,14 @@
+   }
+   else
+     if (!addrallowed()) { err_nogateway(); return; }
++
++  /* SURBL: See if rcpt address is whitelisted. */
++  if (surbldata != 0) {
++    if (srwcheck (addr.s, addr.len-1)) {
++      surblwhite = 1;
++    }
++  }
++
+   if (!stralloc_cats(&rcptto,"T")) die_nomem();
+   if (!stralloc_cats(&rcptto,addr.s)) die_nomem();
+   if (!stralloc_0(&rcptto)) die_nomem();
+@@ -288,6 +372,13 @@
+     if (!--bytestooverflow)
+       qmail_fail(&qqt);
+   qmail_put(&qqt,ch,1);
++
++  /* SURBL: Catch part of mail body. */
++  if (surbldata != 0 && surblsize < surblmax && ch != 0) {
++    surbldata[surblsize] = *ch;
++    surblsize ++;
++    surbldata[surblsize] = '\0';
++  }
+ }
+ 
+ void blast(hops)
+@@ -366,10 +457,16 @@
+ }
+ 
+ void smtp_data() {
++  /* SURBL: If mail is refused, this will be 1. */
++  int surblblacklisted = 0;
++  char *surblreason = 0;
++
+   int hops;
+   unsigned long qp;
+   char *qqx;
+- 
++  /* SURBL: Reset surbl size. */
++  surblsize = 0;
++
+   if (!seenmail) { err_wantmail(); return; }
+   if (!rcptto.len) { err_wantrcpt(); return; }
+   seenmail = 0;
+@@ -380,6 +477,28 @@
+  
+   received(&qqt,"SMTP",local,remoteip,remotehost,remoteinfo,fakehelo);
+   blast(&hops);
++
++
++  /* SURBL: THIS is where we have part of the body, before other things start
++   * appending. THIS is where we do our SURBL checks. */
++
++  /* SURBL: Test layout. */
++  if (surbldata != 0) {
++    int fd;
++    if (surblwhite) {
++    }
++    else {
++      int rv = surblfilter (surbldata, surblsize, &surblreason);
++      if (rv == 1) {
++        qmail_fail (&qqt);
++        surblblacklisted = 1;
++      }
++    }
++    /* SURBL: We're done with the body parts. */
++    /*alloc_free (surbldata);*/
++    surblsize = 0;
++  }
++  
+   hops = (hops >= MAXHOPS);
+   if (hops) qmail_fail(&qqt);
+   qmail_from(&qqt,mailfrom.s);
+@@ -387,6 +506,18 @@
+  
+   qqx = qmail_close(&qqt);
+   if (!*qqx) { acceptmessage(qp); return; }
++
++  /* SURBL: Let client know if mail is rejected. */
++  if (surblblacklisted) {
++    out ("554 Mail contained a URL rejected by SURBL");
++    if (surblreason != 0) {
++      out (": ");
++      out (surblreason);
++    }
++    out ("\r\n");
++    return;
++  }
++
+   if (hops) { out("554 too many hops, this message is looping (#5.4.6)\r\n"); return; }
+   if (databytes) if (!bytestooverflow) { out("552 sorry, that message size exceeds my databytes limit (#5.3.4)\r\n"); return; }
+   if (*qqx == 'D') out("554 "); else out("451 ");
+diff -ruN qmail-1.03.orig/surbl.c qmail-1.03/surbl.c
+--- qmail-1.03.orig/surbl.c	1970-01-01 01:00:00.000000000 +0100
++++ qmail-1.03/surbl.c	2004-11-17 12:51:38.000000000 +0100
+@@ -0,0 +1,1005 @@
++#include <stdio.h>
++#include <stdlib.h>
++#include <ctype.h>
++#include <string.h>
++#include <errno.h>
++#include <time.h>
++
++#include <ctype.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <fcntl.h>
++#include <unistd.h>
++#include <sys/socket.h>
++#include <netinet/in.h>
++#include <arpa/inet.h>
++#include <sys/file.h>
++
++#ifdef SURBLTEST
++#include <dns.h>
++#else
++#include "ipalloc.h"
++#include "stralloc.h"
++#include "dns.h"
++#endif
++
++#include "surbl.h"
++
++#define DEF_SURBL_DOMAIN "multi.surbl.org"
++
++#define SURBL_ROOT_DIR "surbl"
++
++#define SURBL_STORE_DIR SURBL_ROOT_DIR "/store"
++#define SURBL_STORE_FILE SURBL_STORE_DIR "/.msgnum"
++#define SURBL_STORE_LOCK SURBL_STORE_DIR "/.lock"
++
++#define SURBL_CACHE_DIR SURBL_ROOT_DIR "/cache"
++#define SURBL_CACHE_FILE ".cached"
++#define SURBL_CACHE_LOCK SURBL_CACHE_DIR "/.lock"
++
++static char domain[512] = DEF_SURBL_DOMAIN;
++static int cachelifetime = 300;
++static stralloc whitelistfile = {0,0,0};
++static char ** whitelist;
++
++static void store_move (int blacklisted, char *filename, char *msgnumstr);
++static int checkuri (char **ouri, char **text, size_t textlen);
++static int iptrans (char *uri, char *ip);
++static int initwhitelist (void);
++static int getdnsip (stralloc *ip, stralloc *domain);
++static int checkwhitelist (char *hostname);
++static int checksurbl (char *hostname, char *domain, char **text);
++static char * uri_decode (char *str, size_t str_len, char **strend);
++static void snipdomain (char **ouri, size_t urilen);
++static int cacheget (char *uri, size_t urilen, char **text);
++static int cacheadd (char *uri, size_t urilen, char *text);
++static int header_base64 (char *header);
++static int filecreate (char *file, char *text);
++static int fileread (char *file, char **buf, size_t *buflen);
++static int fileexist (char *file);
++static int getmodtime (char *file, time_t *modtime);
++static int file_lock (char *lockfile, int excl, int block);
++static int file_unlock (int fd);
++static unsigned long revl (unsigned long r4);
++static int bt_str64dec (char *b64, char **endptr, char **text,
++                        size_t *textlen, char *ignore);
++static int casencmp (char *str1, char *str2, unsigned long len);
++
++
++/* Returns -1 on hard error,
++ *          0 if message is not to be blocked,
++ *          1 if message is to be blocked.
++ */
++int surblfilter (char *text, size_t textlen, char **msg)
++{
++  int tmpi;
++  char *dec = NULL;
++  char *header;
++  size_t headerlen;
++  char *tmp = NULL;
++  size_t tmplen = 0;
++  size_t tmpstrlen;
++  int blacklisted = 0;
++
++  static stralloc filename = {0,0,0};
++  char msgnumstr[9] = "00000000";
++  int storelock = 0;
++  int storemail = 0;
++
++  if (fileread ("control/surbldomain", &tmp, &tmplen) == 0) {
++    tmplen=strcspn (tmp, "\r\n\t ");
++    tmp[tmplen] = '\0';
++    tmp[sizeof domain - 1] = '\0';
++    strcpy (domain, tmp);
++  }
++
++  if (fileread ("control/surblcachetime", &tmp, &tmplen) == 0) {
++    char *tmp2 = NULL;
++    long tmplong = strtol (tmp, &tmp2, 10);
++    if ( (*tmp2 == '\0' || *tmp2 == '\n') && tmplong > 0)
++      cachelifetime = tmplong;
++  }
++
++  do {
++    if (fileexist (SURBL_STORE_DIR "/busy") <= 0)
++      break;
++    if (stralloc_copys (&filename, SURBL_STORE_FILE) == 0)
++      break;
++    if (stralloc_0 (&filename) == 0)
++      break;
++
++    storelock = file_lock (SURBL_STORE_LOCK, 0, 1);
++    if (storelock == -1)
++      break;
++    tmpi = fileread (filename.s, &tmp, &tmplen);
++    if (file_unlock (storelock) == -1)
++      break;
++
++    if (tmpi == 0) {
++      char *tmp2 = NULL;
++      long msgnum = strtol (tmp, &tmp2, 10);
++      if ( (*tmp2 == '\0' || *tmp2 == '\n')
++      &&   msgnum >= 0 && msgnum <= 99999999)
++        sprintf (msgnumstr, "%08ld", msgnum+1);
++    }
++
++    storelock = file_lock (SURBL_STORE_LOCK, 1, 1);
++    if (storelock == -1)
++      break;
++    if (filecreate (filename.s, msgnumstr) == -1)
++      break;
++    if (file_unlock (storelock) == -1)
++      break;
++
++    if (stralloc_copys (&filename, SURBL_STORE_DIR "/busy/") == 0)
++      break;
++    if (stralloc_cats (&filename, msgnumstr) == 0)
++      break;
++    if (stralloc_0 (&filename) == 0)
++      break;
++
++    filecreate (filename.s, text);
++    storemail = 1;
++  } while (0);
++
++  tmp = text;
++  tmplen = textlen;
++
++  if (whitelist == NULL) {
++    initwhitelist ();
++  }
++
++  /* Replace all premature '\0' with ' ' */
++  while ( (tmpstrlen = strlen (tmp)) < tmplen) {
++    tmp[tmpstrlen] = ' ';
++    tmp += tmpstrlen;
++    tmplen -= tmpstrlen;
++  }
++
++  header = text;
++  /* Find header-body seperator */
++  if ((tmp = strstr (text, "\n\n")) == NULL
++   && (tmp = strstr (text, "\r\n\r\n")) == NULL ) {
++    /*printf ("No mail body found?\n");*/
++    if (storemail)
++      store_move (blacklisted, filename.s, msgnumstr);
++    return 0;
++  }
++
++  /* Store length of the header. */
++  headerlen = tmp - text;
++  *tmp++ = '\0';
++  /* Skip all newlines leading the body. */
++  tmp += strspn (tmp, "\r\n");
++  /* Store length of the body. */
++  textlen -= tmp - text;
++  /* Store the body in text. */
++  text = tmp;
++
++  if (header_base64 (header)) {
++    char *bodyend = NULL;
++    size_t declen = 0;
++    if (bt_str64dec (text, &bodyend, &dec, &declen, "\r\n") == -1) {
++      if (storemail)
++        store_move (blacklisted, filename.s, msgnumstr);
++      return -1;
++    }
++    text = dec;
++    textlen = declen;
++  }
++
++  while ( !blacklisted && (text = strstr (text, "http")) != NULL) {
++    char *reason = NULL;
++    switch (checkuri (&text, &reason, textlen)) {
++      case 0: text++;
++      case 1:
++              break;
++      case 2: /*printf ("blacklisted: %s.\n", reason);*/
++              *msg = reason;
++              blacklisted = 1;
++              break;
++    }
++    if (!blacklisted)
++      free (reason);
++  }
++
++  if (storemail)
++    store_move (blacklisted, filename.s, msgnumstr);
++
++  return blacklisted;
++}
++
++/*
++ * Move mail to it's proper place. (spam/ or nospam/)
++ */
++static void store_move (int blacklisted, char *filename, char *msgnumstr)
++{
++  static stralloc filenametmp = {0,0,0};
++  do {
++    if (stralloc_copys (&filenametmp, SURBL_STORE_DIR) == 0)
++      break;
++    if (blacklisted) {
++      if (stralloc_cats (&filenametmp, "/spam/") == 0)
++        break;
++    }
++    else {
++      if (stralloc_cats (&filenametmp, "/nospam/") == 0)
++        break;
++    }
++    if (stralloc_cats (&filenametmp, msgnumstr) == 0)
++      break;
++    if (stralloc_0 (&filenametmp) == 0)
++      break;
++    link (filename, filenametmp.s);
++  } while (0);
++  unlink (filename);
++}
++
++/*
++ * Returns 0 if URI was erronous.
++ *         1 if URI was not blacklisted.
++ *         2 if URI was blacklisted.
++ */
++static int checkuri (char **ouri, char **text, size_t textlen)
++{
++  char *uri = *ouri;
++  char *uriend;
++  size_t urilen = 0;
++  char ipuri[64];
++  int cached, blacklisted;
++  char *tmp;
++
++  if (strncmp (uri, "http", 4) != 0) {
++    return 0;
++  }
++
++  uri += 4;
++
++  /* Check and skip http[s]?:[/\\][/\\]? */
++  if (*uri == 's')
++    uri++;
++  if (*uri == ':' && (uri[1] == '/' || uri[1] == '\\'))
++    uri+=2;
++  else {
++    return 0;
++  }
++  if (*uri == '/' || *uri == '\\')
++    uri++;
++  if (!isalpha (*uri) && !isdigit (*uri)) {
++    return 0;
++  }
++
++  uri_decode (uri, textlen, &uriend);
++  
++  *ouri = uriend;
++
++  /*printf ("\nFull URI   : %s\n", uri);*/
++
++  uri[(urilen = strcspn (uri, "/\\?"))] = '\0';
++
++  tmp = strchr (uri, '@');
++  if (tmp != NULL)
++    uri = tmp+1;
++
++  uri[strcspn (uri, ":")] = '\0';
++
++  urilen = strlen (uri);
++
++  if (iptrans (uri, ipuri)) {
++    uri = ipuri;
++    /*printf ("Proper IP  : '%s'\n", uri);*/
++  }
++  else {
++    /*printf ("Full domain: %s\n", uri);*/
++    snipdomain (&uri, urilen);
++    /*printf ("       Part: %s\n", uri);*/
++  }
++
++  urilen = strlen (uri);
++  *text = NULL;
++  cached = 1;
++  blacklisted = 0;
++
++  switch (cacheget (uri, urilen, text)) {
++    case -1:
++    case 0:  cached = 0;
++             break;
++    case 1:  blacklisted = 0;
++             break;
++    case 2:  blacklisted = 1;
++             break;
++  }
++
++  if (cached == 0) {
++    switch (checksurbl (uri, domain, text)) {
++      case -1: return -1;
++      case 0:  blacklisted = 0;
++               break;
++      case 1:  blacklisted = 1;
++               *text = NULL;
++               break;
++      case 2:  blacklisted = 1;
++    }
++
++    if (*text == NULL && blacklisted) {
++      char *tmp = "No reason given";
++      *text = malloc (strlen (tmp)+1);
++      if (*text == NULL)
++        return 1;
++      strcpy (*text, tmp);
++    }
++    cacheadd (uri, strlen (uri), *text);
++  }
++
++  /*printf ("Checked '%s': %s blacklisted.\n", uri, blacklisted?"":"not");*/
++
++  if (blacklisted)
++    return 2;
++  else
++    return 1;
++}
++
++/*
++ * Returns:
++ * 0 if given URI is not an IP
++ * 1 if given URI is an IP
++ *
++ * Handles dotted-decimal notation, base-10 notation and base-16 notation.
++ */
++static int iptrans (char *uri, char *ip)
++{
++  struct in_addr addr = {0};
++  unsigned char *addrp = (unsigned char*)&addr.s_addr;
++  int rv = inet_aton (uri, &addr);
++  if (rv != 0) {
++    sprintf (ip, "%u.%u.%u.%u", addrp[3], addrp[2], addrp[1], addrp[0]);
++    return 1;
++  }
++  return 0;
++}
++
++static int initwhitelist (void)
++{
++  FILE *wlfp;
++  char buf[256];
++  size_t i;
++  char *wlp;
++  unsigned int whitelists = 0;
++
++  if (stralloc_copys (&whitelistfile, "") == 0)
++    return -1;
++
++  wlfp = fopen ("control/surbldomainwhite", "r");
++  if (wlfp == NULL)
++    return -1;
++  while (fgets (buf, sizeof buf, wlfp) != NULL) {
++    if (stralloc_cats (&whitelistfile, buf) == 0) {
++      fclose (wlfp);
++      return -1;
++    }
++  }
++  fclose (wlfp);
++
++  if (stralloc_0 (&whitelistfile) == 0)
++    return -1;
++
++  for (i=0; i<whitelistfile.len; i++) {
++    if (whitelistfile.s[i] == '\n') {
++      whitelistfile.s[i] = '\0';
++      whitelists++;
++    }
++  }
++
++  whitelist = malloc (sizeof *whitelist * (whitelists+1));
++  if (whitelist == NULL)
++    return -1;
++
++  wlp = whitelistfile.s;
++  for (i=0; i<whitelists; i++) {
++    whitelist[i] = wlp;
++    wlp += strlen (wlp)+1;
++  }
++  whitelist[i] = NULL;
++
++  return 0;
++}
++
++/* I desperately want the same interface for djbdns and the libresolv wrapper.
++ * I chose the djbdns interface. */
++static int getdnsip (stralloc *ip, stralloc *domain)
++{
++#ifdef SURBLTEST
++  return dns_ip4 (ip, domain);
++#else
++  ipalloc tip = {0,0,0};
++  int rv;
++  if (stralloc_copys (ip, "") == 0)
++    return -1;
++  rv = dns_ip (&tip, domain);
++  if (rv < 0)
++    return -1;
++  if (tip.len > 0) {
++    if (stralloc_copyb (ip, tip.ix->ip.d, 4) == 0)
++      return -1;
++  }
++#endif
++  return 0;
++}
++
++/*
++ * Returns -1 on error.
++ * Returns 0 if host does not exist.
++ * Returns 1 if host exists.
++ */
++static int checkwhitelist (char *hostname)
++{
++  static stralloc ip = {0,0,0};
++  static stralloc host = {0,0,0};
++  int hostlen;
++  char **curwl = whitelist;
++
++  if (whitelist == NULL)
++    return 0;
++
++  if (stralloc_copys (&host, hostname) == 0)
++    return -1;
++  if (stralloc_append (&host, ".") == 0)
++    return -1;
++  hostlen = host.len;
++  do {
++    host.len = hostlen;
++    if (stralloc_cats (&host, *curwl) == 0)
++      return -1;
++    /*printf ("Checking whitelist: '%.*s'\n", host.len, host.s);*/
++    if (getdnsip (&ip, &host) == -1)
++      return -1;
++
++    if (ip.len >= 4)
++      return 1;
++    curwl ++;
++  }
++  while (*curwl != NULL);
++
++  return 0;
++
++}
++
++/*
++ * Returns:
++ * -1 on error
++ * 0 is domain does not exist
++ * 1 if domain exists.
++ * 2 if domain exists, and a TXT record could be retrieved.
++ */
++static int checksurbl (char *hostname, char *domain, char **text)
++{
++  static stralloc ip = {0,0,0};
++  static stralloc host = {0,0,0};
++
++  if (checkwhitelist (hostname) == 1)
++    return 0;
++  
++  if (stralloc_copys (&host, hostname) == 0)
++    return -1;
++  if (stralloc_append (&host, ".") == 0)
++    return -1;
++  if (stralloc_cats (&host, domain) == 0)
++    return -1;
++  /*printf ("Checking blacklist: '%.*s'\n", host.len, host.s);*/
++  if (getdnsip (&ip, &host) == -1)
++    return -1;
++
++  if (ip.len > 0) {
++    if (text != NULL) {
++      static stralloc txt = {0,0,0};
++      if (dns_txt (&txt, &host) == 0) {
++        *text = malloc (txt.len+1);
++        if (*text != NULL) {
++          memcpy (*text, txt.s, txt.len);
++          (*text)[txt.len] = '\0';
++          return 2;
++        }
++      }
++    }
++    return 1;
++  }
++  return 0;
++}
++
++static char * uri_decode (char *str, size_t str_len, char **strend)
++{
++  size_t i=0,j=0;
++  int pasthostname = 0;
++  for (i=0; i < str_len; i++,j++) {
++    if (str[i] == '%' || (!pasthostname && str[i] == '=')) {
++      if (i+2<str_len) {
++        if (isxdigit (str[i+1]) && isxdigit (str[i+2])) {
++          int c1 = str[i+1];
++          int c2 = str[i+2];
++          int num = (              /* first character */
++                     ((c1 & 0xF)   /* take right half */
++                     +(9*(c1>>6))) /* add 9 if character is a-f or A-F */
++                     <<4           /* pack into the left half of the byte */
++                    ) | (          /* second character */
++                     (c2 & 0xF)
++                     +(9*(c2>>6))
++                    );             /* leave it as the left half */
++          str[j] = tolower (num);
++          i+=2;
++          continue;
++        }
++      }
++    }
++    if (!pasthostname && (str[i] == '?' || str[i] == '/' || str[i] == '\\'))
++      pasthostname = 1;
++    if (i+1<str_len) {
++      if (str[i] == '=' && str[i+1] == '\n') {
++        j-=1;
++        i+=1;
++        continue;
++      }
++    }
++    if (i+2<str_len) {
++      if (str[i] == '=' && str[i+1] == '\r' && str[i+2] == '\n') {
++        j-=1;
++        i+=2;
++        continue;
++      }
++    }
++    if (strchr ("\r\n\t \'\"<>()", str[i]) != NULL)
++      break;
++    str[j] = tolower (str[i]);
++  }
++
++  str[j] = '\0';
++  *strend = str+j+1;
++  return str;
++}
++
++/* Chose this fairly inefficient method (compared to, for instance, a hash table
++ * or a binary search) because it makes the cctld list easy to adapt. */
++int cctld (char *tld)
++{
++  static const char cctlds[] = ".ac.ae.ar.at.au.az.bb.bm.br.bs.ca.cn.co.cr.cu.cy.do.ec.eg.fj.ge.gg.gu.hk.hu.id.il.im.in.je.jo.jp.kh.kr.la.lb.lc.lv.ly.mm.mo.mt.mx.my.na.nc.ni.np.nz.pa.pe.ph.pl.py.ru.sg.sh.sv.sy.th.tn.tr.tw.ua.ug.uk.uy.ve.vi.yu.za";
++  if (strstr (cctlds, tld) != NULL)
++    return 1;
++  return 0;
++}
++
++static void snipdomain (char **ouri, size_t urilen)
++{
++  char *uri = *ouri;
++  int parts = 2;
++  size_t uripos = urilen;
++  int partsreceived = 0;
++  
++  while (uripos-- > 0) {
++    if (uri[uripos] == '.') {
++      
++      if (partsreceived == 0) {
++        if (cctld (&uri[uripos]))
++          parts = 3;
++      }
++      partsreceived ++;
++      if (partsreceived >= parts) {
++        uri = uri + uripos + 1;
++        break;
++      }
++    }
++  }
++  *ouri = uri;
++  /*puts (uri);*/
++}
++
++/*
++ * Returns:
++ * -1 on error
++ *  0 if domain wasn't cached
++ *  1 if domain was cached, and not blacklisted
++ *  2 if domain was cached, and blacklisted.
++ */
++static int cacheget (char *uri, size_t urilen, char **text)
++{
++  static stralloc path = {0,0,0};
++
++  size_t uripos = urilen;
++  int partlen = uripos;
++  char *stext;
++  size_t stextlen;
++  time_t modtime;
++  int cachelock;
++
++  if (fileexist (SURBL_CACHE_DIR) <= 0)
++    return 0;
++  
++  if (stralloc_copys (&path, SURBL_CACHE_DIR) == 0)
++    return -1;
++
++  while (uripos--) {
++    if (uri[uripos] == '.') {
++      if (stralloc_append (&path, "/") == 0)
++        return -1;
++      if (stralloc_catb (&path, &uri[uripos+1], partlen-uripos-1) == 0)
++        return -1;
++      partlen = uripos;
++    }
++  }
++  if (stralloc_append (&path, "/") == 0)
++    return -1;
++  if (stralloc_catb (&path, &uri[uripos+1], partlen-uripos-1) == 0)
++    return -1;
++
++  if (stralloc_append (&path, "/") == 0)
++    return -1;
++  if (stralloc_cats (&path, SURBL_CACHE_FILE) == 0)
++    return -1;
++  
++  if (stralloc_0 (&path) == 0)
++    return -1;
++
++  if (getmodtime (path.s, &modtime) == -1)
++    return -1;
++
++  if (modtime + cachelifetime < time (NULL)) {
++    /*printf ("Cache entry expired: %s.\n", uri);*/
++    unlink (path.s);
++    return 0;
++  }
++  
++  /*
++   * Slurp is not atomic, so lock the cache directory.
++   * Since we read, we can share the lock.
++   */
++  if ( (cachelock = file_lock (SURBL_CACHE_LOCK, 0, 0)) == -1)
++    return -1;
++  if (fileread (path.s, &stext, &stextlen)) {
++    int err = errno;
++    file_unlock (cachelock);
++    errno = err;
++    return -1;
++  }
++  if (file_unlock (cachelock) == -1)
++    return -1;
++  
++  /*printf ("cached: '%.*s' %d\n", stextlen, stext, stextlen);*/
++  
++  if (stextlen > 0) {
++    *text = malloc (stextlen+1);
++    if (*text == NULL) {
++      return -1;
++    }
++    strcpy (*text, stext);
++    return 2;
++  }
++  else {
++    *text = NULL;
++    return 1;
++  }
++
++  return 0;
++}
++
++/*
++ * Returns 0 on success, -1 on error.
++ *
++ * text == NULL: host not blacklisted
++ * text != NULL: host blacklisted, text == reason.
++ */
++static int cacheadd (char *uri, size_t urilen, char *text)
++{
++  size_t uripos = urilen;
++  size_t partlen = uripos;
++  int cachelock;
++
++  static stralloc path = {0,0,0};
++
++  if (fileexist (SURBL_CACHE_DIR) <= 0)
++    return 0;
++
++  if (stralloc_copys (&path, SURBL_CACHE_DIR) == 0)
++    return -1;
++
++  while (uripos--) {
++    if (uri[uripos] == '.') {
++      if (stralloc_append (&path, "/") == 0)
++        return -1;
++      if (stralloc_catb (&path, &uri[uripos+1], partlen-uripos-1) == 0)
++        return -1;
++      /*printf ("HOP %.*s\n", path.len, path.s);*/
++
++      if (stralloc_0 (&path) == 0)
++        return -1;
++      /*printf ("MAKING DIR '%s'\n", path.s);*/
++      mkdir (path.s, 0700);
++      path.len--;
++
++      partlen = uripos;
++    }
++  }
++
++  if (stralloc_append (&path, "/") == 0)
++    return -1;
++  if (stralloc_catb (&path, &uri[uripos+1], partlen-uripos-1) == 0)
++    return -1;
++  /*printf ("HOP %.*s\n", path.len, path.s);*/
++
++  if (stralloc_0 (&path) == 0)
++    return -1;
++  mkdir (path.s, 0700);
++  path.len--;
++
++  if (stralloc_append (&path, "/") == 0)
++    return -1;
++  if (stralloc_cats (&path, SURBL_CACHE_FILE) == 0)
++    return -1;
++  
++  if (stralloc_0 (&path) == 0)
++    return -1;
++
++  /*printf ("FULL %s\n", path.s);*/
++
++  /*
++   * Creating the cache file is not atomic, so we lock the directory
++   * exclusively first.
++   */
++  if ( (cachelock = file_lock (SURBL_CACHE_LOCK, 1, 0)) == -1)
++    return -1;
++  if (filecreate (path.s, text) == -1) {
++    int err = errno;
++    file_unlock (cachelock);
++    errno = err;
++    return -1;
++  }
++  if (file_unlock (cachelock) == -1)
++    return -1;
++
++  return 0;
++}
++
++static int header_base64 (char *header)
++{
++  char cteword[] = "Content-Transfer-Encoding: ";
++  size_t ctewordlen = strlen (cteword);
++  char *cte = header;
++
++  while ( (cte = strchr (cte, '\n')) != NULL) {
++    cte += strspn (cte, "\r\n \t");
++    if (casencmp (cte, cteword, ctewordlen)) {
++      break;
++    }
++  }
++  
++  if (cte == NULL)
++    return 0;
++  cte += ctewordlen;
++  if (casencmp (cte, "base64", 6))
++    return 1;
++  return 0;
++}
++
++/*
++ * Create a file with the given contents.
++ */
++static int filecreate (char *file, char *text)
++{
++  FILE *fp = fopen (file, "w");
++  if (fp == NULL)
++    return -1;
++  if (text != NULL) {
++    if (fputs (text, fp) == EOF) {
++      int err = errno;
++      fclose (fp);
++      unlink (file);
++      errno = err;
++      return -1;
++    }
++  }
++  fclose (fp);
++  return 0;
++}
++
++static int fileread (char *file, char **buf, size_t *buflen)
++{
++  static stralloc bufss = {0,0,0};
++  FILE *fp = fopen (file, "r");
++  if (fp == NULL)
++    return -1;
++  if (stralloc_copys (&bufss, "") == 0) {
++    fclose (fp);
++    return -1;
++  }
++  while (1) {
++    char tbuf[256];
++    size_t rv = fread (tbuf, 1, sizeof tbuf, fp);
++    if (stralloc_catb (&bufss, tbuf, rv) == 0) {
++      fclose (fp);
++      return -1;
++    }
++    if (rv < sizeof tbuf)
++      break;
++  }
++  if (ferror (fp)) {
++    fclose (fp);
++    return -1;
++  }
++  fclose (fp);
++  if (stralloc_0 (&bufss) == 0)
++    return -1;
++  *buf = bufss.s;
++  *buflen = bufss.len-1;
++  return 0;
++}
++
++/* Returns 1 if file exists, 0 if it doesn't, -1 if there was an error. */
++static int fileexist (char *file)
++{
++  struct stat st;
++  int rv = stat (file, &st);
++  if (rv == 0)
++    return 1;
++  else
++  if (rv == -1 && errno == ENOENT)
++    return 0;
++  else
++    return -1;
++}
++
++static int getmodtime (char *file, time_t *modtime)
++{
++  struct stat st;
++  if (stat (file, &st) == -1)
++    return -1;
++  *modtime = st.st_mtime;
++  return 0;
++}
++
++/*
++ * Returns lock descriptor on success, -1 on error, -2 if the file was already
++ * locked by another process and block is 0.
++ * If excl is 0, a shared lock will be issued. If excl is not 0, an exclusive
++ * lock will be issued.
++ */
++static int file_lock (char *lockfile, int excl, int block)
++{
++  int fd;
++
++  if (excl)
++    excl = LOCK_EX;
++  else
++    excl = LOCK_SH;
++
++  if (!block)
++    excl |= LOCK_NB;
++
++  fd = open (lockfile, O_RDWR);
++  if (fd == -1) {
++    if (errno == ENOENT) {
++      fd = open (lockfile, O_RDWR | O_CREAT | O_EXCL, 0600);
++      if (fd == -1)
++        return -1;
++    }
++    else
++      return -1;
++  }
++  
++  if (flock (fd, excl) == -1) {
++    if (!block && errno == EWOULDBLOCK)
++      return -2;
++    else
++      return -1;
++  }
++
++  return fd;
++}
++
++/*
++ * Unlock crontab.
++ * Descriptor is given through fd.
++ */
++static int file_unlock (int fd)
++{
++  /*
++  if (unlink (LOCKFILE) == -1)
++    return -1;
++  */
++  if (flock (fd, LOCK_UN) == -1)
++    return -1;
++  if (close (fd) == -1)
++    return -1;
++  return 0;
++}
++
++static unsigned long revl (unsigned long r4)
++{
++  return (r4<<24&0xFF000000) \
++       | (r4<<8 &0x00FF0000) \
++       | (r4>>8 &0x0000FF00) \
++       | (r4>>24&0x000000FF);
++}
++
++/*
++ * 'b64' is a base-64 encoded buffer. bt_str64dec will decode it, and place
++ * the result in *text, which is allocated, and the length of the resulting
++ * string is stored in *textlen.
++ * Decoding will continue until a character not in the base64 scheme is
++ * detected. *endptr will contain the place it stopped decoding.
++ */
++static int bt_str64dec (char *b64, char **endptr, char **text,
++                 size_t *textlen, char *ignore)
++{
++  char *b64enc = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
++  char *tmp;
++  int b64dec[256];
++  int count = 0;
++  unsigned long buf = 0;
++  char *bufp = (char*)&buf;
++  struct stralloc textss = {0,0,0};
++  size_t pos = 0;
++  
++  memset (b64dec, 0, sizeof b64dec);
++
++  tmp = b64enc;
++
++  while (*ignore) {
++    b64dec[*ignore&0xFF] = -1;
++    ignore++;
++  }
++
++  while (*tmp) {
++    int *foo = &b64dec[*tmp&0xFF];
++    if (*foo == -1)
++      ++*foo;
++    *foo = tmp-b64enc + 1;
++    tmp++;
++  }
++  b64dec['='&0xFF] = 1;
++
++  while (1) {
++    int inchar = b64[pos++];
++
++    /* Ignore ignored characters. */
++    if (b64dec[inchar&0xFF] == -1)
++      continue;
++    /* Die on unknown characters. */
++    if (b64dec[inchar&0xFF] == 0)
++      break;
++
++    buf <<= 6;
++    buf |= b64dec[inchar&0xFF]-1;
++    count++;
++
++    /* count%4 */
++    if ( (count&3) == 0) {
++      /* Reverse word if endianness doesn't cooperate. */
++      if (bufp[3] == 0)
++        buf = revl (buf);
++
++      /* Append to full text buffer. */
++      if (stralloc_catb (&textss, bufp+1, 3) == -1)
++        return -1;
++
++      /* Reset buffer. */
++      buf = 0;
++    }
++  }
++
++  *text = textss.s;
++  *textlen = textss.len;
++  *endptr = &b64[pos-1];
++
++  return 0;
++}
++
++static int casencmp (char *str1, char *str2, unsigned long len)
++{
++  unsigned long i = 0;
++  while (i<len) {
++    if (tolower (str1[i]) != tolower (str2[i]))
++      return 0;
++    if (str1[i] == '\0')
++      break;
++    i++;
++  }
++  return 1;
++}
++
+diff -ruN qmail-1.03.orig/surbl.h qmail-1.03/surbl.h
+--- qmail-1.03.orig/surbl.h	1970-01-01 01:00:00.000000000 +0100
++++ qmail-1.03/surbl.h	2004-11-17 12:51:38.000000000 +0100
+@@ -0,0 +1,7 @@
++#ifndef SURBL_H_
++#define SURBL_H_
++
++int surblfilter (char *text, size_t textlen, char **msg);
++
++#endif
++

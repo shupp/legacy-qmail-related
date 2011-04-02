@@ -1,0 +1,2 @@
+to-file %(Home)s/.tmda/lists/whitelist tag envelope dated=10d from bare
+to-file %(Home)s/.tmda/lists/confirmed tag envelope dated=10d from bare

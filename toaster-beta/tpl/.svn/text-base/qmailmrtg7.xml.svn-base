@@ -1,0 +1,44 @@
+<title><?php echo _("Options")?></title>
+
+<itemizedlist>
+    <listitem>
+        <para><anchor id="qmailmrtg7" /><emphasis><?php echo _("QmailMRTG7")?></emphasis></para>
+        <para><?php echo _("This is a great tool for graphing your mail server's activity.")?></para>
+        <para><?php echo _("Info: ")?> <ulink url="http://inter7.com/?page=qmailmrtg7">http://inter7.com/?page=qmailmrtg7</ulink></para>
+        <para><?php echo _("Install:")?></para>
+
+        <programlisting>
+			<literal>cd {varsrc}/tar</literal>
+			<literal>mkdir /var/www/html/qmailmrtg</literal>
+			<literal></literal>
+			<literal>wget http://shupp.org/software/qmailmrtg7-{qmailmrtg7}.tar.gz</literal>
+			<literal>wget http://shupp.org/patches/qmailmrtg7-{qmailmrtg7}-cfg.patch</literal>
+			<literal>cd ../</literal>
+			<literal>tar -xzf tar/qmailmrtg7-{qmailmrtg7}.tar.gz</literal>
+			<literal>cd qmailmrtg7-{qmailmrtg7}</literal>
+			<literal>patch -p0 &lt; ../tar/qmailmrtg7-{qmailmrtg7}-cfg.patch</literal>
+			<literal>make</literal>
+			<literal>make install</literal>
+			<literal></literal>
+			<lineannotation><?php echo _("Edit qmail.mrtg.cfg and change all instances of FQDN to your hostname")?></lineannotation>
+			<literal></literal>
+			<literal>cp qmail.mrtg.cfg /etc/</literal>
+			<literal>indexmaker --section=title /etc/qmail.mrtg.cfg &gt; /var/www/html/qmailmrtg/index.html</literal>
+			<literal></literal>
+			<lineannotation><?php echo _("now run mrtg 3 times to get rid of initial cron errors")?></lineannotation>
+			<literal>env LANG=C mrtg /etc/qmail.mrtg.cfg</literal>
+			<literal>env LANG=C mrtg /etc/qmail.mrtg.cfg</literal>
+			<literal>env LANG=C mrtg /etc/qmail.mrtg.cfg </literal>
+			<literal></literal>
+        </programlisting>
+        <blockquote role="configure">
+            <itemizedlist>
+                <listitem>
+                    <literallayout><?php echo _("Add the following line to your crontab")?></literallayout>
+			        <literallayout>0-55/5 * * * * env LANG=C /usr/bin/mrtg /etc/qmail.mrtg.cfg &gt; /dev/null</literallayout>
+                </listitem>
+            </itemizedlist>
+        </blockquote>
+    </listitem>
+
+</itemizedlist>

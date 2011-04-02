@@ -1,0 +1,33 @@
+# Installation anomalies describes any special instructions to follow when
+# installing files from the skel/install directory.
+
+# PERMISSIONS is a dictionary of filenames and what octal permissions should be
+# assigned to them.
+PERMISSIONS = {".tmda/crypt_key": 0600}
+
+# VIRT_TEST is a regular expression test which can be applied to a user's HOME
+# directory.  If the test matches, then the user is assumed to be a virtual
+# user.
+VIRTUAL_TEST = "^" + VPop
+
+# REAL_ONLY is a list of files or a dictionary of lists of files which should
+# only be copied if the user logging in is "real" (i.e. VIRTUAL_TEST did not
+# match the user's HOME directory).
+# The optional dictionary structure of this configuration variable allows you
+# to specify different files based on the mail program you're using.  You can
+# only have one mail program installed, of course, so if you are creating this
+# skel directory by hand, feel free to simply use a list.
+REAL_ONLY = {"qmail": [".qmail", ".qmail-default"], "sendmail": [".procmail"]}
+
+# VIRTUAL_ONLY is the compliment to REAL_ONLY, above.  These files should only
+# be copied if the user logging in is a virtual user (i.e. VIRTUAL_TEST matched
+# the user's HOME directory).
+VIRTUAL_ONLY = \
+  {"qmail":
+    ["%(Parent)s/.qmail-%(qUser)s", "%(Parent)s/.qmail-%(qUser)s-default"]
+  }
+
+# PARENT_RE is a regular expression used to verify that we have a valid parent
+# directory.  If invalid, try ascending again until we run out of directories
+# or match.
+PARENT_RE = "^" + VPop + "/domains/[^/]+\.[^/]+$"

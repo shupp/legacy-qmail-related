@@ -1,0 +1,692 @@
+
+FAQ Table of Contents
+
+Intro
+Features for vpopmail
+  FAQ
+0. How can I set one virtual domain to be the primary domain for
+   the machine? We don't want to have any /etc/passwd users.
+1. How to I pop in to pick up my virtual domain email?
+2. How do I forward all mail that doesn't match any pop users or .qmail
+3. How do I bounce all mail that doesn't match any pop users or .qmail
+4. How do I allow roaming users to use our smtp server without opening
+5. What is a sample start script for the pop server?
+6. How do hard quota's for users work?
+7. I installed qmail in a place other than /var/qmail. How should
+8. I want to use a different file name than /etc/tcp.smtp for my
+9. How can we use an IP address per domain, so that users don't need
+10. Why was the name of the package changed from vchkpw to vpopmail?
+11. Logging? Please tell me about logging
+12. How do I alias a new virtual domain to a current virtualdomain?
+13. How do I post a email to all users of a virtualdomain or a set
+    of domains?
+14. Is there a mailing list available for vpopmail package?
+15. How do I setup vpopmail to talk to mysql?
+16. I want to upgrade vpopmail, what do I need to worry about?
+17. Will IMAP work with vpopmail?
+18. Can I use vpopmail with IMP (www.horde.org/imp)?
+19. What is the difference between the --enable-large-site=y or n
+20. How do I control the database and table names in mysql
+21. Why can't pop authenticate on my slackware installation? 
+22. How do I forward all email to a different site?
+23. How come, about every hour or so, everything stops working?
+24. We are using NFS and sometimes things break! 
+25. How to use ssh tunnels with pop?
+26. vaddomain fails on my Debian qmail installation
+27. How do I log when people authenticate with pop? 
+28. How do I compile sqwebmail with vpopmail and mysql?
+29. How can I uninstall vpopmail? 
+30. I get errors about not finding a .so library, how to fix?
+31. What is the relationship between ~vpopmail/etc/open-smtp
+~vpopmail/etc/tcp.smtp and ~vpopmail/etc/tcp.smtp.cdb and how do they work with
+the smtpserver?
+32. I don't want to bounce emails for non existent users. Instead I want
+    to delete them, how?
+33. Quota usage doesn't decrease after deleting messages with qmail-pop3d!
+34. Is there commerical support available?
+
+
+Intro
+---------------------------------------------------------------
+
+vpopmail is a collection of programs to automate creation and
+maintence of non /etc/passwd virutal domain email and pop accounts 
+for qmail installations.
+
+Two additional packages support the vpopmail package:
+
+qmailadmin provides a simple web based administration interface 
+for pop account maintence, forwards, aliases, mailing lists 
+and autoresponders.  http://www.inter7.com/qmailadmin/
+
+Sqwebmail provides a hot mail type web email system which
+reads directly from the disks Maildirs, local, NFS or NAS.
+and autoresponders.  http://www.inter7.com/sqwebmail/
+
+Features for vpopmail
+---------------------------------------------------------------
+
+- uses one uid/gid for all email accounts
+
+  two types of email addresses
+  1) for domains in /var/qmail/control/locals the email
+     addresses are:  user@any-domain-in-locals-file
+     pop authentication user name is: user
+
+     admin programs are: vadduser, vdeluser, vpasswd
+
+        vadduser username optional-command-line-password -a (optional apop)
+        vdeluser username 
+        vpasswd  username optional-command-line-password -a (optional apop)
+
+  2) for "virtual" domains in /var/qmail/control/virtualdomains
+     addresses are of the form user@virtualdomain
+     pop authentication user name is: 
+	 user%virtualdomain or user@virtualdomain depending on email client
+
+     admin programs are: vadddomain, vdeldomain, vpasswd
+
+        vadddomain virtualdomain optional-command-line-password-for-postmaster 
+                   -a (optional apop)
+        vdeldomain virtualdomain 
+        vadduser username@virtualdomain optional-command-line-password 
+            -a (optional apop)
+        vdeluser username@virtualdomain optional-command-line-password
+            -a (optional apop)
+        vpasswd  username@domainname optional-command-line-password 
+
+ NOTE: for all of the above commands that take passwords: If the
+       password is not specified,it will prompt the command line
+       for it untill two successive entries match.
+
+- automated and complete command line program to add a new 
+  virtual domain: 
+
+    admin program: vadddomain virtualdomain optional-postmaster-password 
+        -a (for apop)
+
+    This program does the following: 
+        updates /var/qmail/control/rcpthosts
+        updates /var/qmail/control/virtualdomains
+        updates /var/qmail/users/assign
+        updates /var/qmail/users/cdb
+        runs /var/qmail/bin/qmail-newu
+
+        sends hup signal to qmail-send to accept new domain
+
+- disk limit hard quota for all users under the single uid/gid
+  default is 50Meg per user
+
+- automates opening up smtp relay for roaming users
+  works in conjunction with the qmail-smtpd server run under
+  tcpserver with the optional -x /etc/relayip.cdb feature
+
+- email delivery is complete and allow for .qmail processing
+  per domain and folder spliting per domain/user
+
+  fully supports forwards, aliases, mailing lists, autoresponders
+  or any other program which uses the dot-qmail syntax
+
+- handles all email that does not match a pop user or .qmail in these ways:
+    a) delivers to a pop account
+    b) forwards to another email address
+    c) bounces
+    customizable in .qmail-default file per domain
+
+- efficent and written in c
+
+- supports /etc/passwd users as well as single uid/gid users
+
+- requires qmail and tcpserver to fully operate all features
+
+- can be used in scripts or programs to automate virtual domains and
+  users account management
+
+- tested on redhat 6.0, 5.2 (no shadow, default), solaris 5.7
+  should work on other systems too. possible porting issue
+  with format of ps command arguments
+
+- simplified installation.
+  uses configure ; make ; make install 
+  configuration parameters allow for customizing to a sites disk layout
+  auto detechs shadow or non shadow authentication per platform
+
+  FAQ
+---------------------------------------------------------------
+
+0. How can I set one virtual domain to be the primary domain for
+   the machine? We don't want to have any /etc/passwd users.
+
+   configure vpopmail with this option:
+       --enable-default-domain=<domain name>
+
+   If you have already configured vpopmail you will need to do it
+   again. make distclean ; ./configure < with your options > ; make 
+   make install-strip;
+
+   Then you can create the default domain with vadddomain <domain name>
+
+   This will allow users of the primary domain to set thier
+   pop user name to <user> instead of <user>%<virtualdomain>
+ 
+1. How do I pop in to pick up my virtual domain email?
+
+   Virtual domain users need to use the following format for thier
+   user name when popping in:
+
+        user%virtual_domain_name
+
+   Eudora might require the following syntax
+        user%virtual_domain_name@pophost
+
+   Microsoft clients may the following syntax:
+        user@virtual_domain   
+
+   If you don't include the %virtual_domain_name, vpopmail will 
+   assume it is either a /etc/passwd user or a vpop user in 
+   ~vpopmail/users or configured with "default domain".
+
+2. How do I forward all mail that doesn't match any pop users or .qmail
+   files for a particular domain?
+
+   Edit the ~vpopmail/domains/virtual_domain/.qmail-default file and 
+   change the last parameter to an email address of the form: user@domain
+
+3. How do I bounce all mail that doesn't match any pop users or .qmail
+   files for a particular domain?
+
+   Edit the ~vpopmail/domains/virtual_domain/.qmail-default file and 
+   change the last parameter to "bounce-no-mailbox" without the quotes.
+
+   For example:
+   # more .qmail-default
+   | /home/vpopmail/bin/vdelivermail '' bounce-no-mailbox 
+
+
+4. How do I allow roaming users to use our smtp server without opening
+   the machine up to everyone on the internet? 
+
+   Your startup script for the qmail smtp server must use the 
+   tcpserver -x file command similar to this startup line. 
+
+    env - PATH="/var/qmail/bin:/usr/local/bin" \
+    tcpserver -H -R -x /path/to/vpopmail/etc/tcp.smtp.cdb \
+	-c20 -u504 -g503 0 smtp \
+    /var/qmail/bin/qmail-smtpd 2>&1 > /dev/null &
+
+Here are our qmail /etc/passwd entries
+alias:x:503:503::/var/qmail/alias:/bin/bash
+qmaild:x:504:503::/var/qmail:/bin/bash
+qmaill:x:505:503::/var/qmail:/bin/bash
+qmailp:x:506:503::/var/qmail:/bin/bash
+qmailq:x:507:504::/var/qmail:/bin/bash
+qmailr:x:508:504::/var/qmail:/bin/bash
+qmails:x:509:504::/var/qmail:/bin/bash
+
+    modify the -u503 and -g503 to match your systems 
+    qmaild user id and group id
+
+   Configure vpopmail with an additional option --enable-roaming-users=y
+
+   Then edit the /path/to/vpopmail/etc/tcp.smtp file and put in lines for all
+   static IP's that you will always want to allow relay access to.
+   For example:
+
+    127.0.0.:allow,RELAYCLIENT=""
+    10.1.1.:allow,RELAYCLIENT=""
+
+   The above lines will allow the localhost and all machines on the 10.1.1 C
+   class to relay thru.
+
+   You should always put in the 127.0.0 and the IP of the machine 
+   vpopmail is running on and any aliased IPs.
+
+   Then run the following command
+   /path/to/vpopmail/bin/clearopensmtp
+
+   Then, every time someone pops in and authenticates, the follow happens:
+
+        1) vpopmail asks for an exclusive lock on the 
+		   ~vpopmail/etc/open-smtp.lock file
+        2) it will wait for the lock, once it gets it, it will continue
+        3) it adds the pop users IP into ~vpopmail/etc/open-smtp file with a 
+           time stamp. If the IP already exsists, it updates the timestamp.
+        4) it runs tcprules to regenerate the /etc/tcp.smtp.cdb file
+        5) releases lock and new IP becomes available to the next 
+           smtp invocation.
+
+    At this point, the smtp server configured above will allow that
+    IP to relay for 1 hour (default).
+
+    You should setup cron to run the following:
+        40 * * * * /home/vpopmail/bin/clearopensmtp 
+    Change /home/vpopmail to be your vpopmails home dir.
+
+    clearopenstmp will ask for a lock, clear out any roaming IP's 
+    whos timestamps are over 1 hour old since last pop authentication.
+    merges the two files vpopmail does above and run tcprules. 
+    Thus closing off relay for those aged IPs.
+
+
+    I think it's pretty cool :)
+
+5. What is a sample start script for the pop server?
+
+    env - PATH="/var/qmail/bin:/usr/local/bin" \
+    tcpserver 0 pop-3 /var/qmail/bin/qmail-popup orbital.inter7.com \
+    /home/vpopmail/bin/vchkpw /var/qmail/bin/qmail-pop3d Maildir &
+
+6. How do hard quota's for users work?
+
+    When mail is delivered to a virtual domain, vdelivermail
+    will deliver it to the pop users directory. vdelivermail
+    will enter the users Maildir and add up the sizes of all 
+    the files in these directories. If the size is greater
+    than the HARD_QUOTA limit. The email is bounced back to
+    the sender.
+
+    Use the configuration option --enable-hardquota to change the 
+    size of the hard quota per user.  Please read README.quotas
+    for information on maildirquotas and syntax information.
+
+7. I installed qmail in a place other than /var/qmail. How should
+   I configure vpopmail for it?
+
+   ./configure --enable-qmaildir=qmail-install-path
+
+8. I want to use a different file name than /etc/tcp.smtp for my
+   static IPs for perment relay.
+
+   ./configure --enable-tcpserver-file=smtp-relay-file
+
+9. How can we use an IP address per domain, so that users don't need
+   to authenticate with user%domain or user@domain, 
+   they just want to use "user"?
+
+   ./configure --enable-ip-alias-domains=y
+
+   Then run vipmap -a IP domain for each IP you want to link to a domain.
+
+10. Why was the name of the package changed from vchkpw to vpopmail?
+
+    Because no one could pronounce vchkpw and vpopmail is more descriptive.
+    V for virtual, pop for pop server, mail for mail!
+
+11. Logging? Please tell me about logging
+
+    ./configure --enable-logging= 
+        y means log all successful and unsucessful attemps and fatal errors
+        n means don't log anything
+        e means only log errors and fatal errors
+        p means include passwords in errors
+        v means log everything, including passwords in errors
+
+
+    By default we set it up to only log errors and fatal errors.
+
+12. How do I alias a new virtual domain to a current virtualdomain?
+
+    vaddaliasdomain new_domain old_domain
+
+13. How do I post a email to all users of a virtualdomain or a set
+    of domains?
+
+    use the new vpopbull program:
+
+    vpopbull -f email_file vdomain vdomain ...
+
+    To see all the available options run vpopmail with no options.
+    It will print out a complete list.
+
+14. Is there a mailing list available for vpopmail package?
+
+    Yes. Send a message to vchkpw-subscribe@inter7.com
+
+15. How do I setup vpopmail to talk to mysql?
+    Read the README.mysql file.
+
+16. I want to upgrade vpopmail, what do I need to worry about?
+    Two things happen on an upgrade. The programs, library and
+	include files get over written and the permissions get fixed. 
+	None of the users or domain get touched. So to upgrade:
+    1) download new vpopmail software
+    2) ./configure with your options
+    3) make
+    4) make install-strip
+    5) upgrade completed.
+
+    If you want to backup the programs, libraries and include files
+	then back up ~vpopmail/bin, ~vpopmail/include and ~vpopmail/lib
+
+17. Will IMAP work with vpopmail?
+
+Yes. Here's a quick way to get up and running with Courier-IMAP
+   using both authpam (/etc/passwd) and vchkpw for auth:
+
+a) Download the Courier-IMAP available at Inter 7's Courier-IMAP
+    site.
+
+b) Configure it (as a NON-root user) with the following option:
+    --enable-workarounds-for-imap-client-bugs
+
+c) Run make as a NON-root user.
+
+d) Run make check as a NON-root user. It will fail when it tries 
+    to check mail. This is normal because of the --enable-workarounds...
+    option.
+    
+e) Run make install-strip as root.
+
+f) You can follow the INSTALL's instructions on the startup file, but
+    I just added a sym link to the imapd.rc file into /etc/rc.d/init.d:
+    
+    cd /etc/rc.d/init.d
+    ln -s /usr/lib/courier-imap/libexec/imapd.rc imapd.rc
+    
+    Then just create your necessary S and K links. Here's mine:
+    
+    cd /etc/rc.d/rc3.d
+    ln -s ../init.d/imapd.rc S70imapd.rc (S70 is also that of qmail).
+    cd ../rc2.d
+    ln -s ../init.d/imapd.rc K70imapd.rc
+    
+g) If you are only using IMAP for vpopmail accounts (read: NON-shell 
+    accounts) then you are all setup. It should have added the proper
+    AUTHMODULES to your config file (/usr/lib/courier-imap/etc/imapd.config)
+    
+    AUTHMODULES="authcram authuserdb authvchkpw authpam"
+    
+    If you do plan to have it work for shell users AND vpopmail users, you
+    need to re-order the AUTHMODULES so that it auths via "authpam" first:
+    
+    AUTHMODULES="authpam authcram authuserdb authvchkpw"
+    
+h) That's it. Reboot or run /etc/init.d/imapd.rc start to start it up. I
+    reboot just to make sure things are fine after a reboot.
+
+NOTE: when you setup your IMAP client to login to your virtual domain, DO NOT
+use user%domain.com as with POP clients. Use user@domain.com. The % seems to
+cause problems and I could not get Eudora or IMP (see below) to auth with that
+format. When you check mail for a shell user, just put in the username for
+the login ID, NOT the username@domain.com, but just username.
+
+
+18. Can I use vpopmail with IMP (www.horde.org/imp)?
+
+Yes. The newer version of IMP support POP so all you would need to 
+do is set that up and make the necessary mods for POP logins, but
+with IMAP you can have your users create folders and such, which is more
+flexible if they plan to use IMP for the majority of their mail needs. This
+will describe how to setup IMP to work with vpopmail + Courier-IMAP. I
+only describe what you need to make IMP work, you'll need to follow the
+Horde/IMP instructions for the rest.
+
+a) Install qmail + vpopmail.
+
+b) Install Courier-IMAP as per the previous FAQ.
+
+c) Test this installation and make sure you can use Netscape/Outlook/Eudora
+    or some other IMAP client to log in. Also, you can use IMPs test client at
+    https://ssl.horde.org to log into your virtual host (make sure you can
+    create and delete folders). If this works, you are all set for your own IMP    setup.
+    
+d) Install Apache + PHP (I used PHP3). You WILL run into the problem
+    where PHP is looking for mail.h and a slew of other libraries not
+    included with Courier-IMAP. Download, compile and install UW IMAP
+    (installing it won't cause problems) and point the PHP --enable-imap
+    to the appropriate install directories. If you chose all the defaults for
+    UW IMAP just use --enable-imap.
+
+e) Download the Horde and IMP components. IMP is somewhat complicated to 
+    install so go slow and follow the instructions on their Web site.
+
+f) After your install, edit <IMP DIR>/config/defaults.php3 (or .php) and 
+    change the following:
+
+    $default->folders                        = '';
+
+    to:
+
+    $default->folders                        = 'INBOX.';
+
+    This will allow IMP to create folders with Courier-IMAP.
+    
+g) Finish configuring IMP and test it out.
+
+19. what is --enable-many-domains option do?
+
+The default is for --enable-many-domains=y. This is for
+sites that will have more than 10 domains on thier system.
+
+If you have a large number of users ( more than 10,000 ) 
+AND you will only be hosting 10 domains or less AND you
+are using mysql/oracle modules THEN use "no"
+--enable-many-domains=n
+
+Do NOT turn off many-domains unless you *know* exactly
+what that does.
+
+
+--- Pre vpopmail-5.0 answer ------
+What is the difference between the --enable-large-site=y or n
+This option only has effect for mysql (--enable-mysql=y).
+
+It has to do with database optimization. Consider two different
+sites. A) One site has only one domain (or maybe a few) with 
+many many users. B) The other site has LOTS of domains with
+some users in each domain.  These two different extremes
+place different design considerations on a database schema.
+
+Two things to optimize: 1) space 2) access speeds.
+
+For site A) We can create a table for each of the domains
+and name each table by the domain name. This is similar
+to the vpasswd.cdb module. Each domain has it's own
+authentication file. Works great. This is the
+--enable-large-site=y option (the default is n)
+
+For site B) If we did the same thing as for site A we
+would end up with many many tables in mysql. The problem
+is, mysql doesn't do well with many tables that get
+opened and closed alot. Hence, we came up with an 
+optimization. We use only one table and include a
+column for the domain name. This is the default setup.
+
+If you use large site = yes and have more than 10 domains
+take a look at section 12.2.4 How MySQL Opens and Closes Tables 
+in the MySQL manual.  This can be set to a large number - but 
+you may run into OS limits.
+
+
+20. How do I control the database and table names in mysql?
+
+--enable-large-site=y 
+This option is for sql only. Each domain has it's own 
+table in the vpopmail database. For large sites with
+only a few domains, this is the optimial database
+layout. For sites with a large number of domains,
+this is a bad option.
+
+--enable-large-site=n (default)
+For sql storage, it creates on table named vpopmail
+in the vpopmail database.
+
+To change these names edit vmysql.h
+
+#define MYSQL_DATABASE "vpopmail"
+This entry defines which database to use
+
+#define MYSQL_DEFAULT_TABLE "vpopmail"
+This entry defines which table to use --enable-large-site=n (default)
+
+21. Why can't pop authenticate on my slackware distribution.
+
+Some distributions of slackware (current distro as of July/2000)
+do not come with a functional crypt routine. To fix the problem
+you must install the real crypt libraries and recompile.
+
+22. How do I forward all email to a different site?
+
+Edit the .qmail-default file and put in:
+
+| /home/vpopmail/bin/vdelivermail '' $EXT@newdomain.com
+
+This will forward all non matching emails to user@newdomain.com
+
+23. How come, about every hour or so, everything stops working?
+
+If you are using qmail from an rpm, there are some rpms that
+install an hourly cron job that rebuilds the /var/qmail/users/assign
+file from /etc/passwd. Unfortunately that cron job destroys all
+of the vpopmail information. 
+
+Solution: 1) remove the cron job
+          2) delete and re-add your virtual domains, or rebuild
+             the assign file from scratch.
+
+24. We are using NFS and sometimes things break! 
+
+   Alot of the file update routines use locks to synchronize
+   multiple updates to the same file. If you are using NFS this
+   requires NFS locking to work, which it doesn't always do.
+
+   Here is some real world feedback:
+   After upgrading all of the servers to work with
+   the kernel NFS facility, the file locking issue went away.
+   I think this is because the newer knfsd has a lockd and
+   statd to work with those kinds of things.  I have not had
+   one lock failure yet, and the server is averaging over 110
+   Million NFS calls daily!
+   In the future, you might suggest to people with busy NFS
+   servers who have locking issues to upgrade to use
+   kernel-level NFS. ;)
+   Brad Baker
+   Director: Network Operations
+   Americanisp
+
+   So you might consider using kernel level NFS!
+
+25. How to use ssh tunnels with pop?
+
+    Here is a url for the answer:
+	http://www.tuxedo.org/~esr/fetchmail/fetchmail-FAQ.html#K3
+
+26. vaddomain fails on my Debian qmail installation
+
+    ln -s /usr/sbin /var/qmail/bin
+
+	vpopmail assumes qmail's bin, control and user directories
+	are under qmails base directory (default is /var/qmail )
+
+	The debian distribution puts qmails binaries under /usr/sbin.
+	Creating a symlink above will solve the problem.
+
+27. How do I log when people authenticate with pop? 
+
+    Currently this only works with mysql. Make sure you include
+	these two configuration options.
+
+	./configure --enable-mysql=y --enable-auth-logging=y
+
+28. How do I compile sqwebmail with vpopmail and mysql?
+
+    At the begining of your sqwebmail configure add this:
+    env "LIBS=-L/usr/lib/mysql -lmysqlclient -lz" \
+    ./configure ......
+
+    This tells the sqwebmail Makefile to include the mysql libraries and
+    path to the libraries. Modify the above path if you have installed
+    mysql libraries in a different location.
+
+29. How can I uninstall vpopmail?
+
+    On Gnu/Linux type systems as root:
+    # userdel -r vpopmail
+    # groupdel vchkpw
+    Done
+
+    To completly clean your qmail installation of virtual domains
+    # rm -rf /var/qmail/control/virt* 
+    # rm -rf /var/qmail/control/rcpt*
+    # rm -rf /var/qmail/control/more*
+    # cp /var/qmail/control/locals /var/qmail/control/rcpthosts
+    # rm -rf /var/qmail/users/*
+
+    If enable roaming users and your tcp.smtp file was not in
+    the vpopmail/etc directory, you will need to remove the
+    open-smtp* files, where ever they are.
+
+30. I get errors about not finding a .so library, how to fix?
+    Your operating system does not know where those shared 
+    object libraries are. On linux read up on how to use ld.so.conf
+    Edit /etc/ld.so.con and run ldconfig.
+
+    Another method is to set the LD_LIBRARY_PATH environment variable.
+ 
+    For example:
+
+    export LD_LIBRARY_PATH=/path/to/libmysqlclient.so.6
+
+31. What is the relationship between ~vpopmail/etc/open-smtp
+    ~vpopmail/etc/tcp.smtp and ~vpopmail/etc/tcp.smtp.cdb and how do they 
+    work with the smtpserver? (by Bram Dumolin <bram@grmbl.be> )
+
+   If you are running qmail-smtpd under tcpserver, you should add a -x
+   ~vpopmail/etc/tcp.smtp.cdb option to it.
+   This makes sure that qmail-smtpd checks in that file for allowed relaying (on
+   top of the onces in /var/qmail/control/rcpthosts).
+
+   This ~vpopmail/etc/tcp.smtpd.cdb needs to be created manually first :
+        /path/to/tcprules ~vpopmail/etc/tcp.smtpd.cdb blah <
+   ~vpopmail/etc/tcp.smtp
+   This will enable the roaming for all hosts/networks you put in
+   ~vpopmail/etc/tcp.smtp which is necessary if you want to use your mailserver
+   from the local network.
+
+   Secondly, check the permissions of the files in ~vpopmail/etc/
+   They should be owned by the user running the tcpserver with the popserver 
+   as that user needs to update those files.
+
+   Everytime a user logs into the popserver, his ip and a timestamp gets 
+   written to ~vpopmail/etc/open-smtp
+   If he's allowed in, the tcp.smtp.cdb gets regenerated automatically from the
+   open-smtp file and the tcp.smtp file.
+
+32. I don't want to bounce emails for non existent users. Instead I want
+    to delete them, how?
+
+   The last parameter in the .qmail-default file tells vdelivermail
+   what to do with non-matching emails. The default is to bounce
+   the email back to the sender. But you can also delete it instead.
+
+   update your .qmail-default file  from something like this:
+   | /home/vpopmail/bin/vdelivermail '' bounce-no-mailbox 
+
+   to something like this:
+   | /home/vpopmail/bin/vdelivermail '' delete 
+
+33. Quota usage doesn't decrease after deleting messages with qmail-pop3d!
+
+    Vpopmail 5.1.1 and above now use maildirquotas.  qmail-pop3d doesn't 
+    support maildirquotas.  Patch qmail with 
+    contrib/qmail-pop3d-maildirquota.patch to add maildirquota support to
+    qmail-pop3d.  See README.quotas for other options and more information on
+    maildirquotas in vpopmail.
+
+34. This all sounds great, but we are running a busines.  Is there 
+   commerical installation/support/maintenece available?
+        For $225 Inter7 will install qmail, tcpserver, boot scripts and
+        vpopmail on your machine and test via the internet to anywhere.
+        Call (847) 492-0470 for details.  24/7 support is available. 
+
+        This is an example of GPL freeware in the market place. We can
+        lower your cost for setting up qmail and at the same time increase
+        your email functionality and efficeny by using qmail. We also
+        provide administration training.
+
+        Many other commerical (like exchange on NT) email packages cost 
+        more than the installation fee. Runs wonderfully on Unixen and Linux.
+        Plus you can do it yourself.
+
+        http://www.inter7.com/qmail/
+

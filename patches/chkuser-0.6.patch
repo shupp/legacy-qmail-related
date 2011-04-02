@@ -1,0 +1,274 @@
+This patch was writtn by Antonio Nati (tonix@interazioni.it), and is
+only slightly modified by me.  This version is suitable for use with TMDA.
+
+Here's a link to the original web page:
+
+http://www.interazioni.it/qmail/#qmail-smtpd
+
+Bill Shupp
+
+
+
+
+diff -urN ../../netqmail-1.05-toaster/netqmail-1.05/conf-vpopmail ./conf-vpopmail
+--- ../../netqmail-1.05-toaster/netqmail-1.05/conf-vpopmail	1969-12-31 18:00:00.000000000 -0600
++++ ./conf-vpopmail	2004-02-09 17:25:22.000000000 -0600
+@@ -0,0 +1,3 @@
++/home/vpopmail
++
++The home directory of the vpopmail user
+diff -urN ../../netqmail-1.05-toaster/netqmail-1.05/Makefile ./Makefile
+--- ../../netqmail-1.05-toaster/netqmail-1.05/Makefile	2004-02-09 17:24:16.000000000 -0600
++++ ./Makefile	2004-02-09 17:27:01.000000000 -0600
+@@ -23,7 +23,7 @@
+ auto-ccld.sh: \
+ conf-cc conf-ld warn-auto.sh
+ 	( cat warn-auto.sh; \
+-	echo CC=\'`head -1 conf-cc`\'; \
++	echo CC=\'`head -1 conf-cc` -I`head -1 conf-vpopmail`/include\'; \
+ 	echo LD=\'`head -1 conf-ld`\' \
+ 	) > auto-ccld.sh
+ 
+@@ -1584,8 +1584,9 @@
+ 	tls.o ssl_timeoutio.o ndelay.a -L/usr/local/ssl/lib -lssl -lcrypto \
+ 	received.o date822fmt.o now.o qmail.o cdb.a fd.a wait.a \
+ 	datetime.a getln.a open.a sig.a case.a env.a stralloc.a \
+-	alloc.a strerr.a substdio.a error.a str.a fs.a auto_qmail.o base64.o  `cat \
+-	socket.lib` dns.o `cat dns.lib`
++	alloc.a strerr.a substdio.a error.a str.a fs.a auto_qmail.o base64.o \
++	`cat socket.lib` dns.o `cat dns.lib`  -lcrypt \
++	`head -1 conf-vpopmail`/lib/libvpopmail.a
+ 
+ qmail-smtpd.0: \
+ qmail-smtpd.8
+diff -urN ../../netqmail-1.05-toaster/netqmail-1.05/qmail-smtpd.c ./qmail-smtpd.c
+--- ../../netqmail-1.05-toaster/netqmail-1.05/qmail-smtpd.c	2004-02-09 17:24:16.000000000 -0600
++++ ./qmail-smtpd.c	2004-02-09 17:40:54.000000000 -0600
+@@ -23,6 +23,17 @@
+ #include "timeoutread.h"
+ #include "timeoutwrite.h"
+ #include "commands.h"
++#include <pwd.h>
++#include <sys/types.h>
++#include <unistd.h>
++#include <dirent.h>
++#include <stdio.h>
++
++#include "open.h"
++#include <vpopmail.h>
++#include <vauth.h>
++#include <vpopmail_config.h>
++
+ #include "qregex.h"
+ #include "strerr.h"
+  
+@@ -50,7 +61,6 @@
+ void tls_nogateway();
+ int ssl_rfd = -1, ssl_wfd = -1; /* SSL_get_Xfd() are broken */
+ #endif
+-
+ int safewrite(fd,buf,len) int fd; char *buf; int len;
+ {
+   int r;
+@@ -309,6 +319,193 @@
+   return 0;
+ }
+ 
++void err_realrcpt() { out("550 sorry, no mailbox here by that name (#5.1.1 - chkusr)\r\n"); }
++
++int realrcpt_check()
++{
++  stralloc user = {0};
++  stralloc domain = {0};
++  stralloc domain_path = {0};
++  stralloc bounce_path = {0};
++  stralloc alias_name = {0};
++  stralloc alias_path = {0};
++  stralloc mailing_path = {0};
++  int count;
++  int retstat = 0;
++  struct vqpasswd *user_passwd = NULL;
++  int fd_file = -1;
++  int read_char;
++  DIR *dir_file = NULL;
++  int offset;
++  char read_buf[1024];
++
++/* if not local rcpthost we cannot control mailbox */
++
++  if (!addrallowed()) { return 1; }
++
++/* Set up our variables */
++
++/* Search the '@' character */
++  count = byte_rchr(addr.s,addr.len,'@');
++
++/*
++ * Give extra room to variables used often or used outside stralloc_x calls
++ * This should make all safer and even faster
++ * (when these fields are used by stralloc_x routines)
++*/
++  if (!stralloc_ready (&domain, 200)) die_nomem();
++  if (!stralloc_ready (&domain_path, 200)) die_nomem();
++
++  if (count < addr.len) {
++    if (!stralloc_copyb (&user, addr.s, count)) die_nomem();
++    if (!stralloc_0 (&user)) die_nomem();
++    if (!stralloc_copys (&domain, addr.s + count + 1)) die_nomem();
++    if (!stralloc_0 (&domain)) die_nomem();
++  }
++  else {
++    if (!stralloc_copys (&user, addr.s)) die_nomem();
++    if (!stralloc_0 (&user)) die_nomem();
++    if (!stralloc_copys (&domain, DEFAULT_DOMAIN)) die_nomem();
++    if (!stralloc_0 (&domain)) die_nomem();
++  }
++
++/* My personal control: continue only if a domain (default or not) is specified */
++
++  if (domain.len == 1)
++    return 0;
++
++  case_lowers (user.s);
++  case_lowers (domain.s);
++
++/* Check if domain is a real domain */
++
++  /* if (!stralloc_0 (&domain)) die_nomem();
++  vget_real_domain(domain.s, domain.a);
++
++  domain.len = strlen (domain.s);
++  if (domain.len > (domain.a - 1)) die_nomem(); */
++
++/* Let's get domain's real path */
++  vget_assign(domain.s, domain_path.s, 156, NULL, NULL);
++
++  domain_path.len = strlen (domain_path.s);
++
++/* Now Let's start the test suite */
++
++	switch (0) {
++
++	case 0:
++/* Check if domain has bouncing enabled */
++
++		/* Allocate room for bounce_path */
++  		if (!stralloc_ready (&bounce_path, 200)) die_nomem();
++		if (!stralloc_copy (&bounce_path, &domain_path)) die_nomem();
++  		if (!stralloc_cats (&bounce_path, "/.qmail-default")) die_nomem();
++		if (!stralloc_0 (&bounce_path)) die_nomem();
++
++  		read_char = 0;
++  		fd_file = open_read (bounce_path.s);	
++  		if (fd_file != -1) {
++      			read_char = read (fd_file, read_buf, sizeof(read_buf) - 1);
++      			close (fd_file);
++      			if (read_char < 0) read_char = 0;
++  			}
++  		read_buf[read_char] = 0;
++
++  		if ( strstr(read_buf, "bounce-no-mailbox") == NULL ) {
++			retstat = 1;
++			break;
++  		}
++  
++	case 1:
++/* User control: check the existance of a real user */
++
++	  	user_passwd = vauth_getpw (user.s, domain.s);
++                if (user_passwd == NULL) {
++                        count = 0;
++                        while ((count < (user.len -1)) && (user_passwd == NULL)) {
++                                count += byte_chr(&user.s[count], user.len - count,'-');
++                                if (count < user.len) {
++                                        if (!stralloc_copyb (&alias_name, user.s, count)) die_nomem();
++                                        if (!stralloc_0 (&alias_name)) die_nomem();
++                                        user_passwd = vauth_getpw (alias_name.s, domain.s);
++                                          ++count;
++                                }
++                         }
++                }
++	  	if (user_passwd != NULL) {
++
++		/* If user exists check if he has BOUNCE_MAIL flag set */
++
++			if (user_passwd->pw_gid & BOUNCE_MAIL)
++		    		retstat = 0;
++	    		else
++		    		retstat = 1;
++			break;
++	  	}
++
++	case 2:
++/* Check for aliases/forwards - valias*/
++
++		if (valias_select (user.s, domain.s) != NULL) {
++			retstat = 1;
++			break;
++		}
++
++	case 3:
++/* Check for aliases/forwards - .qmail.x files */
++
++		/* Allocate room for alias_path */
++  		if (!stralloc_ready (&alias_path, 200)) die_nomem();
++	    	if (!stralloc_copy (&alias_name, &user)) die_nomem();
++
++		/* Change all '.' in ':' before continuing on aliases */
++	    	for (count = 0; count < alias_name.len; ++count)
++	      	if (*(alias_name.s + count) == '.') *(alias_name.s + count) = ':';
++
++	    	if (!stralloc_copy (&alias_path, &domain_path)) die_nomem();
++	    	if (!stralloc_cats (&alias_path, "/.qmail-")) die_nomem();
++	    	if (!stralloc_cats (&alias_path, alias_name.s)) die_nomem();
++	    	if (!stralloc_0 (&alias_path)) die_nomem();
++
++		/* access executes anyway as real (vpopmail:vchkpw), that's ok */
++	    	if (access (alias_path.s, F_OK) == 0) {
++	      		retstat = 1;
++			break;
++	    	}
++
++	case 4:
++/* Let's check for mailing lists */
++
++		/* Allocate room for mailing_path */
++  		if (!stralloc_ready (&mailing_path, 300)) die_nomem();
++
++		/* Search for the outer '-' character */
++	      	for (offset = user.len - 1; offset > 0; --offset)
++			if (*(user.s + offset) == '-')  {
++				if (!stralloc_copy (&mailing_path, &domain_path)) die_nomem();
++	      			if (!stralloc_cats (&mailing_path, "/")) die_nomem();
++	      			if (!stralloc_catb (&mailing_path, user.s, offset)) die_nomem();
++	      			if (!stralloc_cats (&mailing_path, "/mailinglist")) die_nomem();
++	      			if (!stralloc_0 (&mailing_path)) die_nomem();
++				/* access executes anyway as real (vpopmail:vchkpw), that's ok */
++			    	if (access (mailing_path.s, F_OK) == 0) {
++                			retstat = 1;
++                			break;
++	            		}
++	        	}
++
++/*
++ * Add this code if another case is following
++		if (retstat == 1)
++			break;
++*/
++	    
++	} /* end switch */
++
++  return retstat;
++}
++
+ int mfcheck()
+ {
+   stralloc sa = {0};
+@@ -409,6 +606,7 @@
+   }
+   else
+     if (!addrallowed()) { err_nogateway(); return; }
++  if (!realrcpt_check()) { err_realrcpt(); return; }
+   if (!stralloc_cats(&rcptto,"T")) die_nomem();
+   if (!stralloc_cats(&rcptto,addr.s)) die_nomem();
+   if (!stralloc_0(&rcptto)) die_nomem();

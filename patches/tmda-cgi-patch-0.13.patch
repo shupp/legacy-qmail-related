@@ -1,0 +1,1166 @@
+diff -urN ../tmda-cgi-0.13/display/themes/Blue/subtopics.p ./display/themes/Blue/subtopics.p
+--- ../tmda-cgi-0.13/display/themes/Blue/subtopics.p	2004-03-17 07:11:55.000000000 -0800
++++ ./display/themes/Blue/subtopics.p	2004-03-18 10:20:15.000000000 -0800
+@@ -7,11 +7,11 @@
+ I194
+ sS'hfn'
+ p4
+-S'dyn_buttons/h-subtopic19.png'
++S'dyn_buttons/h-subtopic20.png'
+ p5
+ sS'fn'
+ p6
+-S'dyn_buttons/subtopic19.png'
++S'dyn_buttons/subtopic20.png'
+ p7
+ sS'height'
+ p8
+@@ -22,10 +22,10 @@
+ g3
+ I194
+ sg4
+-S'dyn_buttons/h-subtopic11.png'
++S'dyn_buttons/h-subtopic12.png'
+ p11
+ sg6
+-S'dyn_buttons/subtopic11.png'
++S'dyn_buttons/subtopic12.png'
+ p12
+ sg8
+ I14
+@@ -35,10 +35,10 @@
+ g3
+ I194
+ sg4
+-S'dyn_buttons/h-subtopic21.png'
++S'dyn_buttons/h-subtopic22.png'
+ p15
+ sg6
+-S'dyn_buttons/subtopic21.png'
++S'dyn_buttons/subtopic22.png'
+ p16
+ sg8
+ I14
+@@ -61,10 +61,10 @@
+ g3
+ I194
+ sg4
+-S'dyn_buttons/h-subtopic6.png'
++S'dyn_buttons/h-subtopic7.png'
+ p23
+ sg6
+-S'dyn_buttons/subtopic6.png'
++S'dyn_buttons/subtopic7.png'
+ p24
+ sg8
+ I14
+@@ -74,10 +74,10 @@
+ g3
+ I194
+ sg4
+-S'dyn_buttons/h-subtopic8.png'
++S'dyn_buttons/h-subtopic9.png'
+ p27
+ sg6
+-S'dyn_buttons/subtopic8.png'
++S'dyn_buttons/subtopic9.png'
+ p28
+ sg8
+ I14
+@@ -87,10 +87,10 @@
+ g3
+ I194
+ sg4
+-S'dyn_buttons/h-subtopic15.png'
++S'dyn_buttons/h-subtopic16.png'
+ p31
+ sg6
+-S'dyn_buttons/subtopic15.png'
++S'dyn_buttons/subtopic16.png'
+ p32
+ sg8
+ I14
+@@ -113,10 +113,10 @@
+ g3
+ I194
+ sg4
+-S'dyn_buttons/h-subtopic16.png'
++S'dyn_buttons/h-subtopic17.png'
+ p39
+ sg6
+-S'dyn_buttons/subtopic16.png'
++S'dyn_buttons/subtopic17.png'
+ p40
+ sg8
+ I14
+@@ -126,10 +126,10 @@
+ g3
+ I194
+ sg4
+-S'dyn_buttons/h-subtopic23.png'
++S'dyn_buttons/h-subtopic24.png'
+ p43
+ sg6
+-S'dyn_buttons/subtopic23.png'
++S'dyn_buttons/subtopic24.png'
+ p44
+ sg8
+ I14
+@@ -139,10 +139,10 @@
+ g3
+ I194
+ sg4
+-S'dyn_buttons/h-subtopic9.png'
++S'dyn_buttons/h-subtopic10.png'
+ p47
+ sg6
+-S'dyn_buttons/subtopic9.png'
++S'dyn_buttons/subtopic10.png'
+ p48
+ sg8
+ I14
+@@ -152,10 +152,10 @@
+ g3
+ I194
+ sg4
+-S'dyn_buttons/h-subtopic24.png'
++S'dyn_buttons/h-subtopic25.png'
+ p51
+ sg6
+-S'dyn_buttons/subtopic24.png'
++S'dyn_buttons/subtopic25.png'
+ p52
+ sg8
+ I14
+@@ -165,10 +165,10 @@
+ g3
+ I194
+ sg4
+-S'dyn_buttons/h-subtopic14.png'
++S'dyn_buttons/h-subtopic15.png'
+ p55
+ sg6
+-S'dyn_buttons/subtopic14.png'
++S'dyn_buttons/subtopic15.png'
+ p56
+ sg8
+ I14
+@@ -178,10 +178,10 @@
+ g3
+ I194
+ sg4
+-S'dyn_buttons/h-subtopic12.png'
++S'dyn_buttons/h-subtopic13.png'
+ p59
+ sg6
+-S'dyn_buttons/subtopic12.png'
++S'dyn_buttons/subtopic13.png'
+ p60
+ sg8
+ I14
+@@ -204,10 +204,10 @@
+ g3
+ I194
+ sg4
+-S'dyn_buttons/h-subtopic7.png'
++S'dyn_buttons/h-subtopic8.png'
+ p67
+ sg6
+-S'dyn_buttons/subtopic7.png'
++S'dyn_buttons/subtopic8.png'
+ p68
+ sg8
+ I14
+@@ -217,66 +217,66 @@
+ g3
+ I194
+ sg4
+-S'dyn_buttons/h-subtopic13.png'
++S'dyn_buttons/h-subtopic14.png'
+ p71
+ sg6
+-S'dyn_buttons/subtopic13.png'
++S'dyn_buttons/subtopic14.png'
+ p72
+ sg8
+ I14
+-ssS'friends'
++ssS'Test Filters'
+ p73
+ (dp74
+ g3
+ I194
+ sg4
+-S'dyn_buttons/h-subtopic20.png'
++S'dyn_buttons/h-subtopic6.png'
+ p75
+ sg6
+-S'dyn_buttons/subtopic20.png'
++S'dyn_buttons/subtopic6.png'
+ p76
+ sg8
+ I14
+-ssS'Uninstall'
++ssS'friends'
+ p77
+ (dp78
+ g3
+ I194
+ sg4
+-S'dyn_buttons/h-subtopic10.png'
++S'dyn_buttons/h-subtopic21.png'
+ p79
+ sg6
+-S'dyn_buttons/subtopic10.png'
++S'dyn_buttons/subtopic21.png'
+ p80
+ sg8
+ I14
+-ssS'deny'
++ssS'Uninstall'
+ p81
+ (dp82
+ g3
+ I194
+ sg4
+-S'dyn_buttons/h-subtopic22.png'
++S'dyn_buttons/h-subtopic11.png'
+ p83
+ sg6
+-S'dyn_buttons/subtopic22.png'
++S'dyn_buttons/subtopic11.png'
+ p84
+ sg8
+ I14
+-ssS'revoked'
++ssS'deny'
+ p85
+ (dp86
+ g3
+ I194
+ sg4
+-S'dyn_buttons/h-subtopic17.png'
++S'dyn_buttons/h-subtopic23.png'
+ p87
+ sg6
+-S'dyn_buttons/subtopic17.png'
++S'dyn_buttons/subtopic23.png'
+ p88
+ sg8
+ I14
+-ssS'work'
++ssS'revoked'
+ p89
+ (dp90
+ g3
+@@ -289,30 +289,43 @@
+ p92
+ sg8
+ I14
+-ssS'Generate Dynamic/Return Address'
++ssS'work'
+ p93
+ (dp94
+ g3
+ I194
+ sg4
+-S'dyn_buttons/h-subtopic2.png'
++S'dyn_buttons/h-subtopic19.png'
+ p95
+ sg6
+-S'dyn_buttons/subtopic2.png'
++S'dyn_buttons/subtopic19.png'
+ p96
+ sg8
+ I14
+-ssS'Test Dynamic Address'
++ssS'Generate Dynamic/Return Address'
+ p97
+ (dp98
+ g3
+ I194
+ sg4
+-S'dyn_buttons/h-subtopic3.png'
++S'dyn_buttons/h-subtopic2.png'
+ p99
+ sg6
+-S'dyn_buttons/subtopic3.png'
++S'dyn_buttons/subtopic2.png'
+ p100
+ sg8
+ I14
++ssS'Test Dynamic Address'
++p101
++(dp102
++g3
++I194
++sg4
++S'dyn_buttons/h-subtopic3.png'
++p103
++sg6
++S'dyn_buttons/subtopic3.png'
++p104
++sg8
++I14
+ ss.
+\ No newline at end of file
+Binary files ../tmda-cgi-0.13/display/themes/Blue/template/Generator.pyc and ./display/themes/Blue/template/Generator.pyc differ
+diff -urN ../tmda-cgi-0.13/display/themes/Blue/template/buttons.p ./display/themes/Blue/template/buttons.p
+--- ../tmda-cgi-0.13/display/themes/Blue/template/buttons.p	2004-03-17 07:11:56.000000000 -0800
++++ ./display/themes/Blue/template/buttons.p	2004-03-18 10:20:15.000000000 -0800
+@@ -29,42 +29,44 @@
+ p15
+ aS'Outgoing Filter'
+ p16
+-aS'Theme'
++aS'Test Filters'
+ p17
+-aS'Local Config'
++aS'Theme'
+ p18
+-aS'Templates'
++aS'Local Config'
+ p19
+-aS'Global Config'
++aS'Templates'
+ p20
+-aS'Uninstall'
++aS'Global Config'
+ p21
+-aS'whitelist'
++aS'Uninstall'
+ p22
+-aS'white'
++aS'whitelist'
+ p23
+-aS'blacklist'
++aS'white'
+ p24
+-aS'black'
++aS'blacklist'
+ p25
+-aS'confirmed'
++aS'black'
+ p26
+-aS'confirm'
++aS'confirmed'
+ p27
+-aS'revoked'
++aS'confirm'
+ p28
+-aS'work'
++aS'revoked'
+ p29
+-aS'family'
++aS'work'
+ p30
+-aS'friends'
++aS'family'
+ p31
+-aS'accept'
++aS'friends'
+ p32
+-aS'deny'
++aS'accept'
+ p33
+-aS'whitelist_confirmed'
++aS'deny'
+ p34
+-aS'other'
++aS'whitelist_confirmed'
+ p35
++aS'other'
++p36
+ as.
+\ No newline at end of file
+diff -urN ../tmda-cgi-0.13/display/themes/Blue/template/editlist.html ./display/themes/Blue/template/editlist.html
+--- ../tmda-cgi-0.13/display/themes/Blue/template/editlist.html	2004-03-17 07:11:56.000000000 -0800
++++ ./display/themes/Blue/template/editlist.html	2004-03-18 10:20:15.000000000 -0800
+@@ -2,7 +2,7 @@
+ <?xml-stylesheet href="%(ThemeDir)s/styles.css" type="text/css"?>
+ <html>
+ <!-- THIS PAGE IS AUTOMATICALLY GENERATED.  DO NOT EDIT. -->
+-<!-- Tue Mar 16 09:07:24 2004 -->
++<!-- Thu Mar 18 12:20:15 2004 -->
+ <!-- USING HT2HTML 2.1 -->
+ <!-- SEE http://ht2html.sf.net -->
+ <!-- User-specified headers:
+diff -urN ../tmda-cgi-0.13/display/themes/Blue/template/error.html ./display/themes/Blue/template/error.html
+--- ../tmda-cgi-0.13/display/themes/Blue/template/error.html	2004-03-17 07:11:56.000000000 -0800
++++ ./display/themes/Blue/template/error.html	2004-03-18 10:20:16.000000000 -0800
+@@ -2,7 +2,7 @@
+ <?xml-stylesheet href="%(ThemeDir)s/styles.css" type="text/css"?>
+ <html>
+ <!-- THIS PAGE IS AUTOMATICALLY GENERATED.  DO NOT EDIT. -->
+-<!-- Tue Mar 16 09:07:24 2004 -->
++<!-- Thu Mar 18 12:20:16 2004 -->
+ <!-- USING HT2HTML 2.1 -->
+ <!-- SEE http://ht2html.sf.net -->
+ <!-- User-specified headers:
+diff -urN ../tmda-cgi-0.13/display/themes/Blue/template/gen_addr.html ./display/themes/Blue/template/gen_addr.html
+--- ../tmda-cgi-0.13/display/themes/Blue/template/gen_addr.html	2004-03-17 07:11:56.000000000 -0800
++++ ./display/themes/Blue/template/gen_addr.html	2004-03-18 10:20:16.000000000 -0800
+@@ -2,7 +2,7 @@
+ <?xml-stylesheet href="%(ThemeDir)s/styles.css" type="text/css"?>
+ <html>
+ <!-- THIS PAGE IS AUTOMATICALLY GENERATED.  DO NOT EDIT. -->
+-<!-- Tue Mar 16 09:07:24 2004 -->
++<!-- Thu Mar 18 12:20:16 2004 -->
+ <!-- USING HT2HTML 2.1 -->
+ <!-- SEE http://ht2html.sf.net -->
+ <!-- User-specified headers:
+diff -urN ../tmda-cgi-0.13/display/themes/Blue/template/globalconfig.html ./display/themes/Blue/template/globalconfig.html
+--- ../tmda-cgi-0.13/display/themes/Blue/template/globalconfig.html	2004-03-17 07:11:56.000000000 -0800
++++ ./display/themes/Blue/template/globalconfig.html	2004-03-18 10:20:16.000000000 -0800
+@@ -2,7 +2,7 @@
+ <?xml-stylesheet href="%(ThemeDir)s/styles.css" type="text/css"?>
+ <html>
+ <!-- THIS PAGE IS AUTOMATICALLY GENERATED.  DO NOT EDIT. -->
+-<!-- Tue Mar 16 09:07:25 2004 -->
++<!-- Thu Mar 18 12:20:16 2004 -->
+ <!-- USING HT2HTML 2.1 -->
+ <!-- SEE http://ht2html.sf.net -->
+ <!-- User-specified headers:
+@@ -59,20 +59,20 @@
+ onmouseover="document.images.x375.src='%(ThemeDir)s/dyn_buttons/layout1_r5_c1_h.png'"
+ onmouseout="document.images.x375.src='%(ThemeDir)s/dyn_buttons/layout1_r5_c1.png'"><img
+ src="%(ThemeDir)s/dyn_buttons/layout1_r5_c1.png" name="x375" height="35" width="194" border="0" alt="Settings" title="Settings"></a></td></tr>
+-<tr><td><a href="%(Script)s?cmd=theme&SID=%(SID)s" onmouseover="document.images.subtopic6.src='%(ThemeDir)s/dyn_buttons/h-subtopic6.png'"
+-onmouseout="document.images.subtopic6.src='%(ThemeDir)s/dyn_buttons/subtopic6.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic6.png" border="0" alt=" - Theme" title=" - Theme" width="194" height="14"
+-name="subtopic6"></a></td></tr>
+-<tr><td><a href="%(Script)s?cmd=localconfig&SID=%(SID)s" onmouseover="document.images.subtopic7.src='%(ThemeDir)s/dyn_buttons/h-subtopic7.png'"
+-onmouseout="document.images.subtopic7.src='%(ThemeDir)s/dyn_buttons/subtopic7.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic7.png" border="0" alt=" - Local Config" title=" - Local Config" width="194" height="14"
++<tr><td><a href="%(Script)s?cmd=theme&SID=%(SID)s" onmouseover="document.images.subtopic7.src='%(ThemeDir)s/dyn_buttons/h-subtopic7.png'"
++onmouseout="document.images.subtopic7.src='%(ThemeDir)s/dyn_buttons/subtopic7.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic7.png" border="0" alt=" - Theme" title=" - Theme" width="194" height="14"
+ name="subtopic7"></a></td></tr>
+-<tr><td><a href="%(Script)s?cmd=templates&SID=%(SID)s" onmouseover="document.images.subtopic8.src='%(ThemeDir)s/dyn_buttons/h-subtopic8.png'"
+-onmouseout="document.images.subtopic8.src='%(ThemeDir)s/dyn_buttons/subtopic8.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic8.png" border="0" alt=" - Templates" title=" - Templates" width="194" height="14"
++<tr><td><a href="%(Script)s?cmd=localconfig&SID=%(SID)s" onmouseover="document.images.subtopic8.src='%(ThemeDir)s/dyn_buttons/h-subtopic8.png'"
++onmouseout="document.images.subtopic8.src='%(ThemeDir)s/dyn_buttons/subtopic8.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic8.png" border="0" alt=" - Local Config" title=" - Local Config" width="194" height="14"
+ name="subtopic8"></a></td></tr>
+-<tr><td><img src="%(ThemeDir)s/dyn_buttons/h-subtopic9.png" border="0" alt=" - Global Config" title=" - Global Config" width="194" height="14"
+-name="subtopic9"></td></tr>
+-<tr><td><a href="%(Script)s?cmd=uninstall&SID=%(SID)s" onmouseover="document.images.subtopic10.src='%(ThemeDir)s/dyn_buttons/h-subtopic10.png'"
+-onmouseout="document.images.subtopic10.src='%(ThemeDir)s/dyn_buttons/subtopic10.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic10.png" border="0" alt=" - Uninstall" title=" - Uninstall" width="194" height="14"
+-name="subtopic10"></a></td></tr>
++<tr><td><a href="%(Script)s?cmd=templates&SID=%(SID)s" onmouseover="document.images.subtopic9.src='%(ThemeDir)s/dyn_buttons/h-subtopic9.png'"
++onmouseout="document.images.subtopic9.src='%(ThemeDir)s/dyn_buttons/subtopic9.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic9.png" border="0" alt=" - Templates" title=" - Templates" width="194" height="14"
++name="subtopic9"></a></td></tr>
++<tr><td><img src="%(ThemeDir)s/dyn_buttons/h-subtopic10.png" border="0" alt=" - Global Config" title=" - Global Config" width="194" height="14"
++name="subtopic10"></td></tr>
++<tr><td><a href="%(Script)s?cmd=uninstall&SID=%(SID)s" onmouseover="document.images.subtopic11.src='%(ThemeDir)s/dyn_buttons/h-subtopic11.png'"
++onmouseout="document.images.subtopic11.src='%(ThemeDir)s/dyn_buttons/subtopic11.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic11.png" border="0" alt=" - Uninstall" title=" - Uninstall" width="194" height="14"
++name="subtopic11"></a></td></tr>
+ <tr><td><a href="%(Script)s?cmd=info&SID=%(SID)s"
+ onmouseover="document.images.x819.src='%(ThemeDir)s/dyn_buttons/layout1_r6_c1_h.png'"
+ onmouseout="document.images.x819.src='%(ThemeDir)s/dyn_buttons/layout1_r6_c1.png'"><img
+@@ -122,14 +122,14 @@
+ x290.src = "%(ThemeDir)s/dyn_buttons/layout1_r4_c1_h.png";
+   var x375 = new Image();
+ x375.src = "%(ThemeDir)s/dyn_buttons/layout1_r5_c1_h.png";
+-var subtopic6 = new Image();
+-subtopic6.src = "%(ThemeDir)s/dyn_buttons/h-subtopic6.png";
+ var subtopic7 = new Image();
+ subtopic7.src = "%(ThemeDir)s/dyn_buttons/h-subtopic7.png";
+ var subtopic8 = new Image();
+ subtopic8.src = "%(ThemeDir)s/dyn_buttons/h-subtopic8.png";
+-var subtopic10 = new Image();
+-subtopic10.src = "%(ThemeDir)s/dyn_buttons/h-subtopic10.png";
++var subtopic9 = new Image();
++subtopic9.src = "%(ThemeDir)s/dyn_buttons/h-subtopic9.png";
++var subtopic11 = new Image();
++subtopic11.src = "%(ThemeDir)s/dyn_buttons/h-subtopic11.png";
+   var x819 = new Image();
+ x819.src = "%(ThemeDir)s/dyn_buttons/layout1_r6_c1_h.png";
+   var x904 = new Image();
+diff -urN ../tmda-cgi-0.13/display/themes/Blue/template/incoming.html ./display/themes/Blue/template/incoming.html
+--- ../tmda-cgi-0.13/display/themes/Blue/template/incoming.html	2004-03-17 07:11:56.000000000 -0800
++++ ./display/themes/Blue/template/incoming.html	2004-03-18 10:21:26.000000000 -0800
+@@ -2,7 +2,7 @@
+ <?xml-stylesheet href="%(ThemeDir)s/styles.css" type="text/css"?>
+ <html>
+ <!-- THIS PAGE IS AUTOMATICALLY GENERATED.  DO NOT EDIT. -->
+-<!-- Tue Mar 16 09:07:25 2004 -->
++<!-- Thu Mar 18 12:20:16 2004 -->
+ <!-- USING HT2HTML 2.1 -->
+ <!-- SEE http://ht2html.sf.net -->
+ <!-- User-specified headers:
+@@ -56,22 +56,25 @@
+ <tr><td><a href="%(Script)s?cmd=outgoing&SID=%(SID)s" onmouseover="document.images.subtopic5.src='%(ThemeDir)s/dyn_buttons/h-subtopic5.png'"
+ onmouseout="document.images.subtopic5.src='%(ThemeDir)s/dyn_buttons/subtopic5.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic5.png" border="0" alt=" - Outgoing Filter" title=" - Outgoing Filter" width="194" height="14"
+ name="subtopic5"></a></td></tr>
++<!-- tr><td><a href="%(Script)s?cmd=test_filt&SID=%(SID)s" onmouseover="document.images.subtopic6.src='%(ThemeDir)s/dyn_buttons/h-subtopic6.png'"
++onmouseout="document.images.subtopic6.src='%(ThemeDir)s/dyn_buttons/subtopic6.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic6.png" border="0" alt=" - Test Filters" title=" - Test Filters" width="194" height="14"
++name="subtopic6"></a></td></tr -->
+ <tr><td><a href="%(Script)s?cmd=editlist&SID=%(SID)s"
+-onmouseover="document.images.x379.src='%(ThemeDir)s/dyn_buttons/layout1_r4_c1_h.png'"
+-onmouseout="document.images.x379.src='%(ThemeDir)s/dyn_buttons/layout1_r4_c1.png'"><img
+-src="%(ThemeDir)s/dyn_buttons/layout1_r4_c1.png" name="x379" height="35" width="194" border="0" alt="Lists" title="Lists"></a></td></tr>
++onmouseover="document.images.x468.src='%(ThemeDir)s/dyn_buttons/layout1_r4_c1_h.png'"
++onmouseout="document.images.x468.src='%(ThemeDir)s/dyn_buttons/layout1_r4_c1.png'"><img
++src="%(ThemeDir)s/dyn_buttons/layout1_r4_c1.png" name="x468" height="35" width="194" border="0" alt="Lists" title="Lists"></a></td></tr>
+ <tr><td><a href="%(Script)s?cmd=theme&SID=%(SID)s"
+-onmouseover="document.images.x464.src='%(ThemeDir)s/dyn_buttons/layout1_r5_c1_h.png'"
+-onmouseout="document.images.x464.src='%(ThemeDir)s/dyn_buttons/layout1_r5_c1.png'"><img
+-src="%(ThemeDir)s/dyn_buttons/layout1_r5_c1.png" name="x464" height="35" width="194" border="0" alt="Settings" title="Settings"></a></td></tr>
++onmouseover="document.images.x553.src='%(ThemeDir)s/dyn_buttons/layout1_r5_c1_h.png'"
++onmouseout="document.images.x553.src='%(ThemeDir)s/dyn_buttons/layout1_r5_c1.png'"><img
++src="%(ThemeDir)s/dyn_buttons/layout1_r5_c1.png" name="x553" height="35" width="194" border="0" alt="Settings" title="Settings"></a></td></tr>
+ <tr><td><a href="%(Script)s?cmd=info&SID=%(SID)s"
+-onmouseover="document.images.x549.src='%(ThemeDir)s/dyn_buttons/layout1_r6_c1_h.png'"
+-onmouseout="document.images.x549.src='%(ThemeDir)s/dyn_buttons/layout1_r6_c1.png'"><img
+-src="%(ThemeDir)s/dyn_buttons/layout1_r6_c1.png" name="x549" height="35" width="194" border="0" alt="Info" title="Info"></a></td></tr>
++onmouseover="document.images.x638.src='%(ThemeDir)s/dyn_buttons/layout1_r6_c1_h.png'"
++onmouseout="document.images.x638.src='%(ThemeDir)s/dyn_buttons/layout1_r6_c1.png'"><img
++src="%(ThemeDir)s/dyn_buttons/layout1_r6_c1.png" name="x638" height="35" width="194" border="0" alt="Info" title="Info"></a></td></tr>
+ <tr><td><a href="%(Script)s?cmd=logout&SID=%(SID)s"
+-onmouseover="document.images.x634.src='%(ThemeDir)s/dyn_buttons/layout1_r7_c1_h.png'"
+-onmouseout="document.images.x634.src='%(ThemeDir)s/dyn_buttons/layout1_r7_c1.png'"><img
+-src="%(ThemeDir)s/dyn_buttons/layout1_r7_c1.png" name="x634" height="39" width="194" border="0" alt="Logout" title="Logout"></a></td></tr>
++onmouseover="document.images.x723.src='%(ThemeDir)s/dyn_buttons/layout1_r7_c1_h.png'"
++onmouseout="document.images.x723.src='%(ThemeDir)s/dyn_buttons/layout1_r7_c1.png'"><img
++src="%(ThemeDir)s/dyn_buttons/layout1_r7_c1.png" name="x723" height="39" width="194" border="0" alt="Logout" title="Logout"></a></td></tr>
+ </table><!-- end of sidebar table -->
+ 
+ </td>
+@@ -112,14 +115,16 @@
+ x205.src = "%(ThemeDir)s/dyn_buttons/layout1_r3_c1_h.png";
+ var subtopic5 = new Image();
+ subtopic5.src = "%(ThemeDir)s/dyn_buttons/h-subtopic5.png";
+-  var x379 = new Image();
+-x379.src = "%(ThemeDir)s/dyn_buttons/layout1_r4_c1_h.png";
+-  var x464 = new Image();
+-x464.src = "%(ThemeDir)s/dyn_buttons/layout1_r5_c1_h.png";
+-  var x549 = new Image();
+-x549.src = "%(ThemeDir)s/dyn_buttons/layout1_r6_c1_h.png";
+-  var x634 = new Image();
+-x634.src = "%(ThemeDir)s/dyn_buttons/layout1_r7_c1_h.png";
++var subtopic6 = new Image();
++subtopic6.src = "%(ThemeDir)s/dyn_buttons/h-subtopic6.png";
++  var x468 = new Image();
++x468.src = "%(ThemeDir)s/dyn_buttons/layout1_r4_c1_h.png";
++  var x553 = new Image();
++x553.src = "%(ThemeDir)s/dyn_buttons/layout1_r5_c1_h.png";
++  var x638 = new Image();
++x638.src = "%(ThemeDir)s/dyn_buttons/layout1_r6_c1_h.png";
++  var x723 = new Image();
++x723.src = "%(ThemeDir)s/dyn_buttons/layout1_r7_c1_h.png";
+ }
+ //-->
+ </script>
+diff -urN ../tmda-cgi-0.13/display/themes/Blue/template/info.ht ./display/themes/Blue/template/info.ht
+--- ../tmda-cgi-0.13/display/themes/Blue/template/info.ht	2003-05-07 09:31:54.000000000 -0700
++++ ./display/themes/Blue/template/info.ht	2004-03-18 10:23:41.000000000 -0800
+@@ -28,6 +28,10 @@
+     <td><b>TMDA:</b></td>
+     <td class="TextField">%(TmdaVersion)s</td>
+   </tr>
++  <tr>
++    <td><b>Theme:</b></td>
++    <td class="TextField">Blue/1.0 By Gre7g Luterman and Jim Ramsay</td>
++  </tr>
+ </table><p>
+ 
+ <h2><a name="Params"></a>Compile Params</h2>
+diff -urN ../tmda-cgi-0.13/display/themes/Blue/template/info.html ./display/themes/Blue/template/info.html
+--- ../tmda-cgi-0.13/display/themes/Blue/template/info.html	2004-03-17 07:11:56.000000000 -0800
++++ ./display/themes/Blue/template/info.html	2004-03-18 10:23:51.000000000 -0800
+@@ -2,7 +2,7 @@
+ <?xml-stylesheet href="%(ThemeDir)s/styles.css" type="text/css"?>
+ <html>
+ <!-- THIS PAGE IS AUTOMATICALLY GENERATED.  DO NOT EDIT. -->
+-<!-- Tue Mar 16 09:07:25 2004 -->
++<!-- Thu Mar 18 12:23:51 2004 -->
+ <!-- USING HT2HTML 2.1 -->
+ <!-- SEE http://ht2html.sf.net -->
+ <!-- User-specified headers:
+@@ -100,6 +100,10 @@
+     <td><b>TMDA:</b></td>
+     <td class="TextField">%(TmdaVersion)s</td>
+   </tr>
++  <tr>
++    <td><b>Theme:</b></td>
++    <td class="TextField">Blue/1.0 By Gre7g Luterman and Jim Ramsay</td>
++  </tr>
+ </table><p>
+ 
+ <h2><a name="Params"></a>Compile Params</h2>
+diff -urN ../tmda-cgi-0.13/display/themes/Blue/template/installed.html ./display/themes/Blue/template/installed.html
+--- ../tmda-cgi-0.13/display/themes/Blue/template/installed.html	2004-03-17 07:11:56.000000000 -0800
++++ ./display/themes/Blue/template/installed.html	2004-03-18 10:20:16.000000000 -0800
+@@ -2,7 +2,7 @@
+ <?xml-stylesheet href="%(ThemeDir)s/styles.css" type="text/css"?>
+ <html>
+ <!-- THIS PAGE IS AUTOMATICALLY GENERATED.  DO NOT EDIT. -->
+-<!-- Tue Mar 16 09:07:25 2004 -->
++<!-- Thu Mar 18 12:20:16 2004 -->
+ <!-- USING HT2HTML 2.1 -->
+ <!-- SEE http://ht2html.sf.net -->
+ <!-- User-specified headers:
+diff -urN ../tmda-cgi-0.13/display/themes/Blue/template/links.h ./display/themes/Blue/template/links.h
+--- ../tmda-cgi-0.13/display/themes/Blue/template/links.h	2004-03-17 07:11:56.000000000 -0800
++++ ./display/themes/Blue/template/links.h	2004-03-18 10:20:11.000000000 -0800
+@@ -8,7 +8,7 @@
+ <h3>Filters</h3>
+ <li><a href="%(Script)s?cmd=incoming&SID=%(SID)s">Incoming Filter</a>
+ <li><a href="%(Script)s?cmd=outgoing&SID=%(SID)s">Outgoing Filter</a>
+-<!--li><a href="%(Script)s?cmd=test_filt&SID=%(SID)s">Test Filters</a -->
++<li><a href="%(Script)s?cmd=test_filt&SID=%(SID)s">Test Filters</a>
+ <h3>Lists</h3>
+ <li><a href="%(Script)s?cmd=editlist&SID=%(SID)s">%(Lists)s</a>
+ <h3>Settings</h3>
+diff -urN ../tmda-cgi-0.13/display/themes/Blue/template/localconfig.html ./display/themes/Blue/template/localconfig.html
+--- ../tmda-cgi-0.13/display/themes/Blue/template/localconfig.html	2004-03-17 07:11:56.000000000 -0800
++++ ./display/themes/Blue/template/localconfig.html	2004-03-18 10:20:16.000000000 -0800
+@@ -2,7 +2,7 @@
+ <?xml-stylesheet href="%(ThemeDir)s/styles.css" type="text/css"?>
+ <html>
+ <!-- THIS PAGE IS AUTOMATICALLY GENERATED.  DO NOT EDIT. -->
+-<!-- Tue Mar 16 09:07:25 2004 -->
++<!-- Thu Mar 18 12:20:16 2004 -->
+ <!-- USING HT2HTML 2.1 -->
+ <!-- SEE http://ht2html.sf.net -->
+ <!-- User-specified headers:
+@@ -59,28 +59,28 @@
+ onmouseover="document.images.x375.src='%(ThemeDir)s/dyn_buttons/layout1_r5_c1_h.png'"
+ onmouseout="document.images.x375.src='%(ThemeDir)s/dyn_buttons/layout1_r5_c1.png'"><img
+ src="%(ThemeDir)s/dyn_buttons/layout1_r5_c1.png" name="x375" height="35" width="194" border="0" alt="Settings" title="Settings"></a></td></tr>
+-<tr><td><a href="%(Script)s?cmd=theme&SID=%(SID)s" onmouseover="document.images.subtopic6.src='%(ThemeDir)s/dyn_buttons/h-subtopic6.png'"
+-onmouseout="document.images.subtopic6.src='%(ThemeDir)s/dyn_buttons/subtopic6.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic6.png" border="0" alt=" - Theme" title=" - Theme" width="194" height="14"
+-name="subtopic6"></a></td></tr>
+-<tr><td><img src="%(ThemeDir)s/dyn_buttons/h-subtopic7.png" border="0" alt=" - Local Config" title=" - Local Config" width="194" height="14"
+-name="subtopic7"></td></tr>
+-<tr><td><a href="%(Script)s?cmd=templates&SID=%(SID)s" onmouseover="document.images.subtopic8.src='%(ThemeDir)s/dyn_buttons/h-subtopic8.png'"
+-onmouseout="document.images.subtopic8.src='%(ThemeDir)s/dyn_buttons/subtopic8.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic8.png" border="0" alt=" - Templates" title=" - Templates" width="194" height="14"
+-name="subtopic8"></a></td></tr>
+-<tr><td><a href="%(Script)s?cmd=globalconfig&SID=%(SID)s" onmouseover="document.images.subtopic9.src='%(ThemeDir)s/dyn_buttons/h-subtopic9.png'"
+-onmouseout="document.images.subtopic9.src='%(ThemeDir)s/dyn_buttons/subtopic9.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic9.png" border="0" alt=" - Global Config" title=" - Global Config" width="194" height="14"
++<tr><td><a href="%(Script)s?cmd=theme&SID=%(SID)s" onmouseover="document.images.subtopic7.src='%(ThemeDir)s/dyn_buttons/h-subtopic7.png'"
++onmouseout="document.images.subtopic7.src='%(ThemeDir)s/dyn_buttons/subtopic7.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic7.png" border="0" alt=" - Theme" title=" - Theme" width="194" height="14"
++name="subtopic7"></a></td></tr>
++<tr><td><img src="%(ThemeDir)s/dyn_buttons/h-subtopic8.png" border="0" alt=" - Local Config" title=" - Local Config" width="194" height="14"
++name="subtopic8"></td></tr>
++<tr><td><a href="%(Script)s?cmd=templates&SID=%(SID)s" onmouseover="document.images.subtopic9.src='%(ThemeDir)s/dyn_buttons/h-subtopic9.png'"
++onmouseout="document.images.subtopic9.src='%(ThemeDir)s/dyn_buttons/subtopic9.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic9.png" border="0" alt=" - Templates" title=" - Templates" width="194" height="14"
+ name="subtopic9"></a></td></tr>
+-<tr><td><a href="%(Script)s?cmd=uninstall&SID=%(SID)s" onmouseover="document.images.subtopic10.src='%(ThemeDir)s/dyn_buttons/h-subtopic10.png'"
+-onmouseout="document.images.subtopic10.src='%(ThemeDir)s/dyn_buttons/subtopic10.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic10.png" border="0" alt=" - Uninstall" title=" - Uninstall" width="194" height="14"
++<tr><td><a href="%(Script)s?cmd=globalconfig&SID=%(SID)s" onmouseover="document.images.subtopic10.src='%(ThemeDir)s/dyn_buttons/h-subtopic10.png'"
++onmouseout="document.images.subtopic10.src='%(ThemeDir)s/dyn_buttons/subtopic10.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic10.png" border="0" alt=" - Global Config" title=" - Global Config" width="194" height="14"
+ name="subtopic10"></a></td></tr>
++<tr><td><a href="%(Script)s?cmd=uninstall&SID=%(SID)s" onmouseover="document.images.subtopic11.src='%(ThemeDir)s/dyn_buttons/h-subtopic11.png'"
++onmouseout="document.images.subtopic11.src='%(ThemeDir)s/dyn_buttons/subtopic11.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic11.png" border="0" alt=" - Uninstall" title=" - Uninstall" width="194" height="14"
++name="subtopic11"></a></td></tr>
+ <tr><td><a href="%(Script)s?cmd=info&SID=%(SID)s"
+-onmouseover="document.images.x819.src='%(ThemeDir)s/dyn_buttons/layout1_r6_c1_h.png'"
+-onmouseout="document.images.x819.src='%(ThemeDir)s/dyn_buttons/layout1_r6_c1.png'"><img
+-src="%(ThemeDir)s/dyn_buttons/layout1_r6_c1.png" name="x819" height="35" width="194" border="0" alt="Info" title="Info"></a></td></tr>
++onmouseover="document.images.x822.src='%(ThemeDir)s/dyn_buttons/layout1_r6_c1_h.png'"
++onmouseout="document.images.x822.src='%(ThemeDir)s/dyn_buttons/layout1_r6_c1.png'"><img
++src="%(ThemeDir)s/dyn_buttons/layout1_r6_c1.png" name="x822" height="35" width="194" border="0" alt="Info" title="Info"></a></td></tr>
+ <tr><td><a href="%(Script)s?cmd=logout&SID=%(SID)s"
+-onmouseover="document.images.x904.src='%(ThemeDir)s/dyn_buttons/layout1_r7_c1_h.png'"
+-onmouseout="document.images.x904.src='%(ThemeDir)s/dyn_buttons/layout1_r7_c1.png'"><img
+-src="%(ThemeDir)s/dyn_buttons/layout1_r7_c1.png" name="x904" height="39" width="194" border="0" alt="Logout" title="Logout"></a></td></tr>
++onmouseover="document.images.x907.src='%(ThemeDir)s/dyn_buttons/layout1_r7_c1_h.png'"
++onmouseout="document.images.x907.src='%(ThemeDir)s/dyn_buttons/layout1_r7_c1.png'"><img
++src="%(ThemeDir)s/dyn_buttons/layout1_r7_c1.png" name="x907" height="39" width="194" border="0" alt="Logout" title="Logout"></a></td></tr>
+ </table><!-- end of sidebar table -->
+ 
+ </td>
+@@ -276,18 +276,18 @@
+ x290.src = "%(ThemeDir)s/dyn_buttons/layout1_r4_c1_h.png";
+   var x375 = new Image();
+ x375.src = "%(ThemeDir)s/dyn_buttons/layout1_r5_c1_h.png";
+-var subtopic6 = new Image();
+-subtopic6.src = "%(ThemeDir)s/dyn_buttons/h-subtopic6.png";
+-var subtopic8 = new Image();
+-subtopic8.src = "%(ThemeDir)s/dyn_buttons/h-subtopic8.png";
++var subtopic7 = new Image();
++subtopic7.src = "%(ThemeDir)s/dyn_buttons/h-subtopic7.png";
+ var subtopic9 = new Image();
+ subtopic9.src = "%(ThemeDir)s/dyn_buttons/h-subtopic9.png";
+ var subtopic10 = new Image();
+ subtopic10.src = "%(ThemeDir)s/dyn_buttons/h-subtopic10.png";
+-  var x819 = new Image();
+-x819.src = "%(ThemeDir)s/dyn_buttons/layout1_r6_c1_h.png";
+-  var x904 = new Image();
+-x904.src = "%(ThemeDir)s/dyn_buttons/layout1_r7_c1_h.png";
++var subtopic11 = new Image();
++subtopic11.src = "%(ThemeDir)s/dyn_buttons/h-subtopic11.png";
++  var x822 = new Image();
++x822.src = "%(ThemeDir)s/dyn_buttons/layout1_r6_c1_h.png";
++  var x907 = new Image();
++x907.src = "%(ThemeDir)s/dyn_buttons/layout1_r7_c1_h.png";
+ }
+ //-->
+ </script>
+diff -urN ../tmda-cgi-0.13/display/themes/Blue/template/outgoing.html ./display/themes/Blue/template/outgoing.html
+--- ../tmda-cgi-0.13/display/themes/Blue/template/outgoing.html	2004-03-17 07:11:56.000000000 -0800
++++ ./display/themes/Blue/template/outgoing.html	2004-03-18 10:21:45.000000000 -0800
+@@ -2,7 +2,7 @@
+ <?xml-stylesheet href="%(ThemeDir)s/styles.css" type="text/css"?>
+ <html>
+ <!-- THIS PAGE IS AUTOMATICALLY GENERATED.  DO NOT EDIT. -->
+-<!-- Tue Mar 16 09:07:25 2004 -->
++<!-- Thu Mar 18 12:20:16 2004 -->
+ <!-- USING HT2HTML 2.1 -->
+ <!-- SEE http://ht2html.sf.net -->
+ <!-- User-specified headers:
+@@ -56,22 +56,25 @@
+ name="subtopic4"></a></td></tr>
+ <tr><td><img src="%(ThemeDir)s/dyn_buttons/h-subtopic5.png" border="0" alt=" - Outgoing Filter" title=" - Outgoing Filter" width="194" height="14"
+ name="subtopic5"></td></tr>
++<!--tr><td><a href="%(Script)s?cmd=test_filt&SID=%(SID)s" onmouseover="document.images.subtopic6.src='%(ThemeDir)s/dyn_buttons/h-subtopic6.png'"
++onmouseout="document.images.subtopic6.src='%(ThemeDir)s/dyn_buttons/subtopic6.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic6.png" border="0" alt=" - Test Filters" title=" - Test Filters" width="194" height="14"
++name="subtopic6"></a></td></tr-->
+ <tr><td><a href="%(Script)s?cmd=editlist&SID=%(SID)s"
+-onmouseover="document.images.x379.src='%(ThemeDir)s/dyn_buttons/layout1_r4_c1_h.png'"
+-onmouseout="document.images.x379.src='%(ThemeDir)s/dyn_buttons/layout1_r4_c1.png'"><img
+-src="%(ThemeDir)s/dyn_buttons/layout1_r4_c1.png" name="x379" height="35" width="194" border="0" alt="Lists" title="Lists"></a></td></tr>
++onmouseover="document.images.x468.src='%(ThemeDir)s/dyn_buttons/layout1_r4_c1_h.png'"
++onmouseout="document.images.x468.src='%(ThemeDir)s/dyn_buttons/layout1_r4_c1.png'"><img
++src="%(ThemeDir)s/dyn_buttons/layout1_r4_c1.png" name="x468" height="35" width="194" border="0" alt="Lists" title="Lists"></a></td></tr>
+ <tr><td><a href="%(Script)s?cmd=theme&SID=%(SID)s"
+-onmouseover="document.images.x464.src='%(ThemeDir)s/dyn_buttons/layout1_r5_c1_h.png'"
+-onmouseout="document.images.x464.src='%(ThemeDir)s/dyn_buttons/layout1_r5_c1.png'"><img
+-src="%(ThemeDir)s/dyn_buttons/layout1_r5_c1.png" name="x464" height="35" width="194" border="0" alt="Settings" title="Settings"></a></td></tr>
++onmouseover="document.images.x553.src='%(ThemeDir)s/dyn_buttons/layout1_r5_c1_h.png'"
++onmouseout="document.images.x553.src='%(ThemeDir)s/dyn_buttons/layout1_r5_c1.png'"><img
++src="%(ThemeDir)s/dyn_buttons/layout1_r5_c1.png" name="x553" height="35" width="194" border="0" alt="Settings" title="Settings"></a></td></tr>
+ <tr><td><a href="%(Script)s?cmd=info&SID=%(SID)s"
+-onmouseover="document.images.x549.src='%(ThemeDir)s/dyn_buttons/layout1_r6_c1_h.png'"
+-onmouseout="document.images.x549.src='%(ThemeDir)s/dyn_buttons/layout1_r6_c1.png'"><img
+-src="%(ThemeDir)s/dyn_buttons/layout1_r6_c1.png" name="x549" height="35" width="194" border="0" alt="Info" title="Info"></a></td></tr>
++onmouseover="document.images.x638.src='%(ThemeDir)s/dyn_buttons/layout1_r6_c1_h.png'"
++onmouseout="document.images.x638.src='%(ThemeDir)s/dyn_buttons/layout1_r6_c1.png'"><img
++src="%(ThemeDir)s/dyn_buttons/layout1_r6_c1.png" name="x638" height="35" width="194" border="0" alt="Info" title="Info"></a></td></tr>
+ <tr><td><a href="%(Script)s?cmd=logout&SID=%(SID)s"
+-onmouseover="document.images.x634.src='%(ThemeDir)s/dyn_buttons/layout1_r7_c1_h.png'"
+-onmouseout="document.images.x634.src='%(ThemeDir)s/dyn_buttons/layout1_r7_c1.png'"><img
+-src="%(ThemeDir)s/dyn_buttons/layout1_r7_c1.png" name="x634" height="39" width="194" border="0" alt="Logout" title="Logout"></a></td></tr>
++onmouseover="document.images.x723.src='%(ThemeDir)s/dyn_buttons/layout1_r7_c1_h.png'"
++onmouseout="document.images.x723.src='%(ThemeDir)s/dyn_buttons/layout1_r7_c1.png'"><img
++src="%(ThemeDir)s/dyn_buttons/layout1_r7_c1.png" name="x723" height="39" width="194" border="0" alt="Logout" title="Logout"></a></td></tr>
+ </table><!-- end of sidebar table -->
+ 
+ </td>
+@@ -112,14 +115,16 @@
+ x205.src = "%(ThemeDir)s/dyn_buttons/layout1_r3_c1_h.png";
+ var subtopic4 = new Image();
+ subtopic4.src = "%(ThemeDir)s/dyn_buttons/h-subtopic4.png";
+-  var x379 = new Image();
+-x379.src = "%(ThemeDir)s/dyn_buttons/layout1_r4_c1_h.png";
+-  var x464 = new Image();
+-x464.src = "%(ThemeDir)s/dyn_buttons/layout1_r5_c1_h.png";
+-  var x549 = new Image();
+-x549.src = "%(ThemeDir)s/dyn_buttons/layout1_r6_c1_h.png";
+-  var x634 = new Image();
+-x634.src = "%(ThemeDir)s/dyn_buttons/layout1_r7_c1_h.png";
++var subtopic6 = new Image();
++subtopic6.src = "%(ThemeDir)s/dyn_buttons/h-subtopic6.png";
++  var x468 = new Image();
++x468.src = "%(ThemeDir)s/dyn_buttons/layout1_r4_c1_h.png";
++  var x553 = new Image();
++x553.src = "%(ThemeDir)s/dyn_buttons/layout1_r5_c1_h.png";
++  var x638 = new Image();
++x638.src = "%(ThemeDir)s/dyn_buttons/layout1_r6_c1_h.png";
++  var x723 = new Image();
++x723.src = "%(ThemeDir)s/dyn_buttons/layout1_r7_c1_h.png";
+ }
+ //-->
+ </script>
+diff -urN ../tmda-cgi-0.13/display/themes/Blue/template/password.html ./display/themes/Blue/template/password.html
+--- ../tmda-cgi-0.13/display/themes/Blue/template/password.html	2004-03-17 07:11:56.000000000 -0800
++++ ./display/themes/Blue/template/password.html	2004-03-18 10:20:17.000000000 -0800
+@@ -2,7 +2,7 @@
+ <?xml-stylesheet href="%(ThemeDir)s/styles.css" type="text/css"?>
+ <html>
+ <!-- THIS PAGE IS AUTOMATICALLY GENERATED.  DO NOT EDIT. -->
+-<!-- Tue Mar 16 09:07:25 2004 -->
++<!-- Thu Mar 18 12:20:17 2004 -->
+ <!-- USING HT2HTML 2.1 -->
+ <!-- SEE http://ht2html.sf.net -->
+ <!-- User-specified headers:
+diff -urN ../tmda-cgi-0.13/display/themes/Blue/template/pending.html ./display/themes/Blue/template/pending.html
+--- ../tmda-cgi-0.13/display/themes/Blue/template/pending.html	2004-03-17 07:11:56.000000000 -0800
++++ ./display/themes/Blue/template/pending.html	2004-03-18 10:20:17.000000000 -0800
+@@ -2,7 +2,7 @@
+ <?xml-stylesheet href="%(ThemeDir)s/styles.css" type="text/css"?>
+ <html>
+ <!-- THIS PAGE IS AUTOMATICALLY GENERATED.  DO NOT EDIT. -->
+-<!-- Tue Mar 16 09:07:25 2004 -->
++<!-- Thu Mar 18 12:20:17 2004 -->
+ <!-- USING HT2HTML 2.1 -->
+ <!-- SEE http://ht2html.sf.net -->
+ <!-- User-specified headers:
+diff -urN ../tmda-cgi-0.13/display/themes/Blue/template/prog_err.html ./display/themes/Blue/template/prog_err.html
+--- ../tmda-cgi-0.13/display/themes/Blue/template/prog_err.html	2004-03-17 07:11:56.000000000 -0800
++++ ./display/themes/Blue/template/prog_err.html	2004-03-18 10:20:17.000000000 -0800
+@@ -2,7 +2,7 @@
+ <?xml-stylesheet href="%(ThemeDir)s/styles.css" type="text/css"?>
+ <html>
+ <!-- THIS PAGE IS AUTOMATICALLY GENERATED.  DO NOT EDIT. -->
+-<!-- Tue Mar 16 09:07:26 2004 -->
++<!-- Thu Mar 18 12:20:17 2004 -->
+ <!-- USING HT2HTML 2.1 -->
+ <!-- SEE http://ht2html.sf.net -->
+ <!-- User-specified headers:
+diff -urN ../tmda-cgi-0.13/display/themes/Blue/template/templates.html ./display/themes/Blue/template/templates.html
+--- ../tmda-cgi-0.13/display/themes/Blue/template/templates.html	2004-03-17 07:11:56.000000000 -0800
++++ ./display/themes/Blue/template/templates.html	2004-03-18 10:20:17.000000000 -0800
+@@ -2,7 +2,7 @@
+ <?xml-stylesheet href="%(ThemeDir)s/styles.css" type="text/css"?>
+ <html>
+ <!-- THIS PAGE IS AUTOMATICALLY GENERATED.  DO NOT EDIT. -->
+-<!-- Tue Mar 16 09:07:26 2004 -->
++<!-- Thu Mar 18 12:20:17 2004 -->
+ <!-- USING HT2HTML 2.1 -->
+ <!-- SEE http://ht2html.sf.net -->
+ <!-- User-specified headers:
+@@ -59,28 +59,28 @@
+ onmouseover="document.images.x375.src='%(ThemeDir)s/dyn_buttons/layout1_r5_c1_h.png'"
+ onmouseout="document.images.x375.src='%(ThemeDir)s/dyn_buttons/layout1_r5_c1.png'"><img
+ src="%(ThemeDir)s/dyn_buttons/layout1_r5_c1.png" name="x375" height="35" width="194" border="0" alt="Settings" title="Settings"></a></td></tr>
+-<tr><td><a href="%(Script)s?cmd=theme&SID=%(SID)s" onmouseover="document.images.subtopic6.src='%(ThemeDir)s/dyn_buttons/h-subtopic6.png'"
+-onmouseout="document.images.subtopic6.src='%(ThemeDir)s/dyn_buttons/subtopic6.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic6.png" border="0" alt=" - Theme" title=" - Theme" width="194" height="14"
+-name="subtopic6"></a></td></tr>
+-<tr><td><a href="%(Script)s?cmd=localconfig&SID=%(SID)s" onmouseover="document.images.subtopic7.src='%(ThemeDir)s/dyn_buttons/h-subtopic7.png'"
+-onmouseout="document.images.subtopic7.src='%(ThemeDir)s/dyn_buttons/subtopic7.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic7.png" border="0" alt=" - Local Config" title=" - Local Config" width="194" height="14"
++<tr><td><a href="%(Script)s?cmd=theme&SID=%(SID)s" onmouseover="document.images.subtopic7.src='%(ThemeDir)s/dyn_buttons/h-subtopic7.png'"
++onmouseout="document.images.subtopic7.src='%(ThemeDir)s/dyn_buttons/subtopic7.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic7.png" border="0" alt=" - Theme" title=" - Theme" width="194" height="14"
+ name="subtopic7"></a></td></tr>
+-<tr><td><img src="%(ThemeDir)s/dyn_buttons/h-subtopic8.png" border="0" alt=" - Templates" title=" - Templates" width="194" height="14"
+-name="subtopic8"></td></tr>
+-<tr><td><a href="%(Script)s?cmd=globalconfig&SID=%(SID)s" onmouseover="document.images.subtopic9.src='%(ThemeDir)s/dyn_buttons/h-subtopic9.png'"
+-onmouseout="document.images.subtopic9.src='%(ThemeDir)s/dyn_buttons/subtopic9.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic9.png" border="0" alt=" - Global Config" title=" - Global Config" width="194" height="14"
+-name="subtopic9"></a></td></tr>
+-<tr><td><a href="%(Script)s?cmd=uninstall&SID=%(SID)s" onmouseover="document.images.subtopic10.src='%(ThemeDir)s/dyn_buttons/h-subtopic10.png'"
+-onmouseout="document.images.subtopic10.src='%(ThemeDir)s/dyn_buttons/subtopic10.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic10.png" border="0" alt=" - Uninstall" title=" - Uninstall" width="194" height="14"
++<tr><td><a href="%(Script)s?cmd=localconfig&SID=%(SID)s" onmouseover="document.images.subtopic8.src='%(ThemeDir)s/dyn_buttons/h-subtopic8.png'"
++onmouseout="document.images.subtopic8.src='%(ThemeDir)s/dyn_buttons/subtopic8.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic8.png" border="0" alt=" - Local Config" title=" - Local Config" width="194" height="14"
++name="subtopic8"></a></td></tr>
++<tr><td><img src="%(ThemeDir)s/dyn_buttons/h-subtopic9.png" border="0" alt=" - Templates" title=" - Templates" width="194" height="14"
++name="subtopic9"></td></tr>
++<tr><td><a href="%(Script)s?cmd=globalconfig&SID=%(SID)s" onmouseover="document.images.subtopic10.src='%(ThemeDir)s/dyn_buttons/h-subtopic10.png'"
++onmouseout="document.images.subtopic10.src='%(ThemeDir)s/dyn_buttons/subtopic10.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic10.png" border="0" alt=" - Global Config" title=" - Global Config" width="194" height="14"
+ name="subtopic10"></a></td></tr>
++<tr><td><a href="%(Script)s?cmd=uninstall&SID=%(SID)s" onmouseover="document.images.subtopic11.src='%(ThemeDir)s/dyn_buttons/h-subtopic11.png'"
++onmouseout="document.images.subtopic11.src='%(ThemeDir)s/dyn_buttons/subtopic11.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic11.png" border="0" alt=" - Uninstall" title=" - Uninstall" width="194" height="14"
++name="subtopic11"></a></td></tr>
+ <tr><td><a href="%(Script)s?cmd=info&SID=%(SID)s"
+-onmouseover="document.images.x819.src='%(ThemeDir)s/dyn_buttons/layout1_r6_c1_h.png'"
+-onmouseout="document.images.x819.src='%(ThemeDir)s/dyn_buttons/layout1_r6_c1.png'"><img
+-src="%(ThemeDir)s/dyn_buttons/layout1_r6_c1.png" name="x819" height="35" width="194" border="0" alt="Info" title="Info"></a></td></tr>
++onmouseover="document.images.x822.src='%(ThemeDir)s/dyn_buttons/layout1_r6_c1_h.png'"
++onmouseout="document.images.x822.src='%(ThemeDir)s/dyn_buttons/layout1_r6_c1.png'"><img
++src="%(ThemeDir)s/dyn_buttons/layout1_r6_c1.png" name="x822" height="35" width="194" border="0" alt="Info" title="Info"></a></td></tr>
+ <tr><td><a href="%(Script)s?cmd=logout&SID=%(SID)s"
+-onmouseover="document.images.x904.src='%(ThemeDir)s/dyn_buttons/layout1_r7_c1_h.png'"
+-onmouseout="document.images.x904.src='%(ThemeDir)s/dyn_buttons/layout1_r7_c1.png'"><img
+-src="%(ThemeDir)s/dyn_buttons/layout1_r7_c1.png" name="x904" height="39" width="194" border="0" alt="Logout" title="Logout"></a></td></tr>
++onmouseover="document.images.x907.src='%(ThemeDir)s/dyn_buttons/layout1_r7_c1_h.png'"
++onmouseout="document.images.x907.src='%(ThemeDir)s/dyn_buttons/layout1_r7_c1.png'"><img
++src="%(ThemeDir)s/dyn_buttons/layout1_r7_c1.png" name="x907" height="39" width="194" border="0" alt="Logout" title="Logout"></a></td></tr>
+ </table><!-- end of sidebar table -->
+ 
+ </td>
+@@ -133,18 +133,18 @@
+ x290.src = "%(ThemeDir)s/dyn_buttons/layout1_r4_c1_h.png";
+   var x375 = new Image();
+ x375.src = "%(ThemeDir)s/dyn_buttons/layout1_r5_c1_h.png";
+-var subtopic6 = new Image();
+-subtopic6.src = "%(ThemeDir)s/dyn_buttons/h-subtopic6.png";
+ var subtopic7 = new Image();
+ subtopic7.src = "%(ThemeDir)s/dyn_buttons/h-subtopic7.png";
+-var subtopic9 = new Image();
+-subtopic9.src = "%(ThemeDir)s/dyn_buttons/h-subtopic9.png";
++var subtopic8 = new Image();
++subtopic8.src = "%(ThemeDir)s/dyn_buttons/h-subtopic8.png";
+ var subtopic10 = new Image();
+ subtopic10.src = "%(ThemeDir)s/dyn_buttons/h-subtopic10.png";
+-  var x819 = new Image();
+-x819.src = "%(ThemeDir)s/dyn_buttons/layout1_r6_c1_h.png";
+-  var x904 = new Image();
+-x904.src = "%(ThemeDir)s/dyn_buttons/layout1_r7_c1_h.png";
++var subtopic11 = new Image();
++subtopic11.src = "%(ThemeDir)s/dyn_buttons/h-subtopic11.png";
++  var x822 = new Image();
++x822.src = "%(ThemeDir)s/dyn_buttons/layout1_r6_c1_h.png";
++  var x907 = new Image();
++x907.src = "%(ThemeDir)s/dyn_buttons/layout1_r7_c1_h.png";
+ }
+ //-->
+ </script>
+diff -urN ../tmda-cgi-0.13/display/themes/Blue/template/test_addr.html ./display/themes/Blue/template/test_addr.html
+--- ../tmda-cgi-0.13/display/themes/Blue/template/test_addr.html	2004-03-17 07:11:56.000000000 -0800
++++ ./display/themes/Blue/template/test_addr.html	2004-03-18 10:20:17.000000000 -0800
+@@ -2,7 +2,7 @@
+ <?xml-stylesheet href="%(ThemeDir)s/styles.css" type="text/css"?>
+ <html>
+ <!-- THIS PAGE IS AUTOMATICALLY GENERATED.  DO NOT EDIT. -->
+-<!-- Tue Mar 16 09:07:26 2004 -->
++<!-- Thu Mar 18 12:20:17 2004 -->
+ <!-- USING HT2HTML 2.1 -->
+ <!-- SEE http://ht2html.sf.net -->
+ <!-- User-specified headers:
+diff -urN ../tmda-cgi-0.13/display/themes/Blue/template/test_filt.html ./display/themes/Blue/template/test_filt.html
+--- ../tmda-cgi-0.13/display/themes/Blue/template/test_filt.html	2004-03-17 07:11:56.000000000 -0800
++++ ./display/themes/Blue/template/test_filt.html	2004-03-18 10:20:17.000000000 -0800
+@@ -2,7 +2,7 @@
+ <?xml-stylesheet href="%(ThemeDir)s/styles.css" type="text/css"?>
+ <html>
+ <!-- THIS PAGE IS AUTOMATICALLY GENERATED.  DO NOT EDIT. -->
+-<!-- Tue Mar 16 09:07:26 2004 -->
++<!-- Thu Mar 18 12:20:17 2004 -->
+ <!-- USING HT2HTML 2.1 -->
+ <!-- SEE http://ht2html.sf.net -->
+ <!-- User-specified headers:
+@@ -51,22 +51,30 @@
+ onmouseover="document.images.x205.src='%(ThemeDir)s/dyn_buttons/layout1_r3_c1_h.png'"
+ onmouseout="document.images.x205.src='%(ThemeDir)s/dyn_buttons/layout1_r3_c1.png'"><img
+ src="%(ThemeDir)s/dyn_buttons/layout1_r3_c1.png" name="x205" height="35" width="194" border="0" alt="Filters" title="Filters"></a></td></tr>
++<tr><td><a href="%(Script)s?cmd=incoming&SID=%(SID)s" onmouseover="document.images.subtopic4.src='%(ThemeDir)s/dyn_buttons/h-subtopic4.png'"
++onmouseout="document.images.subtopic4.src='%(ThemeDir)s/dyn_buttons/subtopic4.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic4.png" border="0" alt=" - Incoming Filter" title=" - Incoming Filter" width="194" height="14"
++name="subtopic4"></a></td></tr>
++<tr><td><a href="%(Script)s?cmd=outgoing&SID=%(SID)s" onmouseover="document.images.subtopic5.src='%(ThemeDir)s/dyn_buttons/h-subtopic5.png'"
++onmouseout="document.images.subtopic5.src='%(ThemeDir)s/dyn_buttons/subtopic5.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic5.png" border="0" alt=" - Outgoing Filter" title=" - Outgoing Filter" width="194" height="14"
++name="subtopic5"></a></td></tr>
++<tr><td><img src="%(ThemeDir)s/dyn_buttons/h-subtopic6.png" border="0" alt=" - Test Filters" title=" - Test Filters" width="194" height="14"
++name="subtopic6"></td></tr>
+ <tr><td><a href="%(Script)s?cmd=editlist&SID=%(SID)s"
+-onmouseover="document.images.x290.src='%(ThemeDir)s/dyn_buttons/layout1_r4_c1_h.png'"
+-onmouseout="document.images.x290.src='%(ThemeDir)s/dyn_buttons/layout1_r4_c1.png'"><img
+-src="%(ThemeDir)s/dyn_buttons/layout1_r4_c1.png" name="x290" height="35" width="194" border="0" alt="Lists" title="Lists"></a></td></tr>
++onmouseover="document.images.x468.src='%(ThemeDir)s/dyn_buttons/layout1_r4_c1_h.png'"
++onmouseout="document.images.x468.src='%(ThemeDir)s/dyn_buttons/layout1_r4_c1.png'"><img
++src="%(ThemeDir)s/dyn_buttons/layout1_r4_c1.png" name="x468" height="35" width="194" border="0" alt="Lists" title="Lists"></a></td></tr>
+ <tr><td><a href="%(Script)s?cmd=theme&SID=%(SID)s"
+-onmouseover="document.images.x375.src='%(ThemeDir)s/dyn_buttons/layout1_r5_c1_h.png'"
+-onmouseout="document.images.x375.src='%(ThemeDir)s/dyn_buttons/layout1_r5_c1.png'"><img
+-src="%(ThemeDir)s/dyn_buttons/layout1_r5_c1.png" name="x375" height="35" width="194" border="0" alt="Settings" title="Settings"></a></td></tr>
++onmouseover="document.images.x553.src='%(ThemeDir)s/dyn_buttons/layout1_r5_c1_h.png'"
++onmouseout="document.images.x553.src='%(ThemeDir)s/dyn_buttons/layout1_r5_c1.png'"><img
++src="%(ThemeDir)s/dyn_buttons/layout1_r5_c1.png" name="x553" height="35" width="194" border="0" alt="Settings" title="Settings"></a></td></tr>
+ <tr><td><a href="%(Script)s?cmd=info&SID=%(SID)s"
+-onmouseover="document.images.x460.src='%(ThemeDir)s/dyn_buttons/layout1_r6_c1_h.png'"
+-onmouseout="document.images.x460.src='%(ThemeDir)s/dyn_buttons/layout1_r6_c1.png'"><img
+-src="%(ThemeDir)s/dyn_buttons/layout1_r6_c1.png" name="x460" height="35" width="194" border="0" alt="Info" title="Info"></a></td></tr>
++onmouseover="document.images.x638.src='%(ThemeDir)s/dyn_buttons/layout1_r6_c1_h.png'"
++onmouseout="document.images.x638.src='%(ThemeDir)s/dyn_buttons/layout1_r6_c1.png'"><img
++src="%(ThemeDir)s/dyn_buttons/layout1_r6_c1.png" name="x638" height="35" width="194" border="0" alt="Info" title="Info"></a></td></tr>
+ <tr><td><a href="%(Script)s?cmd=logout&SID=%(SID)s"
+-onmouseover="document.images.x545.src='%(ThemeDir)s/dyn_buttons/layout1_r7_c1_h.png'"
+-onmouseout="document.images.x545.src='%(ThemeDir)s/dyn_buttons/layout1_r7_c1.png'"><img
+-src="%(ThemeDir)s/dyn_buttons/layout1_r7_c1.png" name="x545" height="39" width="194" border="0" alt="Logout" title="Logout"></a></td></tr>
++onmouseover="document.images.x723.src='%(ThemeDir)s/dyn_buttons/layout1_r7_c1_h.png'"
++onmouseout="document.images.x723.src='%(ThemeDir)s/dyn_buttons/layout1_r7_c1.png'"><img
++src="%(ThemeDir)s/dyn_buttons/layout1_r7_c1.png" name="x723" height="39" width="194" border="0" alt="Logout" title="Logout"></a></td></tr>
+ </table><!-- end of sidebar table -->
+ 
+ </td>
+@@ -167,14 +175,18 @@
+ x120.src = "%(ThemeDir)s/dyn_buttons/layout1_r2_c1_h.png";
+   var x205 = new Image();
+ x205.src = "%(ThemeDir)s/dyn_buttons/layout1_r3_c1_h.png";
+-  var x290 = new Image();
+-x290.src = "%(ThemeDir)s/dyn_buttons/layout1_r4_c1_h.png";
+-  var x375 = new Image();
+-x375.src = "%(ThemeDir)s/dyn_buttons/layout1_r5_c1_h.png";
+-  var x460 = new Image();
+-x460.src = "%(ThemeDir)s/dyn_buttons/layout1_r6_c1_h.png";
+-  var x545 = new Image();
+-x545.src = "%(ThemeDir)s/dyn_buttons/layout1_r7_c1_h.png";
++var subtopic4 = new Image();
++subtopic4.src = "%(ThemeDir)s/dyn_buttons/h-subtopic4.png";
++var subtopic5 = new Image();
++subtopic5.src = "%(ThemeDir)s/dyn_buttons/h-subtopic5.png";
++  var x468 = new Image();
++x468.src = "%(ThemeDir)s/dyn_buttons/layout1_r4_c1_h.png";
++  var x553 = new Image();
++x553.src = "%(ThemeDir)s/dyn_buttons/layout1_r5_c1_h.png";
++  var x638 = new Image();
++x638.src = "%(ThemeDir)s/dyn_buttons/layout1_r6_c1_h.png";
++  var x723 = new Image();
++x723.src = "%(ThemeDir)s/dyn_buttons/layout1_r7_c1_h.png";
+ }
+ //-->
+ </script>
+diff -urN ../tmda-cgi-0.13/display/themes/Blue/template/theme.html ./display/themes/Blue/template/theme.html
+--- ../tmda-cgi-0.13/display/themes/Blue/template/theme.html	2004-03-17 07:11:56.000000000 -0800
++++ ./display/themes/Blue/template/theme.html	2004-03-18 10:20:17.000000000 -0800
+@@ -2,7 +2,7 @@
+ <?xml-stylesheet href="%(ThemeDir)s/styles.css" type="text/css"?>
+ <html>
+ <!-- THIS PAGE IS AUTOMATICALLY GENERATED.  DO NOT EDIT. -->
+-<!-- Tue Mar 16 09:07:26 2004 -->
++<!-- Thu Mar 18 12:20:17 2004 -->
+ <!-- USING HT2HTML 2.1 -->
+ <!-- SEE http://ht2html.sf.net -->
+ <!-- User-specified headers:
+@@ -59,28 +59,28 @@
+ onmouseover="document.images.x375.src='%(ThemeDir)s/dyn_buttons/layout1_r5_c1_h.png'"
+ onmouseout="document.images.x375.src='%(ThemeDir)s/dyn_buttons/layout1_r5_c1.png'"><img
+ src="%(ThemeDir)s/dyn_buttons/layout1_r5_c1.png" name="x375" height="35" width="194" border="0" alt="Settings" title="Settings"></a></td></tr>
+-<tr><td><img src="%(ThemeDir)s/dyn_buttons/h-subtopic6.png" border="0" alt=" - Theme" title=" - Theme" width="194" height="14"
+-name="subtopic6"></td></tr>
+-<tr><td><a href="%(Script)s?cmd=localconfig&SID=%(SID)s" onmouseover="document.images.subtopic7.src='%(ThemeDir)s/dyn_buttons/h-subtopic7.png'"
+-onmouseout="document.images.subtopic7.src='%(ThemeDir)s/dyn_buttons/subtopic7.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic7.png" border="0" alt=" - Local Config" title=" - Local Config" width="194" height="14"
+-name="subtopic7"></a></td></tr>
+-<tr><td><a href="%(Script)s?cmd=templates&SID=%(SID)s" onmouseover="document.images.subtopic8.src='%(ThemeDir)s/dyn_buttons/h-subtopic8.png'"
+-onmouseout="document.images.subtopic8.src='%(ThemeDir)s/dyn_buttons/subtopic8.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic8.png" border="0" alt=" - Templates" title=" - Templates" width="194" height="14"
++<tr><td><img src="%(ThemeDir)s/dyn_buttons/h-subtopic7.png" border="0" alt=" - Theme" title=" - Theme" width="194" height="14"
++name="subtopic7"></td></tr>
++<tr><td><a href="%(Script)s?cmd=localconfig&SID=%(SID)s" onmouseover="document.images.subtopic8.src='%(ThemeDir)s/dyn_buttons/h-subtopic8.png'"
++onmouseout="document.images.subtopic8.src='%(ThemeDir)s/dyn_buttons/subtopic8.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic8.png" border="0" alt=" - Local Config" title=" - Local Config" width="194" height="14"
+ name="subtopic8"></a></td></tr>
+-<tr><td><a href="%(Script)s?cmd=globalconfig&SID=%(SID)s" onmouseover="document.images.subtopic9.src='%(ThemeDir)s/dyn_buttons/h-subtopic9.png'"
+-onmouseout="document.images.subtopic9.src='%(ThemeDir)s/dyn_buttons/subtopic9.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic9.png" border="0" alt=" - Global Config" title=" - Global Config" width="194" height="14"
++<tr><td><a href="%(Script)s?cmd=templates&SID=%(SID)s" onmouseover="document.images.subtopic9.src='%(ThemeDir)s/dyn_buttons/h-subtopic9.png'"
++onmouseout="document.images.subtopic9.src='%(ThemeDir)s/dyn_buttons/subtopic9.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic9.png" border="0" alt=" - Templates" title=" - Templates" width="194" height="14"
+ name="subtopic9"></a></td></tr>
+-<tr><td><a href="%(Script)s?cmd=uninstall&SID=%(SID)s" onmouseover="document.images.subtopic10.src='%(ThemeDir)s/dyn_buttons/h-subtopic10.png'"
+-onmouseout="document.images.subtopic10.src='%(ThemeDir)s/dyn_buttons/subtopic10.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic10.png" border="0" alt=" - Uninstall" title=" - Uninstall" width="194" height="14"
++<tr><td><a href="%(Script)s?cmd=globalconfig&SID=%(SID)s" onmouseover="document.images.subtopic10.src='%(ThemeDir)s/dyn_buttons/h-subtopic10.png'"
++onmouseout="document.images.subtopic10.src='%(ThemeDir)s/dyn_buttons/subtopic10.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic10.png" border="0" alt=" - Global Config" title=" - Global Config" width="194" height="14"
+ name="subtopic10"></a></td></tr>
++<tr><td><a href="%(Script)s?cmd=uninstall&SID=%(SID)s" onmouseover="document.images.subtopic11.src='%(ThemeDir)s/dyn_buttons/h-subtopic11.png'"
++onmouseout="document.images.subtopic11.src='%(ThemeDir)s/dyn_buttons/subtopic11.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic11.png" border="0" alt=" - Uninstall" title=" - Uninstall" width="194" height="14"
++name="subtopic11"></a></td></tr>
+ <tr><td><a href="%(Script)s?cmd=info&SID=%(SID)s"
+-onmouseover="document.images.x819.src='%(ThemeDir)s/dyn_buttons/layout1_r6_c1_h.png'"
+-onmouseout="document.images.x819.src='%(ThemeDir)s/dyn_buttons/layout1_r6_c1.png'"><img
+-src="%(ThemeDir)s/dyn_buttons/layout1_r6_c1.png" name="x819" height="35" width="194" border="0" alt="Info" title="Info"></a></td></tr>
++onmouseover="document.images.x822.src='%(ThemeDir)s/dyn_buttons/layout1_r6_c1_h.png'"
++onmouseout="document.images.x822.src='%(ThemeDir)s/dyn_buttons/layout1_r6_c1.png'"><img
++src="%(ThemeDir)s/dyn_buttons/layout1_r6_c1.png" name="x822" height="35" width="194" border="0" alt="Info" title="Info"></a></td></tr>
+ <tr><td><a href="%(Script)s?cmd=logout&SID=%(SID)s"
+-onmouseover="document.images.x904.src='%(ThemeDir)s/dyn_buttons/layout1_r7_c1_h.png'"
+-onmouseout="document.images.x904.src='%(ThemeDir)s/dyn_buttons/layout1_r7_c1.png'"><img
+-src="%(ThemeDir)s/dyn_buttons/layout1_r7_c1.png" name="x904" height="39" width="194" border="0" alt="Logout" title="Logout"></a></td></tr>
++onmouseover="document.images.x907.src='%(ThemeDir)s/dyn_buttons/layout1_r7_c1_h.png'"
++onmouseout="document.images.x907.src='%(ThemeDir)s/dyn_buttons/layout1_r7_c1.png'"><img
++src="%(ThemeDir)s/dyn_buttons/layout1_r7_c1.png" name="x907" height="39" width="194" border="0" alt="Logout" title="Logout"></a></td></tr>
+ </table><!-- end of sidebar table -->
+ 
+ </td>
+@@ -300,18 +300,18 @@
+ x290.src = "%(ThemeDir)s/dyn_buttons/layout1_r4_c1_h.png";
+   var x375 = new Image();
+ x375.src = "%(ThemeDir)s/dyn_buttons/layout1_r5_c1_h.png";
+-var subtopic7 = new Image();
+-subtopic7.src = "%(ThemeDir)s/dyn_buttons/h-subtopic7.png";
+ var subtopic8 = new Image();
+ subtopic8.src = "%(ThemeDir)s/dyn_buttons/h-subtopic8.png";
+ var subtopic9 = new Image();
+ subtopic9.src = "%(ThemeDir)s/dyn_buttons/h-subtopic9.png";
+ var subtopic10 = new Image();
+ subtopic10.src = "%(ThemeDir)s/dyn_buttons/h-subtopic10.png";
+-  var x819 = new Image();
+-x819.src = "%(ThemeDir)s/dyn_buttons/layout1_r6_c1_h.png";
+-  var x904 = new Image();
+-x904.src = "%(ThemeDir)s/dyn_buttons/layout1_r7_c1_h.png";
++var subtopic11 = new Image();
++subtopic11.src = "%(ThemeDir)s/dyn_buttons/h-subtopic11.png";
++  var x822 = new Image();
++x822.src = "%(ThemeDir)s/dyn_buttons/layout1_r6_c1_h.png";
++  var x907 = new Image();
++x907.src = "%(ThemeDir)s/dyn_buttons/layout1_r7_c1_h.png";
+ }
+ //-->
+ </script>
+diff -urN ../tmda-cgi-0.13/display/themes/Blue/template/uninstall.html ./display/themes/Blue/template/uninstall.html
+--- ../tmda-cgi-0.13/display/themes/Blue/template/uninstall.html	2004-03-17 07:11:56.000000000 -0800
++++ ./display/themes/Blue/template/uninstall.html	2004-03-18 10:20:17.000000000 -0800
+@@ -2,7 +2,7 @@
+ <?xml-stylesheet href="%(ThemeDir)s/styles.css" type="text/css"?>
+ <html>
+ <!-- THIS PAGE IS AUTOMATICALLY GENERATED.  DO NOT EDIT. -->
+-<!-- Tue Mar 16 09:07:26 2004 -->
++<!-- Thu Mar 18 12:20:17 2004 -->
+ <!-- USING HT2HTML 2.1 -->
+ <!-- SEE http://ht2html.sf.net -->
+ <!-- User-specified headers:
+@@ -59,28 +59,28 @@
+ onmouseover="document.images.x375.src='%(ThemeDir)s/dyn_buttons/layout1_r5_c1_h.png'"
+ onmouseout="document.images.x375.src='%(ThemeDir)s/dyn_buttons/layout1_r5_c1.png'"><img
+ src="%(ThemeDir)s/dyn_buttons/layout1_r5_c1.png" name="x375" height="35" width="194" border="0" alt="Settings" title="Settings"></a></td></tr>
+-<tr><td><a href="%(Script)s?cmd=theme&SID=%(SID)s" onmouseover="document.images.subtopic6.src='%(ThemeDir)s/dyn_buttons/h-subtopic6.png'"
+-onmouseout="document.images.subtopic6.src='%(ThemeDir)s/dyn_buttons/subtopic6.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic6.png" border="0" alt=" - Theme" title=" - Theme" width="194" height="14"
+-name="subtopic6"></a></td></tr>
+-<tr><td><a href="%(Script)s?cmd=localconfig&SID=%(SID)s" onmouseover="document.images.subtopic7.src='%(ThemeDir)s/dyn_buttons/h-subtopic7.png'"
+-onmouseout="document.images.subtopic7.src='%(ThemeDir)s/dyn_buttons/subtopic7.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic7.png" border="0" alt=" - Local Config" title=" - Local Config" width="194" height="14"
++<tr><td><a href="%(Script)s?cmd=theme&SID=%(SID)s" onmouseover="document.images.subtopic7.src='%(ThemeDir)s/dyn_buttons/h-subtopic7.png'"
++onmouseout="document.images.subtopic7.src='%(ThemeDir)s/dyn_buttons/subtopic7.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic7.png" border="0" alt=" - Theme" title=" - Theme" width="194" height="14"
+ name="subtopic7"></a></td></tr>
+-<tr><td><a href="%(Script)s?cmd=templates&SID=%(SID)s" onmouseover="document.images.subtopic8.src='%(ThemeDir)s/dyn_buttons/h-subtopic8.png'"
+-onmouseout="document.images.subtopic8.src='%(ThemeDir)s/dyn_buttons/subtopic8.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic8.png" border="0" alt=" - Templates" title=" - Templates" width="194" height="14"
++<tr><td><a href="%(Script)s?cmd=localconfig&SID=%(SID)s" onmouseover="document.images.subtopic8.src='%(ThemeDir)s/dyn_buttons/h-subtopic8.png'"
++onmouseout="document.images.subtopic8.src='%(ThemeDir)s/dyn_buttons/subtopic8.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic8.png" border="0" alt=" - Local Config" title=" - Local Config" width="194" height="14"
+ name="subtopic8"></a></td></tr>
+-<tr><td><a href="%(Script)s?cmd=globalconfig&SID=%(SID)s" onmouseover="document.images.subtopic9.src='%(ThemeDir)s/dyn_buttons/h-subtopic9.png'"
+-onmouseout="document.images.subtopic9.src='%(ThemeDir)s/dyn_buttons/subtopic9.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic9.png" border="0" alt=" - Global Config" title=" - Global Config" width="194" height="14"
++<tr><td><a href="%(Script)s?cmd=templates&SID=%(SID)s" onmouseover="document.images.subtopic9.src='%(ThemeDir)s/dyn_buttons/h-subtopic9.png'"
++onmouseout="document.images.subtopic9.src='%(ThemeDir)s/dyn_buttons/subtopic9.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic9.png" border="0" alt=" - Templates" title=" - Templates" width="194" height="14"
+ name="subtopic9"></a></td></tr>
+-<tr><td><img src="%(ThemeDir)s/dyn_buttons/h-subtopic10.png" border="0" alt=" - Uninstall" title=" - Uninstall" width="194" height="14"
+-name="subtopic10"></td></tr>
++<tr><td><a href="%(Script)s?cmd=globalconfig&SID=%(SID)s" onmouseover="document.images.subtopic10.src='%(ThemeDir)s/dyn_buttons/h-subtopic10.png'"
++onmouseout="document.images.subtopic10.src='%(ThemeDir)s/dyn_buttons/subtopic10.png'"><img src="%(ThemeDir)s/dyn_buttons/subtopic10.png" border="0" alt=" - Global Config" title=" - Global Config" width="194" height="14"
++name="subtopic10"></a></td></tr>
++<tr><td><img src="%(ThemeDir)s/dyn_buttons/h-subtopic11.png" border="0" alt=" - Uninstall" title=" - Uninstall" width="194" height="14"
++name="subtopic11"></td></tr>
+ <tr><td><a href="%(Script)s?cmd=info&SID=%(SID)s"
+-onmouseover="document.images.x816.src='%(ThemeDir)s/dyn_buttons/layout1_r6_c1_h.png'"
+-onmouseout="document.images.x816.src='%(ThemeDir)s/dyn_buttons/layout1_r6_c1.png'"><img
+-src="%(ThemeDir)s/dyn_buttons/layout1_r6_c1.png" name="x816" height="35" width="194" border="0" alt="Info" title="Info"></a></td></tr>
++onmouseover="document.images.x819.src='%(ThemeDir)s/dyn_buttons/layout1_r6_c1_h.png'"
++onmouseout="document.images.x819.src='%(ThemeDir)s/dyn_buttons/layout1_r6_c1.png'"><img
++src="%(ThemeDir)s/dyn_buttons/layout1_r6_c1.png" name="x819" height="35" width="194" border="0" alt="Info" title="Info"></a></td></tr>
+ <tr><td><a href="%(Script)s?cmd=logout&SID=%(SID)s"
+-onmouseover="document.images.x901.src='%(ThemeDir)s/dyn_buttons/layout1_r7_c1_h.png'"
+-onmouseout="document.images.x901.src='%(ThemeDir)s/dyn_buttons/layout1_r7_c1.png'"><img
+-src="%(ThemeDir)s/dyn_buttons/layout1_r7_c1.png" name="x901" height="39" width="194" border="0" alt="Logout" title="Logout"></a></td></tr>
++onmouseover="document.images.x904.src='%(ThemeDir)s/dyn_buttons/layout1_r7_c1_h.png'"
++onmouseout="document.images.x904.src='%(ThemeDir)s/dyn_buttons/layout1_r7_c1.png'"><img
++src="%(ThemeDir)s/dyn_buttons/layout1_r7_c1.png" name="x904" height="39" width="194" border="0" alt="Logout" title="Logout"></a></td></tr>
+ </table><!-- end of sidebar table -->
+ 
+ </td>
+@@ -140,18 +140,18 @@
+ x290.src = "%(ThemeDir)s/dyn_buttons/layout1_r4_c1_h.png";
+   var x375 = new Image();
+ x375.src = "%(ThemeDir)s/dyn_buttons/layout1_r5_c1_h.png";
+-var subtopic6 = new Image();
+-subtopic6.src = "%(ThemeDir)s/dyn_buttons/h-subtopic6.png";
+ var subtopic7 = new Image();
+ subtopic7.src = "%(ThemeDir)s/dyn_buttons/h-subtopic7.png";
+ var subtopic8 = new Image();
+ subtopic8.src = "%(ThemeDir)s/dyn_buttons/h-subtopic8.png";
+ var subtopic9 = new Image();
+ subtopic9.src = "%(ThemeDir)s/dyn_buttons/h-subtopic9.png";
+-  var x816 = new Image();
+-x816.src = "%(ThemeDir)s/dyn_buttons/layout1_r6_c1_h.png";
+-  var x901 = new Image();
+-x901.src = "%(ThemeDir)s/dyn_buttons/layout1_r7_c1_h.png";
++var subtopic10 = new Image();
++subtopic10.src = "%(ThemeDir)s/dyn_buttons/h-subtopic10.png";
++  var x819 = new Image();
++x819.src = "%(ThemeDir)s/dyn_buttons/layout1_r6_c1_h.png";
++  var x904 = new Image();
++x904.src = "%(ThemeDir)s/dyn_buttons/layout1_r7_c1_h.png";
+ }
+ //-->
+ </script>
+diff -urN ../tmda-cgi-0.13/display/themes/Blue/template/view.html ./display/themes/Blue/template/view.html
+--- ../tmda-cgi-0.13/display/themes/Blue/template/view.html	2004-03-17 07:11:56.000000000 -0800
++++ ./display/themes/Blue/template/view.html	2004-03-18 10:20:18.000000000 -0800
+@@ -2,7 +2,7 @@
+ <?xml-stylesheet href="%(ThemeDir)s/styles.css" type="text/css"?>
+ <html>
+ <!-- THIS PAGE IS AUTOMATICALLY GENERATED.  DO NOT EDIT. -->
+-<!-- Tue Mar 16 09:07:26 2004 -->
++<!-- Thu Mar 18 12:20:18 2004 -->
+ <!-- USING HT2HTML 2.1 -->
+ <!-- SEE http://ht2html.sf.net -->
+ <!-- User-specified headers:

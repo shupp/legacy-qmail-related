@@ -1,0 +1,46 @@
+*** ../vpopmail-5.1.3-shupp/vuserinfo.c	Wed Dec 12 09:31:44 2001
+--- vuserinfo.c	Thu Dec 20 19:24:10 2001
+***************
+*** 61,66 ****
+--- 61,67 ----
+  void usage();
+  void get_options(int argc, char **argv);
+  void display_user(struct vqpasswd *mypw, char *domain);
++ char *oldquota_to_maildirquota(const char *q);
+  
+  int main(argc,argv)
+   int argc;
+***************
+*** 262,268 ****
+          sprintf(maildir, "%s/Maildir", mypw->pw_dir);
+          if((strcmp(mypw->pw_shell, "NOQUOTA"))) {
+              printf("usage:     %d%%\n", 
+!                 maildir_readquota(maildir, mypw->pw_shell));
+          } else {
+              printf("usage:     %s\n", mypw->pw_shell);
+          }
+--- 263,269 ----
+          sprintf(maildir, "%s/Maildir", mypw->pw_dir);
+          if((strcmp(mypw->pw_shell, "NOQUOTA"))) {
+              printf("usage:     %d%%\n", 
+!                 maildir_readquota(maildir, oldquota_to_maildirquota(mypw->pw_shell)));
+          } else {
+              printf("usage:     %s\n", mypw->pw_shell);
+          }
+***************
+*** 315,321 ****
+              sprintf(maildir, "%s/Maildir", mypw->pw_dir);
+              if((strcmp(mypw->pw_shell, "NOQUOTA"))) {
+                  printf("%d%%\n", 
+!                     maildir_readquota(maildir, mypw->pw_shell));
+              } else {
+                  printf("%s\n", mypw->pw_shell);
+              }
+--- 316,322 ----
+              sprintf(maildir, "%s/Maildir", mypw->pw_dir);
+              if((strcmp(mypw->pw_shell, "NOQUOTA"))) {
+                  printf("%d%%\n", 
+!                     maildir_readquota(maildir, oldquota_to_maildirquota(mypw->pw_shell)));
+              } else {
+                  printf("%s\n", mypw->pw_shell);
+              }

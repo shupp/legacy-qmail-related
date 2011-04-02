@@ -1,0 +1,121 @@
+This patch adds a couple of functions to vpopmaild.c, and updates 
+README.vpopmaild
+
+Bill Shupp
+hostmaster@shupp.org
+
+diff -urN ../vpopmail-5.4.17-orig/README.vpopmaild ./README.vpopmaild
+--- ../vpopmail-5.4.17-orig/README.vpopmaild	2005-12-12 10:15:34.000000000 -0600
++++ ./README.vpopmaild	2006-11-06 12:10:54.681451048 -0600
+@@ -262,6 +262,17 @@
+ 
+ --------------------------------------------------------------------
+ 
++user_count domain
++
++Rights required: SA_ADMIN, or QA_ADMIN.  QA_ADMIN can only manage their
++                 own domain.
++
++Action:  Return the number of accounts in a domain.  This can be used to determine
++the number of pages of user account information that is available.
++
++
++--------------------------------------------------------------------
++
+ mk_dir directory
+ 
+ Rights required: SA_ADMIN, QA_ADMIN or USER.  QA_ADMIN can only work within
+@@ -391,7 +402,7 @@
+ 
+ --------------------------------------------------------------------
+ 
+-list_users domain
++list_users domain [page lines_per_page]
+ 
+ Rights required: SA_ADMIN, or QA_ADMIN.  QA_ADMIN can only manage their
+                  own domain.
+@@ -399,7 +410,9 @@
+ Action:  List all Mailbox accounts for a domain.
+ 
+ It returns the same info about a user as something else.  Find it and
+-copy the info here.
++copy the info here.  If the optional page is given, lines_per_page must be 
++specified also.  When both are given, the data is broken up into pages with 
++lines_per_page lines on each.  The page returned is specified by page.
+ 
+ 
+ --------------------------------------------------------------------
+diff -urN ../vpopmail-5.4.17-orig/vpopmaild.c ./vpopmaild.c
+--- ../vpopmail-5.4.17-orig/vpopmaild.c	2006-06-29 14:56:34.000000000 -0500
++++ ./vpopmaild.c	2006-11-06 12:11:26.785570480 -0600
+@@ -85,6 +85,7 @@
+ int list_domains();
+ int find_domain();
+ int domain_count();
++int user_count();
+ int list_users();
+ int list_alias();
+ int list_lists();
+@@ -142,7 +143,8 @@
+ {"list_domains", list_domains, "[page per_page]<crlf>" },
+ {"find_domain", find_domain, "domain [per-page]<crlf>" },
+ {"domain_count", domain_count, "<crlf>" },
+-{"list_users", list_users, "domain<crlf>" },
++{"user_count", user_count, "domain<crlf>" },
++{"list_users", list_users, "domain [page per_page]<crlf>" },
+ {"list_alias", list_alias, "domain<crlf>" },
+ {"list_lists", list_lists, "domain<crlf>" },
+ {"get_ip_map", get_ip_map, "domain<crlf>" },
+@@ -1512,6 +1514,52 @@
+   return(0);
+ }
+ 
++int user_count()
++{
++ char *domain;
++ int first;
++ int count;
++
++  if ( !(AuthVpw.pw_gid & QA_ADMIN) && !(AuthVpw.pw_gid & SA_ADMIN) ) {
++    snprintf(WriteBuf,sizeof(WriteBuf), RET_ERR "XXX not authorized" RET_CRLF);
++    return(-1);
++  }
++
++  if ((domain=strtok(NULL,TOKENS))==NULL) {
++    snprintf(WriteBuf,sizeof(WriteBuf), 
++      RET_ERR "XXX email_address required" RET_CRLF);
++    return(-1);
++  }
++
++  if ( !(AuthVpw.pw_gid&SA_ADMIN) && (AuthVpw.pw_gid&QA_ADMIN) && 
++        (strcmp(TheDomain,domain))!=0 ) {
++    snprintf(WriteBuf,sizeof(WriteBuf), 
++      RET_ERR "XXX not authorized for domain" RET_CRLF);
++    return(-1);
++  }
++
++  if ( !(AuthVpw.pw_gid&SA_ADMIN) && (AuthVpw.pw_gid&QA_ADMIN) && 
++        (strcmp(TheDomain,domain))!=0 ) {
++    snprintf(WriteBuf,sizeof(WriteBuf), 
++      RET_ERR "XXX not authorized for domain" RET_CRLF);
++    return(-1);
++  }
++
++  snprintf(WriteBuf, sizeof(WriteBuf), RET_OK_MORE);
++  wait_write();
++
++  first=1;
++  count = 0;
++  while((tmpvpw=vauth_getall(domain, first, 1))!=NULL) {
++    first = 0;
++    ++count;
++  }
++  snprintf(WriteBuf,sizeof(WriteBuf), "count %i" RET_CRLF, count);
++  wait_write();
++  snprintf(WriteBuf,sizeof(WriteBuf), "." RET_CRLF);
++  return(0);
++}
++
+ 
+ int list_users()
+ {

@@ -1,0 +1,81 @@
+<title><?php echo _("Appendix")?></title>
+
+<itemizedlist>
+    <listitem>
+        <para><anchor id="donate" /><emphasis><?php echo _("Donate!")?></emphasis></para>
+        <para><?php echo _("If you find this toaster useful to you, and want to support its development, please feeel free to donate via Paypal:")?></para>
+        <literallayout></literallayout>
+        <literallayout><userinput role="donate"></userinput></literallayout>
+        <para><?php echo _("<emphasis>NOTE:</emphasis> If you want to support a particular translation, please indicate which translation you wish to support in the 'Message to Seller' option at the end of checkout")?></para>
+    </listitem>
+
+    <listitem>
+        <para><anchor id="troubleshooting" /><emphasis><?php echo _("Troubleshooting")?></emphasis></para>
+        <itemizedlist>
+            <listitem><literallayout><?php echo _("Subscribe to this toaster list: <ulink url='mailto:toaster-subscribe@shupp.org'>toaster-subscribe@shupp.org</ulink> (to unsubscribe: <ulink url='mailto:toaster-unsubscribe@shupp.org'>toaster-subscribe@shupp.org</ulink>)")?>
+            <?php echo _("There is also a <ulink url='http://www.mail-archive.com/toaster@shupp.org'>searchable archive</ulink>")?></literallayout>
+            </listitem>
+
+            <listitem><literallayout><?php echo _("It's recommended that you join the mailing list for vpopmail (<ulink url='vchkpw-subscribe@inter7.com'>vchkpw-subscribe@inter7.com</ulink>), since this is the core of the virtual domain package.")?></literallayout></listitem>
+
+            <listitem><literallayout><?php echo _("Also, <ulink url='http://www.lifewithqmail.org/'>Life With Qmail</ulink> covers qmail setup/maintenance in great detail. Make sure you read it.")?></literallayout></listitem>
+        </itemizedlist>
+    </listitem>
+
+    
+    <listitem>
+        <para><anchor id="credits" /><emphasis><?php echo _("Credits")?></emphasis></para>
+
+        <itemizedlist>
+            <listitem><literallayout><?php echo _("This document is certainly inspired by Matt Simerson's <ulink url='http://www.tnpi.biz/internet/mail/toaster/'>FreeBSD Mail Toaster</ulink>. If you use FreeBSD, use it instead, it's great.")?></literallayout></listitem>
+            <listitem><literallayout><?php echo _("Most of the commands listed in the steps above are derived either directly from the documentation or <ulink url='http://www.lifewithqmail.org/'>Life With Qmail</ulink>.")?></literallayout></listitem>
+            <listitem><literallayout><?php echo _("There have been countless ideas, corrections, testing, and even bits of code contribted from the toaster users list.")?></literallayout></listitem>
+            <listitem><literallayout><?php echo _("This toaster was put together by Bill Shupp (hostmaster@shupp.org) in December of 2001.")?></literallayout></listitem>
+        </itemizedlist>
+    </listitem>
+
+    
+    <listitem>
+        <para><anchor id="translations" /><emphasis><?php echo _("Translations")?></emphasis></para>
+
+        <itemizedlist>
+            <listitem><literallayout><?php echo _("Spanish translation by Abel Lucano with some input from Ingo Carlo")?></literallayout></listitem>
+            <listitem><literallayout><?php echo _("Romanian translation by Daniel Toma")?></literallayout></listitem>
+        </itemizedlist>
+    </listitem>
+    <listitem>
+        <para><anchor id="resources" /><emphasis><?php echo _("Resources")?></emphasis></para>
+
+        <itemizedlist>
+            <listitem><literallayout><ulink url="http://cr.yp.to/"><?php echo _("Dan Bernstein's site")?></ulink></literallayout></listitem>
+            <listitem><literallayout><ulink url='http://www.lifewithqmail.org/'><?php echo _("Life With Qmail")?></ulink></literallayout></listitem>
+        </itemizedlist>
+    </listitem>
+
+    <listitem>
+        <para><anchor id="success" /><emphasis><?php echo _("Success Reports")?></emphasis></para>
+
+        <blockquote>
+            <literallayout><?php echo _("<quote>Bill, thanks loads for the toaster. It works wonderfully, and didn't take too long to set up. I only wish I had it two weeks ago. :)</quote> -- Matt G.")?></literallayout>
+        </blockquote>
+
+        <blockquote>
+            <literallayout><?php echo _("<quote>Hi I just installed the complete qmail toaster suite tonight. . [nearly] flawless installation. . and [nearly] all done from your site. . i think you are doing great things with that toaster site.</quote> -- Ezra P.")?></literallayout>
+        </blockquote>
+
+        <blockquote>
+            <literallayout><?php echo _("<quote>Thanks for making it easy. Now to understand what I (you) have done. ; )</quote> -- Charles C.")?></literallayout>
+        </blockquote>
+
+        <blockquote>
+            <literallayout><?php echo _("<quote>Hi Bill, I just wanted to thank you for the great instructions on setting up qmail, etc. on Linux. I'm a bit of a rookie and for the last month I've been looking for a fairly easy to configure setup for mail. After going from RedHat w/ Sendmail to Win 2K / Exchange to FreeBSD, Debian, Gentoo, Slack with some combo of qmail, courier, postfix and back again I finally stumbled upon your site - gave RedHat a fresh install and within half an hour I was up and running with Qmail. (I'm sending this to you using my server).  I couldn't have done it without you! I really do appreciate the work you put into the instructions and patches.</quote> -- Thomas A.")?></literallayout>
+        </blockquote>
+
+        <blockquote>
+            <literallayout><?php echo _("<quote>Bill, Just wanted to drop a note to you to thank you for all the obvious work you put into the toaster website. I just installed it, and it worked perfectly. In fact, I am sending you the first email from my new setup. Again, thanks for all the hard work that went into the instructions.</quote> -- Jim S.")?></literallayout>
+        </blockquote>
+
+
+    </listitem>
+
+</itemizedlist>

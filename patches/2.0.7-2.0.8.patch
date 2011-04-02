@@ -1,0 +1,1017 @@
+diff -ruN ../../netqmail-1.05-chkuser-2.0.7/netqmail-1.05/Makefile ./Makefile
+--- ../../netqmail-1.05-chkuser-2.0.7/netqmail-1.05/Makefile	Thu Nov 11 18:18:48 2004
++++ ./Makefile	Mon Dec 13 08:04:08 2004
+@@ -1601,7 +1601,7 @@
+ 	nroff -man qmail-smtpd.8 > qmail-smtpd.0
+ 
+ qmail-smtpd.o: \
+-compile qmail-smtpd.c sig.h readwrite.h stralloc.h gen_alloc.h \
++compile qmail-smtpd.c chkuser.h sig.h readwrite.h stralloc.h gen_alloc.h \
+ substdio.h alloc.h auto_qmail.h control.h received.h constmap.h \
+ error.h ipme.h ip.h ipalloc.h ip.h gen_alloc.h ip.h qmail.h \
+ substdio.h str.h fmt.h scan.h byte.h case.h env.h now.h datetime.h \
+diff -ruN ../../netqmail-1.05-chkuser-2.0.7/netqmail-1.05/chkuser.c ./chkuser.c
+--- ../../netqmail-1.05-chkuser-2.0.7/netqmail-1.05/chkuser.c	Thu Nov 11 18:18:48 2004
++++ ./chkuser.c	Mon Dec 13 08:04:08 2004
+@@ -1,7 +1,7 @@
+ 
+ /*
+  *
+- * 'chkuser.c' v.2.0.5
++ * 'chkuser.c' v.2.0.8
+  * for qmail/netqmail > 1.0.3 and vpopmail > 5.3.x
+  *
+  * Author: Antonio Nati tonix@interazioni.it
+@@ -41,6 +41,10 @@
+ #include "chkuser.h"
+ #include "chkuser_settings.h"
+ 
++#if defined _exit
++#undef _exit
++#endif
++
+ extern void flush();
+ extern void out (char *s);
+ 
+@@ -86,6 +90,23 @@
+ static stralloc tmp_path = {0};
+ static stralloc alias_path = {0};
+ 
++#if defined CHKUSER_IDENTIFY_REMOTE_VARIABLE
++ static char *identify_remote;
++#endif
++
++#if defined CHKUSER_ENABLE_EXTENSIONS
++#define CHKUSER_ENABLE_USERS_EXTENSIONS
++#endif
++
++#if defined CHKUSER_ENABLE_LISTS
++#define CHKUSER_ENABLE_EZMLM_LISTS
++#endif
++
++#if defined CHKUSER_EXTENSION_DASH
++#define CHKUSER_USERS_DASH CHKUSER_EXTENSION_DASH
++#endif
++
++
+ #if defined CHKUSER_ENABLE_VAUTH_OPEN
+  static int db_already_open = 0;
+ #endif
+@@ -112,19 +133,12 @@
+   static int maxmbxquota_limit = 0;
+ #endif
+ 
+-#if defined CHKUSER_SENDER_MX || defined CHKUSER_RCPT_MX
+-
+-  static unsigned long mx_random;
+-  static ipalloc mx_ip = {0};
+-
+ #if defined CHKUSER_SENDER_NOCHECK_VARIABLE
+ 
+   static unsigned int sender_nocheck = 0;
+ 
+ #endif
+ 
+-#endif
+-
+ #if defined CHKUSER_SENDER_FORMAT || defined CHKUSER_SENDER_MX
+ static stralloc sender_user = {0};
+ static stralloc sender_domain = {0};
+@@ -180,7 +194,9 @@
+ 	substdio_puts (subfderr, remoteinfo);
+   }
+   substdio_puts (subfderr, ":" );
+-  if (relayclient) substdio_puts (subfderr, relayclient);
++#if defined CHKUSER_IDENTIFY_REMOTE_VARIABLE
++  if (identify_remote) substdio_puts (subfderr, identify_remote);
++#endif
+   substdio_puts (subfderr, "> remote <");
+   if (fakehelo) substdio_puts (subfderr, fakehelo);
+   substdio_puts (subfderr, ":" );
+@@ -232,20 +248,45 @@
+                 }
+         }
+ 
++/*
++ * Be careful, this is a base check
++ *      Minimum is x.xx + ending \0
++ *      Minimum characters needed are 5
++ */
++#if defined CHKUSER_MIN_DOMAIN_LEN
++        if (domain->len < (CHKUSER_MIN_DOMAIN_LEN +1)) {
++                return 0;
++        }
++#endif
++
++/*
++ *      This is a safety check
++ */
++#if defined CHKUSER_MIN_DOMAIN_LEN
++        if (domain->len < 2) {
++                return 0;
++        }
++#endif
++
+         for (x = 0; x < (domain->len -1); ++x) {
+                 if ((!isalnum (domain->s[x])) && (domain->s[x] != '-') && (domain->s[x] != '.')) {
+                         return 0;
+                 }
+         }
++
+         if ((domain->s[0] == '-') || (domain->s[domain->len -2] == '-') || (domain->s[0] == '.') || (domain->s[domain->len -2] == '.')) {
+                 return 0;
+         }
+         if (strstr (domain->s, "..") != NULL) {
+                 return 0;
+         }
+-        if (strstr (domain->s, "--") != NULL) {
+-                return 0;
+-        }
++	if (strncmp (domain->s, "xn--", 4) == 0) {
++		if (strstr (&domain->s[4], "--") != NULL)
++			return 0;
++	} else {
++		if (strstr (domain->s, "--") != NULL)
++			return 0;
++	}
+         if (strstr (domain->s, ".-") != NULL) {
+                 return 0;
+         }
+@@ -256,17 +297,6 @@
+                 return 0;
+         }
+ 
+-/*
+- * Be careful, this is a base check
+- *	Minimum is x.xx + ending \0
+- *	Minimum characters needed are 5
+- */
+-#if defined CHKUSER_MIN_DOMAIN_LEN
+-        if (domain->len < (CHKUSER_MIN_DOMAIN_LEN +1)) {
+-                return 0;
+-        }
+-#endif
+-
+         return 1;
+ }
+ 
+@@ -280,26 +310,69 @@
+ 
+         for (x = 0; x < (user->len -1); ++x) {
+                 if ((!isalnum (user->s[x])) 
++#if defined CHKUSER_ALLOW_RCPT_SRS
++                && (user->s[x] != '#')
++                && (user->s[x] != '+')
++#endif
++#if defined CHKUSER_ALLOW_RCPT_CHAR_1
++                && (user->s[x] != CHKUSER_ALLOW_SENDER_CHAR_1)
++#endif
++#if defined CHKUSER_ALLOW_RCPT_CHAR_2
++                && (user->s[x] != CHKUSER_ALLOW_SENDER_CHAR_2)
++#endif
++#if defined CHKUSER_ALLOW_RCPT_CHAR_3
++                && (user->s[x] != CHKUSER_ALLOW_SENDER_CHAR_3)
++#endif
++#if defined CHKUSER_ALLOW_RCPT_CHAR_4
++                && (user->s[x] != CHKUSER_ALLOW_SENDER_CHAR_4)
++#endif
++#if defined CHKUSER_ALLOW_RCPT_CHAR_5
++                && (user->s[x] != CHKUSER_ALLOW_SENDER_CHAR_5)
++#endif
+ 
+ 		&& (user->s[x] != '_') && (user->s[x] != '-') && (user->s[x] != '.') && (user->s[x] != '=')) {
+                         return 0;
+                 }
+         }
+ 
++/*
++ * Be careful, this is a base check
++ *      Minimum is x.xx + ending \0
++ *      Minimum characters needed are 5
++ */
++#if defined CHKUSER_MIN_DOMAIN_LEN
++        if (domain->len < (CHKUSER_MIN_DOMAIN_LEN +1)) {
++                return 0;
++        }
++#endif
++
++/*
++ *      This is a safety check
++ */
++#if defined CHKUSER_MIN_DOMAIN_LEN
++        if (domain->len < 2) {
++                return 0;
++        }
++#endif
+         for (x = 0; x < (domain->len -1); ++x) {
+                 if ((!isalnum (domain->s[x])) && (domain->s[x] != '-') && (domain->s[x] != '.')) {
+                         return 0;
+                 }
+         }
++
+         if ((domain->s[0] == '-') || (domain->s[domain->len -2] == '-') || (domain->s[0] == '.') || (domain->s[domain->len -2] == '.')) {
+                 return 0;
+         }
+         if (strstr (domain->s, "..") != NULL) {
+                 return 0;
+         }
+-        if (strstr (domain->s, "--") != NULL) {
+-                return 0;
+-        }
++	if (strncmp (domain->s, "xn--", 4) == 0) {
++		if (strstr (&domain->s[4], "--") != NULL)
++			return 0;
++	} else {
++		if (strstr (domain->s, "--") != NULL)
++			return 0;
++	}
+         if (strstr (domain->s, ".-") != NULL) {
+                 return 0;
+         }
+@@ -310,21 +383,39 @@
+                 return 0;
+         }
+ 
+-/*
+- * Be careful, this is a base check
+- *      Minimum is x.xx + ending \0
+- *      Minimum characters needed are 5
+- */
+-#if defined CHKUSER_MIN_DOMAIN_LEN
+-	if (domain->len < (CHKUSER_MIN_DOMAIN_LEN +1)) {
+-		return 0;
+-	}
++        return 1;
++}
++
+ #endif
+ 
+-        return 1;
++#if defined CHKUSER_SENDER_MX || defined CHKUSER_RCPT_MX
++
++static   unsigned long mx_random;
++static  ipalloc mx_ip = {0};
++
++static int chkuser_mx_lookup (stralloc *domain) {
++
++  int status;
++
++	mx_random = now() + getpid();
++	dns_init(0);
++	status = dns_mxip (&mx_ip, domain, mx_random);
++
++	if (status == DNS_MEM) DIE_NOMEM();
++
++	return status;
+ }
+ 
++#endif
++
++
++void chkuser_cleanup (int exit_value) {
+ 
++#if defined CHKUSER_DB_CLEANUP
++	vclose ();
++#endif
++	_exit (exit_value);
++}
+ 
+ static void first_time_init (void) {
+ 
+@@ -379,8 +470,6 @@
+ 	}
+ #endif
+ 
+-#if defined CHKUSER_SENDER_MX || defined CHKUSER_RCPT_MX
+-
+ #if defined CHKUSER_SENDER_NOCHECK_VARIABLE
+ 
+         temp_string = env_get (CHKUSER_SENDER_NOCHECK_VARIABLE);
+@@ -391,6 +480,13 @@
+         }
+ 
+ #endif
++
++#if defined CHKUSER_IDENTIFY_REMOTE_VARIABLE
++
++        identify_remote = env_get (CHKUSER_IDENTIFY_REMOTE_VARIABLE);
++        if (identify_remote) {
++        }
++
+ #endif
+ 
+         if (!stralloc_ready (&user, 300)) DIE_NOMEM();
+@@ -403,8 +499,6 @@
+ 
+ }
+ 
+-#endif
+-
+ /*
+  * realrcpt ()
+  *
+@@ -536,11 +630,18 @@
+                 if (!addrallowed()) {
+ 
+ #if defined CHKUSER_RCPT_MX
+-			mx_random = now() + (getpid() << 16);
+-        		if (dns_mxip(&mx_ip,&domain, 0) == DNS_MEM) DIE_NOMEM();
++			switch (chkuser_mx_lookup(&domain)) {
++
++				case DNS_HARD:
++					retstat = CHKUSER_ERR_RCPT_MX;
++					break;
+ 
+-			if (mx_ip.len <= 0) {
+-				retstat = CHKUSER_ERR_RCPT_MX;
++				case DNS_SOFT:
++					retstat = CHKUSER_ERR_RCPT_MX_TMP;
++					break;
++			}
++
++			if (retstat != CHKUSER_KO) {
+ 				break;
+ 			}
+ #endif
+@@ -566,7 +667,7 @@
+                 };
+ #endif
+ 
+-	case 6:
++	case 5:
+ 
+ #if defined CHKUSER_ENABLE_VGET_REAL_DOMAIN
+ /* Check if domain is a real domain */
+@@ -578,11 +679,14 @@
+ #endif
+ 
+ /* Let's get domain's real path */
+-                vget_assign(domain.s, domain_path.s, 156, NULL, NULL);
+-
+-                domain_path.len = strlen (domain_path.s);
++                if (vget_assign(domain.s, domain_path.s, domain_path.a -1, NULL, NULL) == NULL) {
++			retstat = CHKUSER_OK;
++			break;
++		}
++	
++		domain_path.len = strlen (domain_path.s);
+ 
+-	case 7:
++	case 6:
+ 
+ /* Check if domain has bouncing enabled */
+ 
+@@ -628,54 +732,8 @@
+ #endif
+ #endif
+ 
+-	case 8:
+-#if defined CHKUSER_ENABLE_USERS
+-/* User control: check the existance of a real user */
+-
+-	  	user_passwd = vauth_getpw (user.s, domain.s);
+-
+-#if defined CHKUSER_ENABLE_EXTENSIONS
+-     		if (user_passwd == NULL) {
+-                       count = 0;
+-                       while ((count < (user.len -1)) && (user_passwd == NULL)) {
+-                               count += byte_chr(&user.s[count], user.len - count, CHKUSER_EXTENSION_DASH);
+-                               if (count < user.len) {
+-                                       if (!stralloc_copyb (&tmp_path, user.s, count)) DIE_NOMEM();
+-                                       if (!stralloc_0 (&tmp_path)) DIE_NOMEM();
+-                                       user_passwd = vauth_getpw (tmp_path.s, domain.s);
+-					 ++count;
+-                               }
+-			}
+-		}
+-
+-#endif
+-	  	if (user_passwd != NULL) {
+-
+-		/* If user exists check if he has BOUNCE_MAIL flag set */
+-
+-			if (user_passwd->pw_gid & BOUNCE_MAIL)
+-		    		retstat = CHKUSER_KO;
+-	    		else {
+-		    		retstat = CHKUSER_OK;
+-#if defined CHKUSER_MBXQUOTA_VARIABLE
+-				if ((maxmbxquota_limit > 0) && (strcasecmp(user_passwd->pw_shell, "NOQUOTA") != 0)) {
+-					if (!stralloc_copys (&tmp_path, user_passwd->pw_dir)) DIE_NOMEM();
+-					if (!stralloc_cats (&tmp_path, "/Maildir")) DIE_NOMEM();
+-					if (!stralloc_0 (&tmp_path)) DIE_NOMEM();
+-
+-					if (vmaildir_readquota(tmp_path.s,format_maildirquota(user_passwd->pw_shell))
+-						>= maxmbxquota_limit) {
+-				    		retstat = CHKUSER_ERR_MBXFULL;
+-					}
+-				}
+-#endif
+-			}
+-			break;
+-	  	}
+-#endif
+-
+-	case 9:
+-#if defined CHKUSER_ENABLE_VALIAS
++	case 7:
++#if defined VALIAS
+ /* Check for aliases/forwards - valias*/
+ 
+ 		if (valias_select (user.s, domain.s) != NULL) {
+@@ -684,14 +742,14 @@
+ 		}
+ #endif
+ 
+-	case 10:
++	case 8:
+ #if defined CHKUSER_ENABLE_ALIAS
+ /* Check for aliases/forwards - .qmail.x files */
+ 
+ 		if (!stralloc_copy (&tmp_path, &user)) DIE_NOMEM();
+                 /* Change all '.' in ':' before continuing on aliases */
+                 for (count = 0; count < tmp_path.len; ++count)
+-                if (*(tmp_path.s + count) == '.') *(tmp_path.s + count) = ':';
++        	        if (*(tmp_path.s + count) == '.') *(tmp_path.s + count) = ':';
+ 
+                 if (!stralloc_copy (&alias_path, &domain_path)) DIE_NOMEM();
+                 if (!stralloc_cats (&alias_path, "/.qmail-")) DIE_NOMEM();
+@@ -706,8 +764,86 @@
+ 		}
+ #endif
+ 
++	case 9:
++
++#if defined CHKUSER_ENABLE_ALIAS_DEFAULT
++
++		if (!stralloc_copy (&tmp_path, &user)) DIE_NOMEM();
++                /* Change all '.' in ':' before continuing on aliases */
++                for (count = 0; count < tmp_path.len; ++count)
++        	        if (*(tmp_path.s + count) == '.') *(tmp_path.s + count) = ':';
++
++                /* Search for the outer '-' character */
++                for (offset = user.len - 1; offset > 0; --offset)
++                        if (*(user.s + offset) == CHKUSER_USERS_DASH)  {
++                                if (!stralloc_copy (&alias_path, &domain_path)) die_nomem();
++                                if (!stralloc_cats (&alias_path, "/.qmail-")) die_nomem();
++                                if (!stralloc_catb (&alias_path, user.s, offset)) die_nomem();
++                                if (!stralloc_cats (&alias_path, "-default")) die_nomem();
++                                if (!stralloc_0 (&alias_path)) die_nomem();
++
++                                fd_file = open_read (alias_path.s);
++                                if (fd_file != -1) {
++                                        close (fd_file);
++                                        retstat = CHKUSER_OK;
++                                        break;
++                                }
++                        }
++
++                if (retstat != CHKUSER_KO) {
++                        break;
++                }
++
++#endif
++
++        case 10:
++#if defined CHKUSER_ENABLE_USERS
++/* User control: check the existance of a real user */
++
++                user_passwd = vauth_getpw (user.s, domain.s);
++
++#if defined CHKUSER_ENABLE_USERS_EXTENSIONS
++                if (user_passwd == NULL) {
++                       count = 0;
++                       while ((count < (user.len -1)) && (user_passwd == NULL)) {
++                               count += byte_chr(&user.s[count], user.len - count, CHKUSER_USERS_DASH);
++                               if (count < user.len) {
++                                       if (!stralloc_copyb (&tmp_path, user.s, count)) DIE_NOMEM();
++                                       if (!stralloc_0 (&tmp_path)) DIE_NOMEM();
++                                       user_passwd = vauth_getpw (tmp_path.s, domain.s);
++                                         ++count;
++                               }
++                        }
++                }
++
++#endif
++                if (user_passwd != NULL) {
++
++                /* If user exists check if he has BOUNCE_MAIL flag set */
++
++                        if (user_passwd->pw_gid & BOUNCE_MAIL)
++                                retstat = CHKUSER_KO;
++                        else {
++                                retstat = CHKUSER_OK;
++#if defined CHKUSER_MBXQUOTA_VARIABLE
++                                if ((maxmbxquota_limit > 0) && (strcasecmp(user_passwd->pw_shell, "NOQUOTA") != 0)) {
++                                        if (!stralloc_copys (&tmp_path, user_passwd->pw_dir)) DIE_NOMEM();
++                                        if (!stralloc_cats (&tmp_path, "/Maildir")) DIE_NOMEM();
++                                        if (!stralloc_0 (&tmp_path)) DIE_NOMEM();
++
++                                        if (vmaildir_readquota(tmp_path.s,format_maildirquota(user_passwd->pw_shell))
++                                                >= maxmbxquota_limit) {
++                                                retstat = CHKUSER_ERR_MBXFULL;
++                                        }
++                                }
++#endif
++                        }
++                        break;
++                }
++#endif
++
+ 	case 11:
+-#if defined CHKUSER_ENABLE_LISTS
++#if defined CHKUSER_ENABLE_EZMLM_LISTS
+ /* Let's check for mailing lists */
+ 
+ 		/* Search for the outer CHKUSER_EZMLM_DASH character */
+@@ -731,6 +867,39 @@
+ 		}
+ #endif
+ 
++        case 12:
++#if defined CHKUSER_ENABLE_MAILMAN_LISTS
++/* Let's check for mailing lists */
++
++                /* Search for the outer CHKUSER_MAILMAN_DASH character */
++                for (offset = user.len - 2; offset > 0; --offset) {
++                        if (*(user.s + offset) == CHKUSER_MAILMAN_DASH)  {
++                                if (!stralloc_copy (&tmp_path, &domain_path)) DIE_NOMEM();
++                                if (!stralloc_cats (&tmp_path, "/")) DIE_NOMEM();
++				if (!stralloc_cats (&alias_path, "/.qmail-")) DIE_NOMEM();
++                                if (!stralloc_catb (&tmp_path, user.s, offset)) DIE_NOMEM();
++                                if (!stralloc_0 (&tmp_path)) DIE_NOMEM();
++                                fd_file = open_read (tmp_path.s);
++	                        read_char = 0;
++        	                if (fd_file != -1) {
++                	                read_char = read (fd_file, read_buf, sizeof(read_buf) - 1);
++                        	        close (fd_file);
++                                	if (read_char < 0) read_char = 0;
++                                }
++	                        read_buf[read_char] = 0;
++
++        	                if ( strstr(read_buf, CHKUSER_MAILMAN_STRING) == NULL ) {
++	                                retstat = CHKUSER_OK;
++	                                break;
++	                        }
++
++                        }
++                }
++                if (retstat != CHKUSER_KO) {
++                        break;
++                }
++#endif
++
+ /*
+  * Add this code if another case is following
+ 	case xx:
+@@ -826,8 +995,6 @@
+ 			chkuser_commonlog (sender->s, rcpt->s, "no auth resource", "no auth resource available");
+ 		        CHKUSER_RCPT_DELAY_ANY();
+ 			out(CHKUSER_RESOURCE_STRING);
+-			flush();
+-			_exit(1);
+ 			break;
+ 
+ 		case CHKUSER_ERR_MBXFULL:
+@@ -870,8 +1037,16 @@
+ 		        CHKUSER_RCPT_DELAY_ANY();
+ 			out(CHKUSER_RCPTMX_STRING);
+                         break;
++
++                case CHKUSER_ERR_RCPT_MX_TMP:
++                        chkuser_commonlog (sender->s, rcpt->s, "rejected rcpt", "temporary DNS problem");
++                        CHKUSER_RCPT_DELAY_ANY();
++                        out(CHKUSER_RCPTMX_TMP_STRING);
++                        break;
+ 	}
+ 
++
++
+ #if defined CHKUSER_WRONGRCPT_LIMIT_VARIABLE
+ 	if ((retstat == CHKUSER_KO) || (retstat == CHKUSER_ERR_DOMAIN_MISSING)) {
+         	++wrong_recipients;
+@@ -895,14 +1070,20 @@
+ 
+ int chkuser_sender (stralloc *sender) {
+ 
+-#if defined CHKUSER_SENDER_FORMAT || defined CHKUSER_SENDER_MX
+-
+ int count;
+ 
+ 	if (first_time_init_flag) {
+ 		first_time_init ();
+ 	}
+ 
++#if !defined CHKUSER_ALWAYS_ON && defined CHKUSER_STARTING_VARIABLE
++	if (starting_value == -1) {
++		return CHKUSER_OK;
++	}
++#endif
++
++#if defined CHKUSER_SENDER_FORMAT || defined CHKUSER_SENDER_MX
++
+ #if defined CHKUSER_SENDER_NOCHECK_VARIABLE
+ 
+ 	if (sender_nocheck == 1) {
+@@ -910,11 +1091,13 @@
+ 	}
+ #endif
+ 
+-#if defined CHKUSER_ENABLE_NULL_SENDER_WITH_TCPREMOTEHOST
+-	if ((sender->len <= 1) && (strcasecmp (remotehost, "unknown") != 0))
+-		return CHKUSER_OK;
+-
++        if (sender->len <= 1) {
++#if defined CHKUSER_LOG_VALID_SENDER
++		chkuser_commonlog (sender->s, "", "accepted null sender", "accepted null sender always");
+ #endif
++                return CHKUSER_OK;
++	}
++
+         count = byte_rchr(sender->s,sender->len,'@');
+         if (count < sender->len) {
+                 if (!stralloc_copyb (&sender_user, sender->s, count)) DIE_NOMEM();
+@@ -937,15 +1120,23 @@
+ #endif
+ 
+ #if defined CHKUSER_SENDER_MX
+-        mx_random = now() + (getpid() << 16);
+-        if (dns_mxip(&mx_ip,&sender_domain, 0) == DNS_MEM) DIE_NOMEM();
+ 
+-        if (mx_ip.len <= 0) {
+-		CHKUSER_SENDER_DELAY_ANY();
+-		out(CHKUSER_SENDERMX_STRING);
+-                chkuser_commonlog (sender->s, "", "rejected sender", "invalid sender MX domain");
+-	        return CHKUSER_ERR_SENDER_MX;
+-        }
++	switch (chkuser_mx_lookup(&sender_domain)) {
++
++		case DNS_HARD:
++			CHKUSER_SENDER_DELAY_ANY();
++			out(CHKUSER_SENDERMX_STRING);
++			chkuser_commonlog (sender->s, "", "rejected sender", "invalid sender MX domain");
++			return CHKUSER_ERR_SENDER_MX;
++			break;
++
++		case DNS_SOFT:
++			CHKUSER_SENDER_DELAY_ANY();
++			out(CHKUSER_SENDERMX_TMP_STRING);
++			chkuser_commonlog (sender->s, "", "rejected sender", "temporary DNS problem");
++			return CHKUSER_ERR_SENDER_MX_TMP;
++			break;
++	}
+ 
+ #if defined CHKUSER_LOG_VALID_SENDER
+                         chkuser_commonlog (sender->s, "", "accepted sender", "sender accepted");
+diff -ruN ../../netqmail-1.05-chkuser-2.0.7/netqmail-1.05/chkuser.h ./chkuser.h
+--- ../../netqmail-1.05-chkuser-2.0.7/netqmail-1.05/chkuser.h	Thu Nov 11 18:18:48 2004
++++ ./chkuser.h	Mon Dec 13 08:04:08 2004
+@@ -1,7 +1,7 @@
+ 
+ /*
+  *
+- * 'chkuser.h' v.2.0.5
++ * 'chkuser.h' v.2.0.8
+  * for qmail/netqmail > 1.0.3 and vpopmail > 5.3.x
+  *
+  * Author: Antonio Nati tonix@interazioni.it
+@@ -17,10 +17,10 @@
+  */
+ 
+ #define CHKUSER
+-#define CHKUSER_VERSION		"2.0.5"
++#define CHKUSER_VERSION		"2.0.8"
+ #define CHKUSER_VERSION_RL	2
+ #define CHKUSER_VERSION_MJ	0
+-#define CHKUSER_VERSION_MN	5
++#define CHKUSER_VERSION_MN	8
+ 
+ #define CHKUSER_OK			1
+ #define CHKUSER_RELAYING		0
+@@ -33,11 +33,19 @@
+ #define CHKUSER_ERR_DOMAIN_MISSING	-60
+ #define CHKUSER_ERR_RCPT_FORMAT		-70
+ #define CHKUSER_ERR_RCPT_MX		-75
++#define CHKUSER_ERR_RCPT_MX_TMP		-76
+ #define CHKUSER_ERR_SENDER_FORMAT	-80
+ #define CHKUSER_ERR_SENDER_MX		-85
++#define CHKUSER_ERR_SENDER_MX_TMP	-86
+ #define CHKUSER_ERR_INTRUSION_THRESHOLD	-90
+ 
++void chkuser_cleanup (int exit_value);
+ int chkuser_realrcpt (stralloc *sender, stralloc *rcpt);
+ int chkuser_sender (stralloc *sender);
+ 
+-
++#ifdef TLS_H
++#undef _exit
++#define _exit(value) { if (ssl) ssl_free(ssl); chkuser_cleanup(value); }
++#else
++#define _exit(value) chkuser_cleanup(value);
++#endif
+diff -ruN ../../netqmail-1.05-chkuser-2.0.7/netqmail-1.05/chkuser_settings.h ./chkuser_settings.h
+--- ../../netqmail-1.05-chkuser-2.0.7/netqmail-1.05/chkuser_settings.h	Thu Nov 11 18:18:48 2004
++++ ./chkuser_settings.h	Mon Dec 13 08:04:08 2004
+@@ -1,7 +1,7 @@
+ 
+ /*
+  *
+- * 'chkuser_settings.h' v.2.0.6
++ * 'chkuser_settings.h' v.2.0.8
+  * for qmail/netqmail > 1.0.3 and vpopmail > 5.3.x
+  *
+  * Author: Antonio Nati tonix@interazioni.it
+@@ -61,18 +61,6 @@
+ /* #define CHKUSER_ENABLE_UIDGID */
+ 
+ /*
+- * Uncomment this to enable user extension on names (i.e. TMDA)
+- * (for mailing lists this is done without checking this define)
+- */
+-/* #define CHKUSER_ENABLE_EXTENSIONS */
+-
+-/*
+- * The following #define set the character used for users extensions
+- * be careful: this is a  single char '-' definition, not a "string"
+- */
+-#define CHKUSER_EXTENSION_DASH '-'
+-
+-/*
+  * Uncomment this to check if a domain is ALWAYS specified in rcpt addresses
+  */
+ #define CHKUSER_DOMAIN_WANTED
+@@ -88,16 +76,6 @@
+ #define CHKUSER_ENABLE_ALIAS
+ 
+ /*
+- * Uncomment this to check for valias
+- */
+-#define CHKUSER_ENABLE_VALIAS
+-
+-/*
+- * Uncomment this to check for mailing lists
+- */
+-#define CHKUSER_ENABLE_LISTS
+-
+-/*
+  * The following #define set the character used for lists extensions
+  * be careful: this is a  single char '-' definition, not a "string"
+  */
+@@ -136,26 +114,6 @@
+ #define CHKUSER_LOG_VALID_RCPT
+ 
+ /*
+- * Uncomment to enable checking of user and domain format for rcpt addresses
+- *      user    =       [a-z0-9_-]
+- *      domain  =       [a-z0-9-.] with not consecutive "-.", not leading or ending "-."
+- */
+-#define CHKUSER_RCPT_FORMAT
+-
+-/*
+- * Uncomment to enable checking of domain MX for rcpt addresses
+- * It works on any rcpt address domain that is not inside rcpthosts
+- */
+-#define CHKUSER_RCPT_MX
+-
+-/*
+- * Uncomment to enable checking of user and domain format for sender address
+- * 	user	=	[a-z0-9_-]
+- *	domain 	=	[a-z0-9-.] with not consecutive "-.", not leading or ending "-."
+- */
+-#define CHKUSER_SENDER_FORMAT
+-
+-/*
+  * Uncomment to enable usage of a variable escluding any check on the sender.
+  * The variable should be set in tcp.smtp for clients, with static IP, whose mailer
+  * is composing bad sender addresses
+@@ -181,12 +139,6 @@
+ /* #define CHKUSER_ALLOW_SENDER_CHAR_5 '*' */
+ 
+ /*
+- * Uncomment to enable checking of domain MX for sender address
+- * it works on the first rcpt address, despite of any domain setting on chkuser
+- */
+-#define CHKUSER_SENDER_MX
+-
+-/*
+  * The following #define sets the minimum length of a domain:
+  * as far as I know, "k.st" is the shortest domain, so 4 characters is the
+  * minimum length.
+@@ -197,13 +149,6 @@
+ #define CHKUSER_MIN_DOMAIN_LEN 4
+ 
+ /*
+- * Uncomment to accept <> senders from hosts which have name in DNS  (TCPREMOTEHOST set)
+- * (should be set, otherwise will not accept any bouncing message)
+- *
+- */
+-#define CHKUSER_ENABLE_NULL_SENDER_WITH_TCPREMOTEHOST
+-
+-/*
+  * Uncomment to enable logging of "good" senders
+  * valid only if CHKUSER_ENABLE_LOGGING is defined
+  */
+@@ -240,12 +185,6 @@
+ #define CHKUSER_ERROR_DELAY 1000
+ 
+ /*
+- * Delay to add, for each not existing recipient, to the initial CHKUSER_ERROR_DELAY value
+- * value is expressed in milliseconds
+- */
+-#define CHKUSER_ERROR_DELAY_INCREASE 100
+-
+-/*
+  * Uncomment to consider rcpt errors on address format and MX as intrusive
+  *
+  */
+@@ -272,7 +211,7 @@
+ 
+ /***************************************************
+  *
+- *      new/modified defines from 2.0.5
++ *      new/modified defines in/from 2.0.6
+  *
+  **************************************************/
+ 
+@@ -283,8 +222,152 @@
+  * From version 5.3.25, this call is not available and has been
+  * substituted by other calls.
+  *
+- *        must be enabled if vpopmail version< 5.3.25
+- *        must be disabled  if vpopmail version => 5.3.25 *
++ *        must be enabled if vpopmail version< 5.3.5
++ *        must be disabled  if vpopmail version => 5.3.5 *
+  */
+ /* #define CHKUSER_ENABLE_VGET_REAL_DOMAIN */
++
++/***************************************************
++ *
++ *      new/modified defines in/from 2.0.7
++ *
++ **************************************************/
++
++/*
++ * Uncomment next define to accept recipients for
++ * aliases that have a -default extension
++ */
++/* #define CHKUSER_ENABLE_ALIAS_DEFAULT */
++
++
++/*
++ * Uncomment to enable usage of "#" and "+" characters within rcpt address
++ * This is used by SRS (Sender Rewriting Scheme) products
++ */
++/* #define CHKUSER_ALLOW_RCPT_SRS */
++
++/*
++ * If you need more additional characters to be accepted within rcpt address
++ * uncomment one of the following #define and edit the character value.
++ * Be careful to use '*' (single hiphen) and NOT "*" (double hiphen) around the
++ * wanted char.
++ */
++/* #define CHKUSER_ALLOW_RCPT_CHAR_1 '$' */
++/* #define CHKUSER_ALLOW_RCPT_CHAR_2 '%' */
++/* #define CHKUSER_ALLOW_RCPT_CHAR_3 '£' */
++/* #define CHKUSER_ALLOW_RCPT_CHAR_4 '?' */
++/* #define CHKUSER_ALLOW_RCPT_CHAR_5 '*' */
++
++/*
++ * This define has been eliminated.
++ * Turning it ON or OFF has no effect, as we consider the existence
++ * of #define VALIAS inside ~vpopmail/include/vpopmail_config.h
++ */
++/* #define CHKUSER_ENABLE_VALIAS */
++
++/*
++ * Uncomment this to enable user extension on names (i.e. TMDA)
++ * (for mailing lists this is done without checking this define)
++ * This define substitutes #define CHKUSER_ENABLE_EXTENSIONS
++ */
++/* #define CHKUSER_ENABLE_USERS_EXTENSIONS */
++
++/*
++ * Enables checking for EZMLM lists
++ * this define substitutes #define CHKUSER_ENABLE_LISTS
++ *
++ */
++#define CHKUSER_ENABLE_EZMLM_LISTS
++
++/*
++ * Help identifying remote authorized IPs giving them a descriptive name
++ * Can be put in tcp.smtp, and will be displayed inside chkuser log
++ * Substitutes RELAYCLIENT in chkuser logging
++ */
++#define CHKUSER_IDENTIFY_REMOTE_VARIABLE "CHKUSER_IDENTIFY"
++
++/*
++ * The following #define set the character used for users extensions
++ * be careful: this is a  single char '-' definition, not a "string"
++ * this define substitutes #define CHKUSER_EXTENSION_DASH
++ * MUST be defined if CHKUSER_ENABLE_USERS_EXTENSIONS is defined
++ */
++#define CHKUSER_USERS_DASH '-'
++
++/*
++ * New error strings for SOFT DNS problems
++ */
++#define CHKUSER_RCPTMX_TMP_STRING "451 DNS temporary failure (#4.5.1 - chkuser)\r\n"
++#define CHKUSER_SENDERMX_TMP_STRING "451 DNS temporary failure (#4.5.1 - chkuser)\r\n"
++
++/*
++ * Enables checking for mailman lists
++ *
++ */
++/* #define CHKUSER_ENABLE_MAILMAN_LISTS */
++
++/*
++ * Identifies the pattern string to be searched within mailman aliases
++ *
++ */
++#define CHKUSER_MAILMAN_STRING "mailman"
++
++/*
++ * The following #define set the character used for mailman lists extensions
++ * be careful: this is a  single char '-' definition, not a "string"
++ */
++#define CHKUSER_MAILMAN_DASH '-'
++
++
++/*
++ * Enables final clean-up routine of chkuser
++ * This routine cleans open DB connections used for checking users and valiases
++ */
++#define CHKUSER_DB_CLEANUP
++
++/***************************************************
++ *
++ *      new/modified defines in/from 2.0.8
++ *
++ **************************************************/
++
++/*
++ * The following defines are NO MORE used. NULL SENDER rejecting breaks RFC
++ * compatibility, and makes harder to handle e-mail receipts.
++ * Please comment or delete them from your chkuser_settings.h.
++ */
++/* #define CHKUSER_ACCEPT_NULL_SENDER */
++/* #define CHKUSER_ENABLE_NULL_SENDER_WITH_TCPREMOTEHOST */
++
++/*
++ * Uncomment to enable checking of user and domain format for rcpt addresses
++ *      user    =       [a-z0-9_-]
++ *      domain  =       [a-z0-9-.] with not consecutive "-.", not leading or ending "-."
++ */
++/* #define CHKUSER_RCPT_FORMAT */
++
++/*
++ * Uncomment to enable checking of domain MX for rcpt addresses
++ * It works on any rcpt address domain that is not inside rcpthosts
++ */
++/* #define CHKUSER_RCPT_MX */
++
++/*
++ * Uncomment to enable checking of user and domain format for sender address
++ *      user    =       [a-z0-9_-]
++ *      domain  =       [a-z0-9-.] with not consecutive "-.", not leading or ending "-."
++ */
++/* #define CHKUSER_SENDER_FORMAT */
++
++/*
++ * Uncomment to enable checking of domain MX for sender address
++ * it works on the first rcpt address, despite of any domain setting on chkuser
++ */
++/* #define CHKUSER_SENDER_MX */
++
++/*
++ * Delay to add, for each not existing recipient, to the initial CHKUSER_ERROR_DELAY value
++ * value is expressed in milliseconds
++ */
++#define CHKUSER_ERROR_DELAY_INCREASE 300
+ 
+diff -ruN ../../netqmail-1.05-chkuser-2.0.7/netqmail-1.05/qmail-smtpd.c ./qmail-smtpd.c
+--- ../../netqmail-1.05-chkuser-2.0.7/netqmail-1.05/qmail-smtpd.c	Thu Nov 11 18:19:34 2004
++++ ./qmail-smtpd.c	Mon Dec 13 08:04:08 2004
+@@ -1,7 +1,7 @@
+ 
+ /*
+  *
+- * includes chkuser v.2.0.5
++ * includes chkuser v.2.0.8
+  * for qmail/netqmail > 1.0.3 and vpopmail > 5.3.x
+  *
+  * Author: Antonio Nati tonix@interazioni.it
+@@ -56,13 +56,13 @@
+ # include "tls.h"
+ # include "ssl_timeoutio.h"
+ 
+-#include "chkuser.h"
+-
+ void tls_init();
+ int tls_verify();
+ void tls_nogateway();
+ int ssl_rfd = -1, ssl_wfd = -1; /* SSL_get_Xfd() are broken */
+ #endif
++
++#include "chkuser.h"
+ 
+ int safewrite(fd,buf,len) int fd; char *buf; int len;
+ {

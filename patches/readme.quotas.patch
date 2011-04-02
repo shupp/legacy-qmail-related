@@ -1,0 +1,24 @@
+--- README.quotas.orig	Thu Jan 15 10:29:11 2004
++++ README.quotas	Thu Jan 15 10:34:52 2004
+@@ -65,14 +65,17 @@
+     your .qmailadmin-limits file
+ 
+         quota 50
++        maxmsgcount 1000
+ 
+-    This would set a total domain quota of 50MB for the domain.  Note that if
+-    you compile with --enable-mysql-limits, you would not enter this in the
+-    .qmailadmin-limits file, but rather put it in the limits table.
++    This would set a total domain quota of 50MB , and a maximum
++    message count of 1000 messages for the entire domain.  Modification of 
++    domain quotas should be done with the vmoddomlimits program.
+ 
+     NOTE: Non-system domain quotas are only enforcable when vdelivermail is the
+     local delivery agent.  If you pipe your mail into anything else, like
+-    maildrop, then the non-system domain quota will be ignored.
++    maildrop, then the non-system domain quota will be ignored.  An alternative
++    would be to install the domain under a unique system user (vadddomain -u)
++    and set system quotas on that account.
+ 
+ * CAVEATS
+ 

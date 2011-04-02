@@ -1,0 +1,33 @@
+--- preauthvchkpw.c.orig	2004-01-13 15:26:08.000000000 -0600
++++ preauthvchkpw.c	2004-01-13 15:30:24.000000000 -0600
+@@ -20,6 +20,11 @@
+ #include	<vauth.h>
+ #include	"vpopmail_config.h"
+ 
++/* make use of pw_flags only if available */
++#ifndef VQPASSWD_HAS_PW_FLAGS
++#define pw_flags pw_gid
++#endif
++
+ extern FILE *authvchkpw_file(const char *, const char *);
+ 
+ static const char rcsid[]="$Id: preauthvchkpw.c,v 1.19 2004/01/11 02:52:42 mrsam Exp $";
+@@ -89,15 +94,15 @@
+          * of connection
+          */
+         if ( strcmp("webmail", service) == 0 ) {
+-                if (vpw->pw_gid & NO_WEBMAIL) {
++                if (vpw->pw_flags & NO_WEBMAIL) {
+                         return(-1);
+                 }
+         } else if ( strcmp("pop3", service) == 0 ) {
+-                if ( vpw->pw_gid & NO_POP ) {
++                if ( vpw->pw_flags & NO_POP ) {
+                         return(-1);
+                 }
+         } else if ( strcmp("imap", service) == 0 ) {
+-                if ( vpw->pw_gid & NO_IMAP ) {
++                if ( vpw->pw_flags & NO_IMAP ) {
+                         return(-1);
+                 }
+         }

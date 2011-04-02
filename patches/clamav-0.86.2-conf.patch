@@ -1,0 +1,54 @@
+--- ../clamav-0.81-orig/etc/clamd.conf	Wed Jan 19 18:25:21 2005
++++ etc/clamd.conf	Tue Feb  1 16:25:47 2005
+@@ -5,13 +5,13 @@
+ 
+ 
+ # Comment or remove the line below.
+-Example
++#Example
+ 
+ # Uncomment this option to enable logging.
+ # LogFile must be writable for the user running daemon.
+ # A full path is required.
+ # Default: disabled
+-#LogFile /tmp/clamd.log
++LogFile stderr
+ 
+ # By default the log file is locked for writing - the lock protects against
+ # running clamd multiple times (if want to run another clamd, please
+@@ -36,7 +36,7 @@
+ # Also log clean files. Useful in debugging but drastically increases the
+ # log size.
+ # Default: disabled
+-#LogClean
++LogClean
+ 
+ # Use system logger (can work together with LogFile).
+ # Default: disabled
+@@ -49,7 +49,7 @@
+ 
+ # Enable verbose logging.
+ # Default: disabled
+-#LogVerbose
++LogVerbose
+ 
+ # This option allows you to save a process identifier of the listening
+ # daemon (main thread).
+@@ -152,7 +152,7 @@
+ 
+ # Don't fork into background.
+ # Default: disabled
+-#Foreground
++Foreground
+ 
+ # Enable debug messages in libclamav.
+ # Default: disabled
+@@ -201,7 +201,7 @@
+ 
+ # Enable internal e-mail scanner.
+ # Default: enabled
+-#ScanMail
++ScanMail
+ 
+ # If an email contains URLs ClamAV can download and scan them.
+ # WARNING: This option may open your system to a DoS attack.

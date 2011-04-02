@@ -1,0 +1,38 @@
+--- vpopmaild.c.orig	2007-03-18 22:45:10.000000000 -0700
++++ vpopmaild.c	2007-03-18 23:32:59.000000000 -0700
+@@ -1952,18 +1952,13 @@
+ 
+   if (strstr(Email, "@") == NULL) {
+     tmpalias = valias_select_all(Alias, Email);
+-    if (tmpalias == NULL) {
+-      snprintf(WriteBuf, sizeof(WriteBuf), RET_OK);
+-    } else {
+-      snprintf(WriteBuf, sizeof(WriteBuf), RET_OK_MORE);
++    snprintf(WriteBuf, sizeof(WriteBuf), RET_OK_MORE);
++    wait_write();
++
++    while (tmpalias != NULL) {
++      snprintf(WriteBuf, sizeof(WriteBuf), "%s@%s %s" RET_CRLF, Alias, Email, tmpalias);
+       wait_write();
+-      
+-      while (tmpalias != NULL) {
+-        snprintf(WriteBuf, sizeof(WriteBuf), "%s@%s %s" RET_CRLF, Alias, Email, tmpalias);
+-        wait_write();
+-        tmpalias = valias_select_all_next(Alias);
+-      }
+-      snprintf(WriteBuf,sizeof(WriteBuf), "." RET_CRLF);
++      tmpalias = valias_select_all_next(Alias);
+     }
+   } else {
+     tmpalias = valias_select(Alias, Domain);
+@@ -1978,9 +1973,9 @@
+         wait_write();
+         tmpalias = valias_select_next(Alias);
+       }
+-      snprintf(WriteBuf,sizeof(WriteBuf), "." RET_CRLF);
+     }
+   }
++  snprintf(WriteBuf,sizeof(WriteBuf), "." RET_CRLF);
+ 
+   return(0);
+ }

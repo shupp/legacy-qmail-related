@@ -1,0 +1,69 @@
+--- user.c.orig	Tue Oct 22 10:01:27 2002
++++ user.c	Tue Oct 22 10:28:05 2002
+@@ -753,6 +753,12 @@
+  static char NewBuf[156];
+  int count;
+  FILE *fs;
++#ifdef SQWEBMAIL_PASS
++ uid_t uid;
++ gid_t gid;
++#endif
++
++  vpw = vauth_getpw(ActionUser, Domain); 
+ 
+   if (!( AdminType==DOMAIN_ADMIN ||
+          (AdminType==USER_ADMIN && strcmp(ActionUser,Username)==0))){
+@@ -768,21 +774,40 @@
+       vclose();
+       exit(0);
+     }
+-    ret_code = vpasswd( ActionUser, Domain, Password1, USE_POP);
+-    if ( ret_code != VA_SUCCESS ) {
++    if (strlen(Password1) > MAX_PW_CLEAR_PASSWD) {
++      sprintf(StatusMessage,"%s %s@%s %s", 
++        get_html_text("139"), ActionUser, Domain, VA_PASSWD_TOO_LONG );
++      moduser();
++      vclose();
++      exit(0);
++    } else if (vpw->pw_gid & NO_PASSWD_CHNG) {
+       sprintf(StatusMessage, "%s", get_html_text("140"));
++      moduser();
++      vclose();
++      exit(0);
+     } else {
+-      sprintf(StatusMessage,"%s %s@%s %s", 
+-        get_html_text("139"), ActionUser, Domain, verror(ret_code) );
++        sprintf(StatusMessage,"%s %s@%s", 
++            get_html_text("139"), ActionUser, Domain);
+     }
++
++    mkpasswd3(Password1,Crypted, MAX_BUFF);
++    vpw->pw_passwd = Crypted;
++
++#ifdef CLEAR_PASS
++      vpw->pw_clear_passwd = Password1;
++#endif
++#ifdef SQWEBMAIL_PASS
++      vget_assign(Domain, NULL, 0, &uid, &gid );
++      vsqwebmail_pass( vpw->pw_dir, Crypted, uid, gid);
++#endif
++
+   }
+ 
+   GetValue(TmpCGI,Gecos, "gecos=", MAX_BUFF);
+   if ( strlen( Gecos ) != 0 ) {
+-    vpw = vauth_getpw(ActionUser, Domain); 
+     vpw->pw_gecos = Gecos;
+-    vauth_setpw(vpw, Domain);
+   }
++  vauth_setpw(vpw, Domain);
+ 
+   /* get the value of the cforward radio button */
+   GetValue(TmpCGI,box, "cforward=", MAX_BUFF);
+@@ -899,5 +924,5 @@
+   }
+ 
+   call_hooks(HOOK_MODUSER);
+-  moduser();
++  show_users(Username, Domain, Mytime);
+ }

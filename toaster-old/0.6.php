@@ -1,0 +1,975 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+
+<head>
+<meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
+<link rel="STYLESHEET" type="text/css" href="/core-style.css">
+
+<title>Bill's Linux Qmail Toaster</title>
+<body>
+<a name=top><h2>Linux Qmail Toaster</h2></a>
+<table border=0>
+<tr>
+    <td>Version: 0.6 <a href=#changelog>ChangeLog</a><br> 
+    Last modified: <? echo strftime("%b %d, %Y %H:%M", filemtime("0.6.php"))?>
+    </td>
+    <td><form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+      <input type="hidden" name="cmd" value="_xclick">
+      <input type="hidden" name="business" value="hostmaster@shupp.org">
+      <input type="hidden" name="item_name" value="Shupp.Org Support Donation">
+      <input type="hidden" name="no_shipping" value="1">
+      <input type="hidden" name="cancel_return" value="http://shupp.org/toaster/">
+      <input type="image" vspace=2 hspace=5 align=left src="/images/paypal-donate.gif" border="0" name="submit" 
+      alt="Make payments with PayPal - it's fast, free and secure!">
+    </form></td><td> - or -</td><td><a href="http://amazon.com/gp/registry/UUPXUQCAU68Y">Wish List</a><tr></table><br>
+
+<!-- Outline -->
+<h2><a href=#preface>Preface</a></h2>
+<ul>
+    <li><a href=#whatisatoaster>What's a POP toaster?<a><br>
+    <li><a href=#what>What this toaster does and does not do<a><br>
+    <li><a href=#assumptions>Assumptions/Support (Please Read!)</a><br>
+    <li><a href=#prerequisites>Prerequisites</a>
+    <li><a href=#license>Toaster License</a>
+</ul>
+
+<h2><a href=#gettingstarted>Getting Started</a></h2>
+<ul>
+    <li><a href=#dns>DNS</a>
+    <li><a href=#remove>Remove existing sendmail/pop/imap servers</a>
+    <li><a href=#download>Download packages</a>
+</ul>
+
+<h2><a href=#install>Install Software</a></h2>
+<ul>
+    <li><a href=#daemontools>daemontools</a>
+    <li><a href=#ucspi-tcp>ucspi-tcp</a>
+    <li><a href=#qmail>qmail</a>
+    <li><a href=#vpopmail>vpopmail</a>
+    <li><a href=#courier-imap>courier-imap</a>
+    <!-- <li><a href=#apache>apache</a> -->
+    <!-- <li><a href=#sqwebmail>sqwebmail</a> -->
+    <li><a href=#squirrelmail>squirrelmail</a>
+    <li><a href=#autorespond>autorespond</a>
+    <li><a href=#ezmlm>ezmlm-idx</a>
+    <li><a href=#qmailadmin>qmailadmin</a>
+</ul>
+
+<h2><a href=#test>Test Drive</a></h2>
+
+<h2><a href=#options>Options</a></h2>
+<ul>
+    <li><a href=#qmail-scanner>Qmail Scanner</a>
+    <li><a href=#limits>Qmailadmin Limits</a>
+</ul>
+
+<h2><a href=#appendix>Appendix</a></h2>
+    <li><a href=#donate>Donate</a>
+    <li><a href=#troubleshooting>Troubleshooting</a>
+    <li><a href=#credits>Credits</a>
+    <li><a href=#links>Links</a>
+    <li><a href=#success>Success Reports</a>
+</ul>
+<!-- End Outline -->
+
+
+
+
+<!-- Text -->
+<p><br><br><br>
+<hr>
+
+<a name=preface><h2>Preface</h2></a>
+
+<ul>
+    <li><a name=whatisatoaster><b>What's a POP toaster?:</b><a><p>
+        I use Dan Bernstein's definition described at <a href="http://cr.yp.to/qmail/toaster.html">http://cr.yp.to/qmail/toaster.html</a>
+        <p><a href=#top>top</a><p>
+
+    <li><a name=what><b>What this toaster does and does not do:</b><a><p>
+        This "howto" will walk you through building a Linux Qmail "Toaster".  
+        While these instructions are intended to work with popular Linux 
+        distributions, they will probably work on other flavors of Unix 
+        without too much modification.<p>
+
+        Here's a list of features you'll get:
+
+        <blockquote>
+            Qmail SMTP Mail Server with SMTP-AUTH (Plain, Login, CRAM-MD5), TLS (SSL) support, and optional 
+                Virus/Spam Scanner.<br>
+            POP3 Server with CRAM-MD5, APOP, and SSL support<br>
+            IMAP Server with TLS (SSL) support<br>
+            WebMail Server<br>
+            Quota Support (usage viewable by webmail)<br>
+            Autoresponder<br>
+            Mailing Lists<br>
+            Web-Based Email Administration<p>
+        </blockquote>
+
+        What this toaster does NOT do is act as a thorough guide to qmail or any of the other
+        packages it installs.  Such information is already available in the documentation,
+        <a href=http://www.lifewithqmail.org>Life With Qmail</a>, or other howtos/toasters.  I only
+        put this together to document all the commands/urls/procedures that I find myself repeating
+        often.  It's intended to have a bit of a "copy and paste" feel to it aimed at the impatient
+        (me).  If it's not sufficient for you, take the time to read the documentation of each package
+        that's to be installed.  There's no substitute for that.
+
+        <p><a href=#top>top</a><p>
+
+
+    <li><a name=assumptions><b>Assumptions/Support</b></a><p>
+        This document assumes that you are familiar with Unix system administration, mail/web
+        protocols, etc.  You don't have to be a guru to make this work, but you will be patching
+        and compiling source code, as well as editing configuration files.  If you want a "point and
+        click" install experience, this is not for you.<p>
+
+        These instructions come with no warranty or guarantee.  If you blow up your server, and lose 
+        business in the process, that's your problem.<p>
+
+        Support is not provided.  There are mailing lists for all these packages, as well as one 
+        specific to this toaster.  See links in the appendix for more information.<p>
+
+        <b>Commercial support <u>is</u> available</b>. See <a href=http://merchbox.com/qmail.php>http://merchbox.com/qmail.php</a> for more information.  There are
+        also other sources of commercial support for the individual packages.  See the respective 
+        documentation for each package for further information.<p>
+        <a href=#top>top</a><p>
+
+    <li><a name=prerequisites><b>Prerequisites</b></a><p>
+        If you have installed a recent version of your Linux distribution, you shouldn't have any 
+        problems, especially if you did a "server" type of install rather than "Desktop".  However, this install DOES require that you have the apache web server and PHP installed.  Most distributions come with these now.  PHP is only required for SquirrelMail.
+        The main issues you might see are missing development libraries, or gdbm, stunnel, kerberos dev files, or openssl.  If you are using an rpm based distro, an easy way to check for these is to issue 
+        these commands:
+
+        <blockquote><font face=courier size=-1>
+        rpm -q gdbm<br>
+        rpm -q gdbm-devel<br>
+        rpm -q openssl<br>
+        rpm -q openssl-devel<br>
+        rpm -q stunnel<br>
+        rpm -q krb5-devel (kerberos development files)<br>
+        </font></blockquote>
+
+        If any of the above are not installed, either get the rpm for your architecture (probably on your
+        cd if you have one) or install them manually.<p>
+
+        This document was written using RedHat Linux 9.0.<p>
+        <a href=#top>top</a><p>
+
+    <li><a name=license><b>Toaster License</b></a><p>
+        This document is covered by the same license as <a href=http://lifewithqmail.org>Life With Qmail</a>, and the license is detailed here:<br>
+
+        <a href=http://www.opencontent.org/opl.shtml>http://www.opencontent.org/opl.shtml</a>
+ </ul>
+
+
+<a name=gettingstarted><h2>Getting Started</h2></a>
+
+<ul>
+    <li><a name=dns><b>DNS</b></a><p>
+
+        Before we begin, make sure DNS (mx record) is properly setup. If you were using "merchbox.com" as your virtual domain, here's how your host lookups would look after setting up dns:<br><br>
+
+    <blockquote><font face=courier size=-1>
+        [shupp@ns1 toaster]$ host -t mx merchbox.com<br>
+        merchbox.com. mail is handled by 0 mail.merchbox.com.<br>
+        [shupp@ns1 toaster]$ host -t a merchbox.com<br>
+        merchbox.com. has address 216.234.249.114<br>
+    </blockquote></font>
+        <p>
+
+    <li><a name=remove><b>Remove existing smtp/pop/imap servers</b><a><p>
+        Now we must remove any existing installations of sendmail/postfix and
+        disable pop/imap servers.  To remove sendmail and postfix from
+        an rpm based distribution, try this:
+
+        <blockquote><font face=courier size=-1>
+        rpm -e --nodeps sendmail<br>
+        rpm -e --nodeps postfix<br>
+        </font></blockquote>
+
+        Unless you have other services that absolutely have to run on this machine, I recommend
+        shutting down inetd or xinetd altogether and removing it from your startup scripts.  The
+        only thing you'll need (outside of what we're about to isntall) is ssh, which is 
+        probably installed already.  This will likely shut off any pop3 or imap servers, as well as 
+        other unneccessary ports.  Otherwise, disable them manually.<p>
+
+        To be sure that these services are disabled, try telnetting to ports 25, 110, and 143 
+        and make sure your connections are refused.
+        <p><a href=#top>top</a><p>
+
+    <li><a name=download><b>Download packages</b><a><p>
+        I keep my software source in /var/src.  This is what I'll refer to for the rest of
+        this document.
+        <p><u>Some of this is version dependent, so please stick to the URLs below!</u>
+
+        <blockquote><font face=courier size=-1>
+        mkdir -p /var/src/tar<br>
+        cd /var/src/tar<p>
+        wget http://cr.yp.to/daemontools/daemontools-0.76.tar.gz<br>
+        wget http://cr.yp.to/ucspi-tcp/ucspi-tcp-0.88.tar.gz<br>
+        wget http://shupp.org/software/netqmail-1.05.tar.gz<br>
+        wget http://shupp.org/patches/qmail-toaster-0.6-1.patch.bz2<br>
+        wget http://shupp.org/patches/chkuser-0.6.patch<br>
+        wget http://shupp.org/software/vpopmail-5.4.1.tar.gz<br>
+        wget http://shupp.org/software/autorespond-2.0.4.tar.gz<br>
+        wget http://shupp.org/software/qmailadmin-1.2.1.tar.gz<br>
+        wget http://shupp.org/software/qmailadmin-help-1.0.8.tar.gz<br>
+        wget http://cr.yp.to/software/ezmlm-0.53.tar.gz<br>
+        wget http://shupp.org/software/ezmlm-idx-0.40.tar.gz<br>
+        <!-- wget http://telia.dl.sourceforge.net/sourceforge/courier/courier-imap-2.2.2.20040207.tar.bz2<br> -->
+        wget http://shupp.org/software/courier-imap-2.2.2.20040207.tar.bz2<br>
+        wget http://shupp.org/software/squirrelmail-1.4.2.tar.bz2<br>
+        wget http://shupp.org/software/quota_usage-1.2.tar.gz<br>
+        wget http://shupp.org/software/toaster-scripts-0.6.tar.gz<br>
+        wget http://shupp.org/patches/ezmlm-idx-0.53.400.unified_41.patch<p>
+        cd ../<br>
+        tar -xzf tar/netqmail-1.05.tar.gz<br>
+        cd netqmail-1.05<br>
+        ./collate.sh
+
+        
+        </font></blockquote>
+        <a href=#top>top</a><p>
+
+</ul>
+
+<a name=install><h2>Install Software</h2></a>
+
+Now that you have downloaded all the software packages to /var/src/tar, please go through each of 
+these installation steps as the appear, and in this order, unless you <i>really</i> know what 
+you're doing.  (Because if you did, you wouldn't be reading this, right?)<p>
+
+<u>The below steps assume that your "rc" directories are in /etc/rc.d, and 
+your "init.d" path is "/etc/rc.d/init.d".  If yours are different, please 
+substitue paths accordingly.</u><p>
+
+<ul>
+    <li><a name=daemontools><b>daemontools</b><a><p>
+        daemontools is a collection of tools for managing UNIX services.
+        It will monitor qmail-send, and qmail-smtpd, and qmail-pop3d services.
+
+        <p>
+        Info: <a href=http://cr.yp.to/daemontools.html>http://cr.yp.to/daemontools.html</a>
+        <p>
+
+        Install:
+
+        <blockquote><font face=courier size=-1>
+        mkdir -p /package<br>
+        chmod 1755 /package<br>
+        cd /package<br>
+        tar -xpzf /var/src/tar/daemontools-0.76.tar.gz<br>
+        cd admin/daemontools-0.76<br>
+        patch -p1 < /var/src/netqmail-1.05/other-patches/daemontools-0.76.errno.patch<br>
+        package/install 
+        </font></blockquote>
+
+        To verify that daemontools is running, make sure that `ps ax` reports '/bin/sh /command/svscanboot'
+        and 'svscan /service' as running.
+
+        <p><a href=#top>top</a><p>
+        <hr>
+
+    <li><a name=ucspi-tcp><b>ucspi-tcp</b><a><p>
+        ucspi-tcp contains tcpserver and tcpclient, command line tools for building client-server 
+        applications.
+        <p>
+        Info: <a href=http://cr.yp.to/ucspi-tcp.html>http://cr.yp.to/ucspi-tcp.html</a> 
+        <p>
+
+        <p>Install:
+
+        <blockquote><font face=courier size=-1>
+        cd /var/src/<br>
+        tar -xzf tar/ucspi-tcp-0.88.tar.gz<br>
+        cd ucspi-tcp-0.88<br>
+        patch -p1 < /var/src/netqmail-1.05/other-patches/ucspi-tcp-0.88.errno.patch<br>
+        make<br>
+        make setup check<br>
+        </font></blockquote>
+
+        <a href=#top>top</a><p>
+        <hr>
+
+    <li><a name=qmail><b>qmail</b><a><p>
+        qmail rocks.  It's a modern smtp server that makes sendmail obsolete.
+        <p>
+        Info: <a href=http://www.qmail.org>http://www.qmail.org</a>
+        <p>
+
+        The patch you will apply below is a composite of existing patches.<br>
+        <ul>
+            <li>smtp auth 0.4.2
+            <li>qmail-queue (to allow for virus scanners)     
+            <li>maildir++ patch
+            <li>support oversize dns packets (not necessary if you use dnscache)
+            <li>mfcheck (check that the envelope sender has a dns entry) 
+            <li>tarpit delay     
+            <li>qregex (regular expression matching in badmailfrom and badmailto)     
+            <li>big concurrency (set the spawn limit above 255)     
+        </ul>
+
+        <p>Install:
+
+        <blockquote><font face=courier size=-1>
+        mkdir /var/qmail<br>
+        groupadd nofiles<br>
+        useradd -g nofiles -d /var/qmail/alias alias<br>
+        useradd -g nofiles -d /var/qmail qmaild<br>
+        useradd -g nofiles -d /var/qmail qmaill<br>
+        useradd -g nofiles -d /var/qmail qmailp<br>
+        groupadd qmail<br>
+        useradd -g qmail -d /var/qmail qmailq<br>
+        useradd -g qmail -d /var/qmail qmailr<br>
+        useradd -g qmail -d /var/qmail qmails<p>
+
+        # we need to add the vpopmail user here<br>
+        groupadd -g 89 vchkpw<br>
+        useradd -u 89 -g vchkpw vpopmail<p>
+
+        cd /var/src<br>
+        tar -xzf tar/toaster-scripts-0.6.tar.gz<br>
+        cd netqmail-1.05/<br>
+        bunzip2 -c ../tar/qmail-toaster-0.6-1.patch.bz2 | patch -p0<br>
+        cd netqmail-1.05<br>
+
+        <p>#<i> note: RedHat 9 users will need to link certain include files for the TLS patch:<br>
+        ln -s /usr/kerberos/include/com_err.h /usr/kerberos/include/krb5.h /usr/kerberos/include/profile.h /usr/include/<br>
+        # as well as remove the sendmail link:<br>
+        rm /usr/sbin/sendmail</i><p>
+
+        make<br>
+        make setup check<p>
+        # <i>turn on checking for valid dns envelope sender</i><br>
+        echo 1 > /var/qmail/control/mfcheck<br>
+        (cd ~alias; touch .qmail-postmaster .qmail-mailer-daemon .qmail-root)<br>
+        chmod 644 ~alias/.qmail*<p>
+        
+
+        <i># on the next line replace "full.hostname" with the hostname of your mail server</i><br>
+        ./config-fast <i>full.hostname</i><p>
+        make cert<br>
+        <i># enter your company's information</i><br>
+        make tmprsadh<br>
+        <i># NOTE: This may take a LONG time</i><p>
+        # <i> now add the followowing line to your crontab via `crontab -e` to update these temp keys each night</i><br>
+        01 01 * * * /var/qmail/bin/update_tmprsadh > /dev/null 2>&1<p>
+
+        </font></blockquote>
+
+        Configure:
+
+        <blockquote><font face=courier size=-1>
+        cd /var/src<br>
+        cp toaster-scripts-0.6/rc /var/qmail/rc<br>
+        chmod 755 /var/qmail/rc<br>
+        mkdir /var/log/qmail<br>
+        echo ./Maildir/ >/var/qmail/control/defaultdelivery<br>
+        cp toaster-scripts-0.6/qmailctl /var/qmail/bin/<br>
+        chmod 755 /var/qmail/bin/qmailctl<br>
+        ln -s /var/qmail/bin/qmailctl /usr/bin<br>
+        ln -s /var/qmail/bin/sendmail /usr/sbin/sendmail<br>
+        ln -s /var/qmail/bin/sendmail /usr/lib/sendmail<p>
+
+        #<i>Now create the supervise directories/scripts for the qmail services:</i><br>
+        mkdir -p /var/qmail/supervise/qmail-send/log<br>
+        mkdir -p /var/qmail/supervise/qmail-smtpd/log<br>
+        mkdir -p /var/qmail/supervise/qmail-pop3d/log<br>
+        mkdir -p /var/qmail/supervise/qmail-pop3ds/log<br>
+        chmod +t /var/qmail/supervise/qmail-send<br>
+        chmod +t /var/qmail/supervise/qmail-smtpd<br>
+        chmod +t /var/qmail/supervise/qmail-pop3d/log<br>
+        chmod +t /var/qmail/supervise/qmail-pop3ds/log<br>
+        cp /var/src/toaster-scripts-0.6/send.run /var/qmail/supervise/qmail-send/run<br>
+        cp /var/src/toaster-scripts-0.6/send.log.run /var/qmail/supervise/qmail-send/log/run<br>
+        cp /var/src/toaster-scripts-0.6/smtpd.run /var/qmail/supervise/qmail-smtpd/run<br>
+        cp /var/src/toaster-scripts-0.6/smtpd.log.run /var/qmail/supervise/qmail-smtpd/log/run<br>
+        cp /var/src/toaster-scripts-0.6/pop3d.run /var/qmail/supervise/qmail-pop3d/run<br>
+        cp /var/src/toaster-scripts-0.6/pop3d.log.run /var/qmail/supervise/qmail-pop3d/log/run<br>
+        cp /var/src/toaster-scripts-0.6/pop3ds.run /var/qmail/supervise/qmail-pop3ds/run<br>
+        cp /var/src/toaster-scripts-0.6/pop3ds.log.run /var/qmail/supervise/qmail-pop3ds/log/run<br>
+        echo 20 > /var/qmail/control/concurrencyincoming<br>
+        chmod 644 /var/qmail/control/concurrencyincoming<br>
+        chmod 755 /var/qmail/supervise/qmail-send/run<br>
+        chmod 755 /var/qmail/supervise/qmail-send/log/run<br>
+        chmod 755 /var/qmail/supervise/qmail-smtpd/run<br>
+        chmod 755 /var/qmail/supervise/qmail-smtpd/log/run<br>
+        chmod 755 /var/qmail/supervise/qmail-pop3d/run<br>
+        chmod 755 /var/qmail/supervise/qmail-pop3d/log/run<br>
+        chmod 755 /var/qmail/supervise/qmail-pop3ds/run<br>
+        chmod 755 /var/qmail/supervise/qmail-pop3ds/log/run<br>
+        mkdir -p /var/log/qmail/smtpd<br>
+        mkdir -p /var/log/qmail/pop3d<br>
+        mkdir -p /var/log/qmail/pop3ds<br>
+        chown -R qmaill /var/log/qmail<br>
+        <br>
+
+        #<i>allow daemontools to start qmail</i><br>
+        ln -s /var/qmail/supervise/qmail-send /var/qmail/supervise/qmail-smtpd /service<p>
+        #<i>verify that it's running with qmailctl</i><br>
+        sleep 5<br>
+        qmailctl stat
+        </font></blockquote>
+
+        <p><a href=#top>top</a><p>
+
+        <hr>
+
+    <li><a name=vpopmail><b>Vpopmail</b><a><p>
+
+        Vpopmail is a virtual domain package add-on for qmail.  It can handle multiple domains<br>
+        on a single IP address, and none of the user accounts are /etc/passwd or "system" accounts.
+        <p>
+        Info: <a href=http://vpopmail.sf.net/>http://vpopmail.sf.net</a><p>
+
+        Because we will only be using vchkpw (the pop authentication tool) with
+        qmail-smtpd for SMTP-AUTH, we don't want it to open relays.  The patch 
+        applied below fixes this.
+        <p>
+
+        Install:
+
+        <blockquote><font face=courier size=-1>
+        cd /var/src<br>
+
+        # the vchkpw group and vpopmail user was created while installing qmail for make cert<br>
+        tar -xzf tar/vpopmail-5.4.1.tar.gz<br>
+        cd vpopmail-5.4.1<br>
+        ./configure --enable-logging=v<br>
+        make<br>
+        make install-strip<br>
+        echo '127.:allow,RELAYCLIENT=""' >/home/vpopmail/etc/tcp.smtp<br>
+        (cd ~vpopmail/etc ; tcprules tcp.smtp.cdb tcp.smtp.tmp < tcp.smtp)<p>
+
+        <!-- # <i> add the followowing line to your crontab via `crontab -e`<br>
+        9-59,10 * * * * /home/vpopmail/bin/clearopensmtp 2>&1 > /dev/null</i><p> -->
+
+        # <i> install the vpopmail start script</i><br>
+        cp ../toaster-scripts-0.6/vpopmailctl /var/qmail/bin/vpopmailctl<br>
+        <p>
+        chmod 755 /var/qmail/bin/vpopmailctl<br>
+        ln -s /var/qmail/bin/vpopmailctl /usr/bin<br>
+        <p>
+
+        #<i>allow daemontools to start vpopmail</i><br>
+        ln -s /var/qmail/supervise/qmail-pop3d /var/qmail/supervise/qmail-pop3ds /service<p>
+        #<i>verify that it's running with vpopmailctl</i><br>
+        sleep 5<br>
+        vpopmailctl stat
+
+        <p># add chkuser.tmda.patch now that vpopmail is installed<br>
+        cd /var/src/netqmail-1.05/netqmail-1.05<br>
+        patch -p0 < /var/src/tar/chkuser-0.6.patch<br>
+        make clean<br>
+        make<br>
+        qmailctl stop<br>
+        make setup check<br>
+        qmailctl start
+        </font></blockquote>
+        
+        <p><a href=#top>top</a><p>
+
+        <hr>
+
+    <li><a name=courier-imap><b>Courier-IMAP</b><a><p>
+
+        Courier-IMAP will supply IMAP/SIMAP access.
+        <p>
+        Info: <a href=http://www.inter7.com/courierimap>http://www.inter7.com/courierimap</a>
+        </p>
+
+        Install:
+
+        <blockquote><font face=courier size=-1>
+        cd /var/src<br>
+        tar -xjf tar/courier-imap-2.2.2.20040207.tar.bz2<br>
+        cd courier-imap-2.2.2.20040207<br>
+        # build as vpopmail<br>
+        chown -R vpopmail:vchkpw ../courier-imap-2.2.2.20040207<br>
+        su vpopmail<br>
+
+        # <i>configure may take some time...</i><br>
+        ./configure <br>
+        # <i>note: redhat users need to add "--with-redhat"</i><p>
+        make<br>
+        exit<br>
+        make install-strip<br>
+        make install-configure<p>
+
+        cp courier-imap.sysvinit /etc/rc.d/init.d/courier-imap<br>
+        chmod 755 /etc/rc.d/init.d/courier-imap<br>
+        ln -s ../init.d/courier-imap /etc/rc.d/rc0.d/K30courier-imap<br>
+        ln -s ../init.d/courier-imap /etc/rc.d/rc1.d/K30courier-imap<br>
+        ln -s ../init.d/courier-imap /etc/rc.d/rc2.d/S80courier-imap<br>
+        ln -s ../init.d/courier-imap /etc/rc.d/rc3.d/S80courier-imap<br>
+        ln -s ../init.d/courier-imap /etc/rc.d/rc4.d/S80courier-imap<br>
+        ln -s ../init.d/courier-imap /etc/rc.d/rc5.d/S80courier-imap<br>
+        ln -s ../init.d/courier-imap /etc/rc.d/rc6.d/K30courier-imap<br>
+        </font></blockquote>
+
+        Configure:
+
+        <blockquote><font face=courier size=-1>
+        Edit /usr/lib/courier-imap/etc/authdaemonrc
+        <ul>
+            <li>Change authmodulelist="..." to authmodulelist="authvchkpw"
+        </ul>
+        Edit /usr/lib/courier-imap/etc/imapd
+        <ul>
+            <li>Change 'IMAPDSTART=NO' to 'IMAPDSTART=YES'
+        </ul>
+        Edit /usr/lib/courier-imap/etc/imapd-ssl
+        <ul>
+            <li>Change 'IMAPDSSLSTART=NO' to 'IMAPDSSLSTART=YES'
+        </ul><p>
+
+        Start IMAP server
+
+        <blockquote><font face=courier size=-1>
+        /etc/rc.d/init.d/courier-imap start<p>
+        </font></blockquote>
+
+        <p><a href=#top>top</a><p>
+
+        <hr>
+
+    <!-- <li><a name=apache><b>Apache</b><a><p>
+        The Apache Web server for webmail and qmailadmin access.  We'll install it with shared 
+        object support so that you can add other things later (like PHP) without having to recompile.<p>
+
+        Info: <a href=http://httpd.apache.org>http://httpd.apache.org</a>
+        <p>
+
+        Install:
+
+        <blockquote><font face=courier size=-1>
+        cd /var/src<br>
+        tar -xzf tar/apache_2.0.44.tar.gz<br>
+        cd apache_2.0.44<br>
+        ./configure --enable-module=so<br>
+        make<br>
+        make install<p>
+        #<i>Make apache start at boot time.</i><br>
+        ln -s /usr/local/apache/bin/apachectl /etc/rc.d/init.d/httpd<br>
+        ln -s ../init.d/httpd /etc/rc.d/rc0.d/K30httpd<br>
+        ln -s ../init.d/httpd /etc/rc.d/rc1.d/K30httpd<br>
+        ln -s ../init.d/httpd /etc/rc.d/rc2.d/S80httpd<br>
+        ln -s ../init.d/httpd /etc/rc.d/rc3.d/S80httpd<br>
+        ln -s ../init.d/httpd /etc/rc.d/rc4.d/S80httpd<br>
+        ln -s ../init.d/httpd /etc/rc.d/rc5.d/S80httpd<br>
+        ln -s ../init.d/httpd /etc/rc.d/rc6.d/K30httpd<p>
+
+        #<i> start apache</i><br>
+        /usr/local/apache/bin/apachectl start
+        </font></blockquote>
+
+        <p><a href=#top>top</a><p>
+
+        <hr> -->
+
+    <!-- <li><a name=sqwebmail><b>SqWebmail</b><a><p>
+        SqWebmail is a web cgi client that provides direct access to users' mailboxes, bypassing
+        the need for a pop or imap client in between.
+        <p>
+        Info: <a href=http://inter7.com/sqwebmail/>http://inter7.com/sqwebmail</a>
+        <p>
+
+        Install:
+
+        <blockquote><font face=courier size=-1>
+        cd /var/src<br>
+        tar -xzf tar/sqwebmail-3.3.4.tar.gz<br>
+        cd sqwebmail-3.3.4<p>
+
+        # <i>configure may take some time...</i><br>
+        ./configure --without-authdaemon --with-authvchkpw<br>
+        make<br>
+        make install-strip<p>
+
+        # <i>add the following line to your crontab via `crontab -e`<br>
+        40 * * * * /usr/local/share/sqwebmail/cleancache.pl 2>&1 > /dev/null</i>
+
+        </font></blockquote>
+
+        <p><a href=#top>top</a><p>
+
+        <hr> -->
+
+    <li><a name=squirrelmail><b>SquirrelMail</b><a><p>
+        SquirrelMail is a web based IMAP client
+        <p>
+        Info: <a href=http://www.squirrelmail.org/>http://www.squirrelmail.org</a><p>
+        NOTE:  This section assumes that your apache ServerRoot is /var/www and that your DocumentRoot is /var/www/html, and also that your web server runs as apache:apache
+        <p>
+
+        Install:
+
+        <blockquote><font face=courier size=-1>
+        cd /var/src<br>
+        tar -xjf tar/squirrelmail-1.4.2.tar.bz2<br>
+        cd squirrelmail-1.4.2<br>
+        cd plugins<br>
+        tar -xvzf ../../tar/quota_usage-1.2.tar.gz<br>
+        cp quota_usage/config.php.sample quota_usage/config.php<br>
+        cd ../<br>
+        ./configure<br>
+        # <i> here you will have to set a few options:<br>
+            <ul>
+                <li>go to Server Settings (2) and change the Server Software from "cyrus" to "courier" (a)
+                <li>From the main menu, go to General Options (4) and change Data Direcotry (2) to "/var/www/data/"
+                <li>From the main menu, go to Plugins and enable the quota_usage plugin, along with any others you prefer
+                <li>Save settings
+                <li>quit
+            </ul></i><p>
+
+        # <i>move the data directory into place and change permissions to the user:group that the web server runs as:<br></i>
+        mv data /var/www/<br>
+        chown -R apache:apache /var/www/data<p>
+
+        # <i>install squirrelmail<br></i>
+        cd ../<br>
+        mv squirrelmail-1.4.2 /var/www/html/<p>
+
+        </font></blockquote>
+
+        <p><a href=#top>top</a><p>
+
+        <hr>
+    <li><a name=autorespond><b>autorespond</b><a><p>
+        Autorespond is compatible autoresponder/vacation type tool that works well with 
+        vdelivermail and qmailadmin.
+        <p>
+        Info: <a href=http://qmailadmin.sf.net>http://qmailadmin.sf.net</a>
+        <p>
+
+        Install:
+
+        <blockquote><font face=courier size=-1>
+        cd /var/src<br>
+        tar -xzf tar/autorespond-2.0.4.tar.gz<br>
+        cd autorespond-2.0.4<br>
+        make<br>
+        make install<p>
+        </font></blockquote>
+
+        <p><a href=#top>top</a><p>
+
+        <hr>
+
+    <li><a name=ezmlm><b>ezmlm-idx</b><a><p>
+        Fast, full featured Mailing List Manager configureable from qmailadmin.
+        <p>
+        Info: <a href=http://www.ezmlm.org>http://www.ezmlm.org</a>
+        <p>
+
+        Install:
+
+        <blockquote><font face=courier size=-1>
+        cd /var/src<br>
+        tar -xzf tar/ezmlm-0.53.tar.gz<br>
+        tar -xzf tar/ezmlm-idx-0.40.tar.gz<br>
+        mv ezmlm-idx-0.40/* ezmlm-0.53/<br>
+        cd ezmlm-0.53<br>
+        patch -p0 < idx.patch<br>
+        patch < ../tar/ezmlm-idx-0.53.400.unified_41.patch<br>
+        make<br>
+        make setup<p>
+        </font></blockquote>
+
+        <p><a href=#top>top</a><p>
+
+        <hr>
+
+    <li><a name=qmailadmin><b>qmailadmin</b><a><p>
+        Qmailadmin can handle nearly all virtual email administration tasks for you from a 
+        web browser, except for adding and removing virtual domains.<p>
+
+        Info: <a href=http://sourceforge.net/projects/qmailadmin>http://sourceforge.net/projects/qmailadmin</a> 
+        <p>
+
+        The patch applied below fixes a problem with the default_quota 
+        directive used in the .qmailadmin-limits file.
+        <p>
+
+        Install:
+
+        <blockquote><font face=courier size=-1>
+        cd /var/src<br>
+        tar -xzf tar/qmailadmin-1.2.1.tar.gz<br>
+        cd qmailadmin-1.2.1<br>
+        ./configure --enable-help=y<br>
+        make<br>
+        make install-strip<p>
+        cd ../<br>
+        tar -xzf tar/qmailadmin-help-1.0.8.tar.gz<br>
+        cd qmailadmin-help-1.0.8<br>
+        mkdir /var/www/html/images/qmailadmin/help<br>
+        cp -rp * /var/www/html/images/qmailadmin/help
+        </font></blockquote>
+
+        Your toaster installation is done!  Now we're ready to take it for a test drive.
+
+        <p><a href=#top>top</a><p>
+
+        <hr>
+
+</ul>
+
+<h2><a name=test>Test Drive</a></h2>
+
+Here we'll add a virtual domain, 'test.com', and test sending/receiving mail.  Substitue 'test.com' for whatever domain you setup DNS for.
+<p>
+
+    <blockquote><font face=courier size=-1>
+    # <i>Add the domain to vpopmail</i><br>
+    /home/vpopmail/bin/vadddomain test.com [password]<br>
+    </font></blockquote>
+
+This creates the default "postmaster" account for test.com.  You will use this
+account with qmailadmin.  Try adding/removing users with qmailadmin here:<p>
+
+    <blockquote><font face=courier size=-1>
+    http://mail.test.com/cgi-bin/qmailadmin
+    </font></blockquote>
+
+
+To test out quota usage support, create a user with a 6MB quota like so:
+
+    <blockquote><font face=courier size=-1>
+    /home/vpopmail/bin/vadduser -q 6000000000S user@test.com [password]<p>
+    # verify the user settings, and create the "maildirsize" file<br>
+    /home/vpopmail/bin/vuserinfo user@test.com
+    </font></blockquote>
+
+Now, to log into SquirrelMail as user@test.com, point your browser here:
+        
+    <blockquote><font face=courier size=-1>
+    http://mail.test.com/squirrelmail-1.4.2/
+    </font></blockquote>
+
+Send yourself a message.  If you get it, it's likely you're up and running.<p>
+
+To test your POP server, try telnetting to port 110 and logging in.
+
+    <blockquote><font face=courier size=-1>
+    # telnet localhost 110<br>
+    Trying 127.0.0.1...<br>
+    Connected to localhost.localdomain.<br>
+    Escape character is '^]'.<br>
+    +OK Hello there.<br>
+    user user@test.com<br>
+    +OK Password required.<br>
+    pass [password]<br>
+    +OK logged in.<br>
+    quit<br>
+    +OK Bye-bye.<br>
+    Connection closed by foreign host.<br>
+    </font></blockquote>
+
+Test your IMAP server in the same way:<p>
+
+    <blockquote><font face=courier size=-1>
+    # telnet localhost 143<br>
+    Trying 127.0.0.1...<br>
+    Connected to localhost.localdomain.<br>
+    Escape character is '^]'.<br>
+    * OK Courier-IMAP ready. Copyright 1998-2001 Double Precision, Inc.  See COPYING for distribution information.<br>
+    a001 login user@test.com [password]<br>
+    a001 OK LOGIN Ok.<br>
+    a001 logout<br>
+    * BYE Courier-IMAP server shutting down<br>
+    a001 OK LOGOUT completed<br>
+    Connection closed by foreign host.<br>
+    </font></blockquote>
+
+    <p><a href=#top>top</a><p>
+    <hr>
+<h2><a name=options>Options</a></h2>
+
+<ul>
+    <li><a name=qmail-scanner><b>Qmail Scanner</b></a><p>
+    Your qmail installation is already patched (qmail-queue patch) to support 
+    qmail-scanner, a popular tool for using commercial virus scanners with 
+    qmail. Go to 
+    <a href=http://qmail-scanner.sourceforge.net>http://qmail-scanner.sourceforge.net</a> for installation instructions.<p>
+
+    <!-- To make SqWebmail use the virus scanner as well, you'll need to edit<br>
+    /usr/local/share/sqwebmail/sendit.sh<br>
+    and add these 2 lines above the "exec" statement:
+
+    <blockquote><font face=courier size=-1>
+    QMAILQUEUE="/var/qmail/bin/qmail-scanner-queue.pl"<br>
+    export QMAILQUEUE<br>
+    </font></blockquote> -->
+
+    <li><a name=limits><b>Qmailadmin Limits</b></a><p>
+
+    Qmailadmin can set per domain limits/defaults, which is really useful
+    for hosting companies with different mail packages.  This is covered in 
+    detail in the INSTALL file of qmailadmin (/var/src/qmailadmin-1.2.1/INSTALL).
+
+</ul>
+
+    <p><a href=#top>top</a><p>
+    <hr>
+<h2><a name=appendix>Appendix</a></h2>
+
+<ul>
+    <li><a name=donate><b>Donate</b></a><p>
+        <ul>
+            <li>If you find this toaster useful to you, and want to support its development, please feeel free to donate via Paypal:<p>
+
+              <table><tr><td class="border"><form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+                <input type="hidden" name="cmd" value="_xclick">
+                <input type="hidden" name="business" value="hostmaster@shupp.org">
+                <input type="hidden" name="item_name" value="Shupp.Org Support Donation">
+                <input type="hidden" name="no_shipping" value="1">
+                <input type="hidden" name="cancel_return" value="http://shupp.org/toaster/">
+                <input type="image" vspace=2 hspace=5 align=left src="/images/paypal-donate.gif" border="0" name="submit" 
+                alt="Make payments with PayPal - it's fast, free and secure!">
+              </form></td><tr></table><br><p>
+
+            Or, buy me something from my <a href="http://amazon.com/gp/registry/UUPXUQCAU68Y">Amazon Wish List</a>!<br>
+        </ul>
+    <li><a name=troubleshooting><b>Troubleshooting</b></a><p>
+        <ul>
+            <li>Subscribe to this toaster list: <a href=mailto:toaster-subscribe@shupp.org>toaster-subscribe@shupp.org</a><br>
+            (to unsubscribe: <a href=mailto:toaster-unsubscribe@shupp.org>toaster-unsubscribe@shupp.org</a>)<br>
+            There is also an <a href=http://shupp.org/pubcgi-bin/ezmlm-cgi?1>archive</a>, and a <a href=http://www.mail-archive.com/toaster@shupp.org>searchable archive</a><p>
+            <li>It's recommended that you join the mailing list for 
+            vpopmail (<a href=mailto:vchkpw-subscribe@inter7.com>vchkpw-subscribe@inter7.com</a>), since this is the core of the virtual domain package.<p>
+            <li>Also, Life With Qmail (see links below) covers qmail setup/maintenance in great detail.  Make sure you read it.<br><p>
+
+        </ul>
+
+    <li><a name=credits><b>Credits</b></a><p>
+        <ul>
+            <li>This document is certainly inspired by Matt Simerson's FreeBSD 
+                <a href=http://matt.simerson.net/computing/mail/toaster>Mail 
+                Toaster</a>.  If you use FreeBSD, use it instead, it's great.<p>
+
+            <li>Most of the commands listed in the steps above are derived 
+                either directly from the documentation or
+                <a href=http://www.lifewithqmail.org>Life With Qmail</a>.<p>
+
+            <li>This toaster was put together by Bill Shupp (hostmaster@shupp.org).<p><br>
+
+        </ul>
+    <li><a name=resources><b>Resources</b></a><p>
+            <ul>
+                <li><a href=http://www.lifewithqmail.org>Life With Qmail</a>
+                <li><a href=http://matt.simerson.net/computing/mail/toaster>Qmail FreeBSD Toaster</a> (MySQL)
+            </ul>
+        <p><br>
+    <li><a name=changelog><b>ChangeLog</b></a><p>
+        <b>0.6</b> - 2/16/2004
+        <ul>
+            <li>Switched to netqmail 1.05 for base patch install
+            <li>Updated large patch and chkuser patch
+            <li>Updated vpopmail to 5.4.1, qmailadmin to 1.2.1
+            <li>Updated courier-imap to 2.2.2.20040207 to comply with vlimits code
+        </ul><p>
+        <b>0.5.2</b> - 1/27/2004
+        <ul>
+            <li>Fixed problem with missing config.php in quota_usage plugin install
+        </ul><p>
+        <b>0.5.1</b> - 1/20/2004
+        <ul>
+            <li>Fixed some typos
+            <li>Noted in "prerequisites" that krb5 dev files, Apache and PHP are required
+        </ul><p>
+        <b>0.5</b> - 1/6/2004
+        <ul>
+            <li>Updated core software versions, qmail patch
+            <li>Switched from SqWebmail to SquirrelMail
+            <li>Removed Apache install (just use the distro's)
+            <li>Removed roaming users support (use smtp-auth instead)
+            <li>Added license link
+        </ul><p>
+        <b>0.4.7</b> - 6/17/2002
+        <ul>
+            <li>typos in courier-imap link, filename.  thanks to Yalcin Cekic.
+        </ul><p>
+        <b>0.4.6</b> - 6/05/2002
+        <ul>
+            <li>the qmail-smtpd run script didn't have a hostname, which is now required for the smtp-auth patch 0.30 and above.
+            <li>forgot to chown the imapd.pem for courier-imap now that we're running as vpopmail
+            <li>incorrect configure option for qmailadmin
+        </ul><p>
+        <b>0.4.5</b> - 6/03/2002
+        <ul>
+            <li>Use courier-imap 1.4.6 (security advisory)
+        </ul><p>
+        <b>0.4.4</b> - 5/31/2002
+        <ul>
+            <li>Update courier-imap install to run as vpopmail.vchkpw instead of root (for romaing imap users)
+            <li>Update support information
+        </ul><p>
+        <b>0.4.3</b> - 5/29/2002
+        <ul>
+            <li>Use port numbers in pop3d start scripts instead of "pop-3" and "pop3s"
+        </ul><p>
+        <b>0.4.2</b> - 5/26/2002
+        <ul>
+            <li>Upgrade to new 0.31 smtp auth patch
+        </ul><p>
+        <b>0.4.1</b> - 5/21/2002
+        <ul>
+            <li>Use vpopmail-5.3.6 instead of alternate vchkpwcmd5
+            <li>Use courier-imap 1.4.5
+            <li>Use sqwebmail 3.3.4
+        </ul><p>
+        <b>0.4</b> - 4/20/2002 (not published)
+        <ul>
+            <li>Supply new vchkpwcmd5 module (alternate to vchkpw)
+            <li>Use vpopmail-5.3.5-cmd5 and qmailadmin 1.0.4
+            <li>Use courier-imap 1.4.4 and sqwebmail 3.3.3
+            <li>Switch to qmail-pop3d from courier pop3d
+            <li>Upgrade to v. 0.30 of the SMTP-AUTH patch
+        </ul><p>
+        <b>0.3</b> - 1/3/2002
+        <ul>
+            <li>Use vpopmail-5.1.4 and qmailadmin 1.0.1
+            <li>remove unnecessary patches
+        </ul><p>
+        <b>0.2</b> - 12/26/2001
+        <ul>
+            <li>fixed broken link in download section
+            <li>added patch for quota problems in vpopmail-5.1.3
+        </ul><p>
+
+        <b>0.1</b> - 12/24/2001
+        <ul>
+            <li>initial release
+        </ul><p>
+
+    <li><a name=success><b>Success Reports</b></a><p>
+
+        <blockquote>"Bill, thanks loads for the toaster.  It works wonderfully, and didn't take
+too long to set up.  I only wish I had it two weeks ago.  :)" -- Matt G.</blockquote>
+
+        <blockquote>"Hi I just installed the complete qmail toaster suite tonight. . [nearly] flawless installation. . and [nearly] all done from your site. .  i think you are doing great things with that toaster site. ." -- Ezra P.</blockquote>
+        <blockquote>"Thanks for making it easy. Now to understand what I (you) have done. ; )" -- Charles C.</blockquote>
+        <blockquote>"Hi Bill,
+
+I just wanted to thank you for the great instructions on setting up
+qmail, etc. on Linux. I'm a bit of a rookie and for the last month I've
+been looking for a fairly easy to configure setup for mail. After going
+from RedHat w/ Sendmail to Win 2K / Exchange to FreeBSD, Debian, Gentoo,
+Slack with some combo of qmail, courier, postfix and back again I
+finally stumbled upon your site - gave RedHat a fresh install and within
+half an hour I was up and running with Qmail. (I'm sending this to you
+using my server)
+<p>
+I couldn't have done it without you! I really do appreciate the work you
+put into the instructions and patches." -- Thomas A.</blockquote>
+        <blockquote>"Bill,
+Just wanted to drop a note to you to thank you for all the obvious work you put into the toaster website.  I just installed it, and it worked perfectly. In fact, I am sending you the first email from my new setup. 
+Again, thanks for all the hard work that went into the instructions." -- Jim S.</blockquote>
+        <!-- <blockquote>"" -- </blockquote> -->
+
+</ul>
+</ul>
+        
+</body>
+</html>

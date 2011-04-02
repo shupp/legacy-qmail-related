@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wc-entries
+   xmlns="svn:">
+<entry
+   committed-rev="137"
+   name=""
+   committed-date="2007-07-22T20:35:23.709900Z"
+   url="svn://trac.merchbox.com/toasterdoc/trunk/locale/de"
+   last-author="shupp"
+   kind="dir"
+   uuid="5df0e5c9-6029-0410-b58c-b86a8e687cad"
+   revision="137"/>
+<entry
+   name="LC_MESSAGES"
+   kind="dir"/>
+</wc-entries>

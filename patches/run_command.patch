@@ -1,0 +1,30 @@
+*** vdelivermail.c.orig	Mon May  6 17:32:30 2002
+--- vdelivermail.c	Mon May  6 17:50:47 2002
+***************
+*** 69,74 ****
+--- 69,77 ----
+  
+  #define QUOTA_WARN_PERCENT 90
+  
++ /* from qmail's wait.h for run_command() */
++ #define wait_exitcode(w) ((w) >> 8)
++ 
+  /* Forward declarations */
+  int process_valias(void);
+  int is_delete(char *deliverto);
+***************
+*** 701,706 ****
+--- 704,716 ----
+    }
+  
+    wait(&wstat);
++   waitpid(wstat,&child,0);
++   switch(wait_exitcode(wstat))
++    {
++     case 64: case 65: case 70: case 76: case 77: case 78: case 112: _exit(100);
++     case 0: break;
++     default: _exit(111);
++    }
+  
+  }
+  

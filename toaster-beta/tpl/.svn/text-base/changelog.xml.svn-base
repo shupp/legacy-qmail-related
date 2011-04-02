@@ -1,0 +1,364 @@
+<title><?php echo _("ChangeLog")?></title>
+<literallayout><?php echo _("0.9.3 - 7/17/2007")?></literallayout>
+<itemizedlist>
+    <listitem><literallayout role="listitem"><?php echo _("Upgrade vpopmail to 5.4.19a")?></literallayout></listitem>
+    <listitem><literallayout role="listitem"><?php echo _("Upgrade ClamAV to 0.91.1, add ldconfig command since it's now a shared library")?></literallayout></listitem>
+    <listitem><literallayout role="listitem"><?php echo _("Use sed in qmailmrtg7 installation - tnx Tom Collins")?></literallayout></listitem>
+</itemizedlist>
+<literallayout><?php echo _("0.9.2 - 4/17/2007")?></literallayout>
+<itemizedlist>
+    <listitem><literallayout role="listitem"><?php echo _("Upgrade tmda-cgi to 0.16.3")?></literallayout></listitem>
+    <listitem><literallayout role="listitem"><?php echo _("Added Romanian translation - tnx Daniel Toma")?></literallayout></listitem>
+    <listitem><literallayout role="listitem"><?php echo _("Upgrade toaster patch to 0.9.1 (updated tls patch)")?></literallayout></listitem>
+    <listitem><literallayout role="listitem"><?php echo _("Make language selection static (from table of contents page)")?></literallayout></listitem>
+    <listitem><literallayout role="listitem"><?php echo _("Update simscan tar ball with updated configure script (should fix problem locating the clamavdb directory)")?></literallayout></listitem>
+</itemizedlist>
+<literallayout><?php echo _("0.9.1 - 4/13/2007")?></literallayout>
+<itemizedlist>
+    <listitem><literallayout role="listitem"><?php echo _("Upgrade clamav to 0.90.2")?></literallayout></listitem>
+    <listitem><literallayout role="listitem"><?php echo _("Added Spanish translation - tnx Abel Lucano and also Ingo Carlo")?></literallayout></listitem>
+    <listitem><literallayout role="listitem"><?php echo _("Fix courier-authlib patch (implicit declaration)")?></literallayout></listitem>
+    <listitem><literallayout role="listitem"><?php echo _("Remove verbose option from tar commands")?></literallayout></listitem>
+</itemizedlist>
+<literallayout><?php echo _("0.9.0 - 3/28/2007")?></literallayout>
+<itemizedlist>
+    <listitem><literallayout role="listitem"><?php echo _("Moved documentation to <ulink url='http://www.docbook.org/schemas/sdocbook/index.html'>Simplified DocBook</ulink> format with embedded gettext support.  It's displayed via a few new PHP classes written for this purpose.   See <ulink url='http://trac.merchbox.com/trac/toasterdoc'>ToasterDoc</ulink> for more info.")?></literallayout></listitem>
+    <listitem><literallayout role="listitem"><?php echo _("Upgrade toaster patch to 0.9.0")?></literallayout></listitem>
+    <listitem><literallayout role="listitem"><?php echo _("Upgrade clamav to 0.90.1")?></literallayout></listitem>
+    <listitem><literallayout role="listitem"><?php echo _("Updgrade courier-imap to 4.1.2, courier-authlib to 0.59.1.  Wrote cram patch for authvchkpw so secure auth is available for imap connections")?></literallayout></listitem>
+    <listitem><literallayout role="listitem"><?php echo _("Updgrade vpopmail to 5.4.18 + vpopmaild and configure patches")?></literallayout></listitem>
+    <listitem><literallayout role="listitem"><?php echo _("Updgrade TMDA and TMDA-cgi to 1.1.11 and 0.16.2 respectively")?></literallayout></listitem>
+    <listitem><literallayout role="listitem"><?php echo _("Update lots of text and notes.")?></literallayout></listitem>
+    <listitem><literallayout role="listitem"><?php echo _("Make install-strip for clamav now")?></literallayout></listitem>
+    <listitem><literallayout role="listitem"><?php echo _("Update toaster-scripts to 0.9.0 (new kill options in ctl scripts, remove -L argument to spamd)")?></literallayout></listitem>
+    <listitem><literallayout role="listitem"><?php echo _("Update simscan to 1.3.1.shupp1 (tarball with clamavdb configure patch applied)")?></literallayout></listitem>
+    <listitem><literallayout role="listitem"><?php echo _("Add server thread sorting and server-side sorting to squirrelmail configuration - tnx Maciej Soltysiak")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.8.11 - 11/6/2006")?></literallayout>
+<itemizedlist>
+    <listitem><literallayout role="listitem"><?php echo _("Added step to install double-bounce-trim patch to qmail")?></literallayout></listitem>
+    <listitem><literallayout role="listitem"><?php echo _("Upgrade clamav to 0.88.6")?></literallayout></listitem>
+    <listitem><literallayout role="listitem"><?php echo _("Updgrade courier-imap to 4.1.1")?></literallayout></listitem>
+    <listitem><literallayout role="listitem"><?php echo _("Updgrade vpopmail to 5.4.17 + vpopmaild patches")?></literallayout></listitem>
+    <listitem><literallayout role="listitem"><?php echo _("Updgrade TMDA and TMDA-cgi to 1.1.9 and 0.15+patch respectively")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.8.10 - 8/7/2006")?></literallayout>
+<itemizedlist>
+    <listitem><literallayout role="listitem">Upgrade clamav to 0.88.4</literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.8.9 - 6/11/2006")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Upgrade qmail-toaster-0.8.3.patch, which removes the mfcheck patch and instead enables CHKUSER_SENDER_MX in chkuser_settings.h")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Fix some typos")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Change to 'config-fast `hostname --long`' during qmail install for easier automation")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.8.8 - 5/11/2006")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Update clamav to 0.88.2")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Added link to Trustix 3.0 notes - tnx Matthew Valentini")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.8.7 - 4/9/2006")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Update toaster patch (put mfcheck back, turn on user extensions in chkuser), ezmlm-idx, courier imap, squirrelmail, quota usage, toaster scripts, clamav (and corresponding patches), and simscan")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Added TMDA in Options")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Added notes for x86_64 issues - tnx Rick Root")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Added chkconfig directives to the freshclam init script - tnx Ken Schweigert")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Finally added notes about using pop3ds.run.v4 in case you have stunnel version 4")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Added umask directives - tnx George Toft")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Added clear option in qmailctl to clear readproctitle errors - tnx Sim")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Added simscan patch to call ripmime correctly")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Added SSL/TLS testing info. Also noted how to deal with cipher list problems")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Added freshclam.log to logrotate - tnx Tom Collins")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("4/10/2006 - Added SSL instance of tmda-ofmipd")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("4/10/2006 - Note different version syntax for stunnel 3 and 4 - tnx Ingo Claro")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("4/10/2006 - Downgrade ezmlm-idx to 0.443 until chkuser is updated to support the new version")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("4/10/2006 - upgrade QmailAdmin to 1.2.10 to include security fixes")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("4/19/2006 - Add removal of exim4-base and exim4-config to Debian notes")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.8.6 - 1/28/2006")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Update clamav to 0.88")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("use vpopmail-5.4.13-cumulative-1.patch which has one bug fix and back ports vpopmaild")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.8.5 - 1/5/2006")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Update toaster patch to version 0.8.1 (tls update)")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Update ripmime to 1.4.0.6")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.8.4 - 12/26/2005")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Update courier-imap/courier-authlib versions")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Fix spelling error")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Use yum instead of rpm -q in 'Prerequisites'")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Fix some apt-get typos - tnx Tom Nats")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Mention MANDATORY_MANPATH for Debian - tnx Andrea Riela")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.8.3 - 12/3/2005")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Add SpamAssassin and ClamAV dependencies installation, and gmake alias to Debian Notes section")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.8.2 - 11/7/2005")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Update clamav to 0.87.1")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.8.1 - 9/16/2005")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Update qmailadmin, courier-authlib, courier-imap, clamav, and ezmlm-idx versions")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.8 - 7/24/2005")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Update qmailadmin configure line since debian requires arguments")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Added Debian notes")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Added qmailmrtg7 under 'Options'")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Update all software packages to latest versions, including courier-imap which now requires authlib")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Update toaster patch to include latest patch versions")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Update notes in Test Drive")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Update archive links in Troubleshooting")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.7.13 - 6/23/2005")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Update clamav to 0.86.1")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.7.12 - 5/23/2005")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Update clamav to 0.85.1")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.7.11 - 5/13/2005")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Update clamav to 0.85")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.7.10 - 5/1/2005")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Update vpopmail to 5.4.10")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Update ripmime to 1.4.0.5")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Update clamav to 0.84")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.7.9 - 3/13/2005")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Update vpopmail to 5.4.9")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.7.7 - 2/16/2005")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("add spam_passthru=yes to simcontrol - tnx Jason S")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("add note about needing gmp-devel - tnx Jesus San Miguel")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("add note about chowning /var/qmail/spam to vpopmail:vchkpw after re-installs of qmail (for spam throttle)")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("remove chmod +t commands, as they are only for daemontools &lt; 0.75")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("update qmailctl to use svclist for a list of services - handy for multiple instances of qmail-smtpd. - tnx Tom Collins")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.7.7 - 2/16/2005")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Upgraded clamav to 0.83")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Upgraded simscan to 1.1")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.7.6 - 2/7/2005")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Upgraded clamav to 0.82")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.7.5 - 2/4/2005")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Fixed missing semi-colons in creation of aliases - tnx Tom Collins")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Consolidate rpm command suggestions - tnx Tom Collins")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Add qmail man pages to MANCONFIG path - tnx Tom Collins")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.7.4 - 2/1/2005")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Updated clamav to 0.81 - tnx Bob Hutchinson for updated stderr patch")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Minor change to tcprules command in vpopmail install - tnx Jake Applebaum")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.7.3 - 1/25/2005")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Updated qmail-toaster patch to 0.7.2 to fix a CR in overmaildirquota.c")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.7.2 - 1/20/2005")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Updated maildir++ patch to fix duplicate free() - tnx Tom Collins")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.7.1 - 1/8/2005")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Added mention of SELinux incompatibility with QmailAdmin - tnx Dave Roberts")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.7 - 12/27/2004")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("1/8/2005 - Added mention of SELinux incompatibility with QmailAdmin - tnx Dave Roberts")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Changed qmail-toaster patch from 0.7b5 to 0.7 (no changes)")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Changed toaster version from 0.7b2 to 0.7")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Added note to courier-imap install about changing from self-signed certificate ")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.7b2 - 12/20/2004")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Updated paths to init scripts. This document now uses /etc/init.d and /etc/rc?.d instead of /etc/rc.d/init.d and /etc/rc.d/rc?.d")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Enabled per-domain scanning in simscan - tnx Jose Luis Canciani")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Typo in version info of toaster patch - tnx Eduardo Cortes ")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.7b1 - 12/15/2004")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("New Toaster patch with updated versions, SPF, dropped mfcheck, swapped spam throttle for tarpit")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Updated vpopmail to 5.4.8, qmailadmin to 1.2.3")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Updated courier-imap to 3.0.8")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Added SpamAssassin, ClamAV, simscan, ripmime to Options")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Lots of updates to run/config files")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("qmailctl now detects whether roaming users is being used ")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.6 - 2/16/2004")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Switched to netqmail 1.05 for base patch install")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Updated large patch and chkuser patch")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Updated vpopmail to 5.4.1, qmailadmin to 1.2.1")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Updated courier-imap to 2.2.2.20040207 to comply with vlimits code ")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.5.2 - 1/27/2004")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Fixed problem with missing config.php in quota_usage plugin install ")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.5.1 - 1/20/2004")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Fixed some typos")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Noted in 'prerequisites' that krb5 dev files, Apache and PHP are required ")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.5 - 1/6/2004")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Updated core software versions, qmail patch")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Switched from SqWebmail to SquirrelMail")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Removed Apache install (just use the distro's)")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Removed roaming users support (use smtp-auth instead)")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Added license link ")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.4.7 - 6/17/2002")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("typos in courier-imap link, filename. thanks to Yalcin Cekic. ")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.4.6 - 6/05/2002")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("the qmail-smtpd run script didn't have a hostname, which is now required for the smtp-auth patch 0.30 and above.")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("forgot to chown the imapd.pem for courier-imap now that we're running as vpopmail")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("incorrect configure option for qmailadmin ")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.4.5 - 6/03/2002")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Use courier-imap 1.4.6 (security advisory) ")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.4.4 - 5/31/2002")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Update courier-imap install to run as vpopmail.vchkpw instead of root (for romaing imap users)")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Update support information ")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.4.3 - 5/29/2002")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Use port numbers in pop3d start scripts instead of 'pop-3' and 'pop3s'")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.4.2 - 5/26/2002")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Upgrade to new 0.31 smtp auth patch ")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.4.1 - 5/21/2002")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Use vpopmail-5.3.6 instead of alternate vchkpwcmd5")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Use courier-imap 1.4.5")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Use sqwebmail 3.3.4 ")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.4 - 4/20/2002 (not published)")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Supply new vchkpwcmd5 module (alternate to vchkpw)")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Use vpopmail-5.3.5-cmd5 and qmailadmin 1.0.4")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Use courier-imap 1.4.4 and sqwebmail 3.3.3")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Switch to qmail-pop3d from courier pop3d")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("Upgrade to v. 0.30 of the SMTP-AUTH patch ")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.3 - 1/3/2002")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("Use vpopmail-5.1.4 and qmailadmin 1.0.1")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("remove unnecessary patches ")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.2 - 12/26/2001")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("fixed broken link in download section")?></literallayout></listitem>
+	<listitem><literallayout role="listitem"><?php echo _("added patch for quota problems in vpopmail-5.1.3 ")?></literallayout></listitem>
+</itemizedlist>
+
+<literallayout><?php echo _("0.1 - 12/24/2001")?></literallayout>
+
+<itemizedlist>
+	<listitem><literallayout role="listitem"><?php echo _("initial release ")?></literallayout></listitem>
+</itemizedlist>

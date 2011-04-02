@@ -1,0 +1,10 @@
+#!/bin/sh
+
+VPOPMAILUID=`id -u vpopmail`
+VPOPMAILGID=`id -g vpopmail`
+
+exec /usr/local/bin/tcpserver -l 0 -R -H -v             \
+        -u"$VPOPMAILUID" -g"$VPOPMAILGID" 0 110       \
+        /var/qmail/bin/qmail-popup domain.com         \
+        /home/vpopmail/bin/vchkpw                       \
+        /var/qmail/bin/qmail-pop3d Maildir 2>&1

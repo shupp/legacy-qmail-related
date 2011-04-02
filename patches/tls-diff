@@ -1,0 +1,151 @@
+diff -urN ../../netqmail-1.05-old/netqmail-1.05/conf-cc ./conf-cc
+--- ../../netqmail-1.05-old/netqmail-1.05/conf-cc	2007-04-17 17:38:20.662476848 -0500
++++ ./conf-cc	2007-04-17 17:39:00.936354288 -0500
+@@ -1,3 +1,3 @@
+-cc -O2 -DTLS=20060104 -I/usr/local/ssl/include
++cc -O2 -DTLS=20070408 -I/usr/local/ssl/include
+ 
+ This will be used to compile .c files.
+diff -urN ../../netqmail-1.05-old/netqmail-1.05/qmail-remote.8 ./qmail-remote.8
+--- ../../netqmail-1.05-old/netqmail-1.05/qmail-remote.8	2007-04-17 17:38:20.653478216 -0500
++++ ./qmail-remote.8	2007-04-17 17:39:00.818372224 -0500
+@@ -220,13 +220,13 @@
+ .TP 5
+ .I tlshosts/<FQDN>.pem
+ .B qmail-remote
+-requires TLS authentication from servers for which this certificate exists
++requires TLS authentication from servers for which this file exists
+ .RB ( <FQDN>
+ is the fully-qualified domain name of the server). One of the
+ .I dNSName
+ or the
+ .I CommonName
+-attributes have to match.
++attributes have to match. The file contains the trusted CA certificates.
+ 
+ .B WARNING:
+ this option may cause mail to be delayed, bounced, doublebounced, or lost.
+diff -urN ../../netqmail-1.05-old/netqmail-1.05/qmail-smtpd.c ./qmail-smtpd.c
+--- ../../netqmail-1.05-old/netqmail-1.05/qmail-smtpd.c	2007-04-17 17:38:20.650478672 -0500
++++ ./qmail-smtpd.c	2007-04-17 17:39:00.814372832 -0500
+@@ -634,7 +634,7 @@
+ 
+   ciphers = env_get("TLSCIPHERS");
+   if (!ciphers) {
+-    if (control_readfile(&saciphers, "control/tlsserverciphers") == -1)
++    if (control_readfile(&saciphers, "control/tlsserverciphers", 0) == -1)
+       { SSL_free(myssl); die_control(); }
+     if (saciphers.len) { /* convert all '\0's except the last one to ':' */
+       int i;
+@@ -662,9 +662,9 @@
+   ssl = myssl;
+ 
+   /* populate the protocol string, used in Received */
+-  if (!stralloc_copys(&proto, "(")
++  if (!stralloc_copys(&proto, "ESMTPS (")
+     || !stralloc_cats(&proto, SSL_get_cipher(ssl))
+-    || !stralloc_cats(&proto, " encrypted) SMTP")) die_nomem();
++    || !stralloc_cats(&proto, " encrypted)")) die_nomem();
+   if (!stralloc_0(&proto)) die_nomem();
+   protocol = proto.s;
+ 
+diff -urN ../../netqmail-1.05-old/netqmail-1.05/ssl_timeoutio.c ./ssl_timeoutio.c
+--- ../../netqmail-1.05-old/netqmail-1.05/ssl_timeoutio.c	2007-04-17 17:38:20.659477304 -0500
++++ ./ssl_timeoutio.c	2007-04-17 17:39:00.934354592 -0500
+@@ -1,13 +1,14 @@
+ #include "select.h"
+ #include "error.h"
+ #include "ndelay.h"
++#include "now.h"
+ #include "ssl_timeoutio.h"
+ 
+ int ssl_timeoutio(int (*fun)(),
+-  long t, int rfd, int wfd, SSL *ssl, char *buf, int len)
++  int t, int rfd, int wfd, SSL *ssl, char *buf, int len)
+ {
+   int n;
+-  const long end = t + time(NULL);
++  const datetime_sec end = (datetime_sec)t + now();
+ 
+   do {
+     fd_set fds;
+@@ -16,9 +17,9 @@
+     const int r = buf ? fun(ssl, buf, len) : fun(ssl);
+     if (r > 0) return r;
+ 
+-    t = end - time(NULL);
++    t = end - now();
+     if (t < 0) break;
+-    tv.tv_sec = t; tv.tv_usec = 0;
++    tv.tv_sec = (time_t)t; tv.tv_usec = 0;
+ 
+     FD_ZERO(&fds);
+     switch (SSL_get_error(ssl, r))
+@@ -39,7 +40,7 @@
+   return -1;
+ }
+ 
+-int ssl_timeoutaccept(long t, int rfd, int wfd, SSL *ssl)
++int ssl_timeoutaccept(int t, int rfd, int wfd, SSL *ssl)
+ {
+   int r;
+ 
+@@ -53,7 +54,7 @@
+   return r;
+ }
+ 
+-int ssl_timeoutconn(long t, int rfd, int wfd, SSL *ssl)
++int ssl_timeoutconn(int t, int rfd, int wfd, SSL *ssl)
+ {
+   int r;
+ 
+@@ -67,7 +68,7 @@
+   return r;
+ }
+ 
+-int ssl_timeoutrehandshake(long t, int rfd, int wfd, SSL *ssl)
++int ssl_timeoutrehandshake(int t, int rfd, int wfd, SSL *ssl)
+ {
+   int r;
+ 
+@@ -80,14 +81,14 @@
+   return ssl_timeoutio(SSL_do_handshake, t, rfd, wfd, ssl, NULL, 0);
+ }
+ 
+-int ssl_timeoutread(long t, int rfd, int wfd, SSL *ssl, char *buf, int len)
++int ssl_timeoutread(int t, int rfd, int wfd, SSL *ssl, char *buf, int len)
+ {
+   if (!buf) return 0;
+   if (SSL_pending(ssl)) return SSL_read(ssl, buf, len);
+   return ssl_timeoutio(SSL_read, t, rfd, wfd, ssl, buf, len);
+ }
+ 
+-int ssl_timeoutwrite(long t, int rfd, int wfd, SSL *ssl, char *buf, int len)
++int ssl_timeoutwrite(int t, int rfd, int wfd, SSL *ssl, char *buf, int len)
+ {
+   if (!buf) return 0;
+   return ssl_timeoutio(SSL_write, t, rfd, wfd, ssl, buf, len);
+diff -urN ../../netqmail-1.05-old/netqmail-1.05/ssl_timeoutio.h ./ssl_timeoutio.h
+--- ../../netqmail-1.05-old/netqmail-1.05/ssl_timeoutio.h	2007-04-17 17:38:20.660477152 -0500
++++ ./ssl_timeoutio.h	2007-04-17 17:39:00.934354592 -0500
+@@ -8,14 +8,14 @@
+ # error "Need OpenSSL version at least 0.9.6"
+ #endif
+ 
+-int ssl_timeoutconn(long t, int rfd, int wfd, SSL *ssl);
+-int ssl_timeoutaccept(long t, int rfd, int wfd, SSL *ssl);
+-int ssl_timeoutrehandshake(long t, int rfd, int wfd, SSL *ssl);
++int ssl_timeoutconn(int t, int rfd, int wfd, SSL *ssl);
++int ssl_timeoutaccept(int t, int rfd, int wfd, SSL *ssl);
++int ssl_timeoutrehandshake(int t, int rfd, int wfd, SSL *ssl);
+ 
+-int ssl_timeoutread(long t, int rfd, int wfd, SSL *ssl, char *buf, int len);
+-int ssl_timeoutwrite(long t, int rfd, int wfd, SSL *ssl, char *buf, int len);
++int ssl_timeoutread(int t, int rfd, int wfd, SSL *ssl, char *buf, int len);
++int ssl_timeoutwrite(int t, int rfd, int wfd, SSL *ssl, char *buf, int len);
+ 
+ int ssl_timeoutio(
+-  int (*fun)(), long t, int rfd, int wfd, SSL *ssl, char *buf, int len);
++  int (*fun)(), int t, int rfd, int wfd, SSL *ssl, char *buf, int len);
+ 
+ #endif

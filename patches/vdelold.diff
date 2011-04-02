@@ -1,0 +1,18 @@
+--- vdeloldusers.c.bak	Sat Jan 25 11:21:06 2003
++++ vdeloldusers.c	Sat Jan 25 11:22:06 2003
+@@ -53,6 +53,7 @@
+ void process_all_domains(time_t nowt);
+ void deloldusers(char *Domain, time_t nowt);
+ 
++#ifdef ENABLE_AUTH_LOGGING
+ int main(argc,argv)
+  int argc;
+  char *argv[];
+@@ -84,6 +85,7 @@
+ 
+ 	vexit(0);
+ }
++#endif
+ 
+ 
+ void usage()

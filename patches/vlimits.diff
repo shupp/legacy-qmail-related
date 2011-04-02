@@ -1,0 +1,10 @@
+--- vlimits.c.orig	2007-04-29 14:37:02.000000000 -0500
++++ vlimits.c	2007-04-29 14:38:36.000000000 -0500
+@@ -229,6 +229,7 @@
+         if (limits->disable_smtp) fprintf(fs, "disable_smtp\n");
+         if (limits->disable_spamassassin) fprintf(fs, "disable_spamassassin\n");
+         if (limits->delete_spam) fprintf(fs, "delete_spam\n");
++        if (limits->disable_maildrop) fprintf(fs, "disable_maildrop\n");
+         fprintf(fs, "perm_account: %d\n", limits->perm_account);
+         fprintf(fs, "perm_alias: %d\n", limits->perm_alias);
+         fprintf(fs, "perm_forward: %d\n", limits->perm_forward);

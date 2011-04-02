@@ -1,0 +1,416 @@
+diff -crN ../vpopmail-5.1.3/configure ./configure
+*** ../vpopmail-5.1.3/configure	Wed Dec 19 12:03:22 2001
+--- ./configure	Thu Dec 20 14:42:03 2001
+***************
+*** 1309,1315 ****
+  
+  
+  qmailnewu=""
+! for f in /var/qmail/bin/qmail-newu /usr/sbin/qmail-newu
+  do
+      if test -f $f
+      then
+--- 1309,1315 ----
+  
+  
+  qmailnewu=""
+! for f in "$qmaildir"/bin/qmail-newu /usr/sbin/qmail-newu
+  do
+      if test -f $f
+      then
+***************
+*** 1335,1341 ****
+  
+  
+  qmailinject=""
+! for f in /var/qmail/bin/qmail-inject /usr/sbin/qmail-inject /usr/bin/qmail-inject
+  do
+      if test -f $f
+      then
+--- 1335,1341 ----
+  
+  
+  qmailinject=""
+! for f in "$qmaildir"/bin/qmail-inject /usr/sbin/qmail-inject /usr/bin/qmail-inject
+  do
+      if test -f $f
+      then
+***************
+*** 1361,1367 ****
+  
+  
+  qmailnewmrh=""
+! for f in /var/qmail/bin/qmail-newmrh /usr/sbin/qmail-newmrh
+  do
+      if test -f $f
+      then
+--- 1361,1367 ----
+  
+  
+  qmailnewmrh=""
+! for f in "$qmaildir"/bin/qmail-newmrh /usr/sbin/qmail-newmrh
+  do
+      if test -f $f
+      then
+diff -crN ../vpopmail-5.1.3/configure.in ./configure.in
+*** ../vpopmail-5.1.3/configure.in	Wed Dec 19 12:02:52 2001
+--- ./configure.in	Thu Dec 20 14:41:58 2001
+***************
+*** 61,67 ****
+  AC_DEFINE_UNQUOTED(QMAILDIR,"$qmaildir")
+  
+  qmailnewu=""
+! for f in /var/qmail/bin/qmail-newu /usr/sbin/qmail-newu
+  do
+      if test -f $f
+      then
+--- 61,67 ----
+  AC_DEFINE_UNQUOTED(QMAILDIR,"$qmaildir")
+  
+  qmailnewu=""
+! for f in "$qmaildir"/bin/qmail-newu /usr/sbin/qmail-newu
+  do
+      if test -f $f
+      then
+***************
+*** 79,85 ****
+  AC_DEFINE_UNQUOTED(QMAILNEWU,"$qmailnewu")
+  
+  qmailinject=""
+! for f in /var/qmail/bin/qmail-inject /usr/sbin/qmail-inject /usr/bin/qmail-inject
+  do
+      if test -f $f
+      then
+--- 79,85 ----
+  AC_DEFINE_UNQUOTED(QMAILNEWU,"$qmailnewu")
+  
+  qmailinject=""
+! for f in "$qmaildir"/bin/qmail-inject /usr/sbin/qmail-inject /usr/bin/qmail-inject
+  do
+      if test -f $f
+      then
+***************
+*** 97,103 ****
+  AC_DEFINE_UNQUOTED(QMAILINJECT,"$qmailinject")
+  
+  qmailnewmrh=""
+! for f in /var/qmail/bin/qmail-newmrh /usr/sbin/qmail-newmrh
+  do
+      if test -f $f
+      then
+--- 97,103 ----
+  AC_DEFINE_UNQUOTED(QMAILINJECT,"$qmailinject")
+  
+  qmailnewmrh=""
+! for f in "$qmaildir"/bin/qmail-newmrh /usr/sbin/qmail-newmrh
+  do
+      if test -f $f
+      then
+diff -crN ../vpopmail-5.1.3/maildirquota.c ./maildirquota.c
+*** ../vpopmail-5.1.3/maildirquota.c	Wed Dec 12 09:31:44 2001
+--- ./maildirquota.c	Thu Dec 20 14:41:51 2001
+***************
+*** 23,28 ****
+--- 23,29 ----
+  #include <time.h>
+  #include <sys/uio.h>
+  #include "maildirquota.h"
++ #include "config.h"
+  
+  
+  static char *makenewmaildirsizename(const char *, int *);
+***************
+*** 39,44 ****
+--- 40,46 ----
+  	int xtra_cnt, int *percentage);
+  static int docount(const char *, time_t *, off_t *, unsigned *);
+  int deliver_quota_warning(const char *dir);
++ char *format_maildirquota(const char *q);
+  
+  #define  NUMBUFSIZE      60
+  #define	MDQUOTA_SIZE	'S'	/* Total size of all messages in maildir */
+***************
+*** 51,86 ****
+  {
+  struct  stat    stat_buf;
+  int     quotafd;
+- int     i;
+- int     per_user_limit;
+  int     ret_value;
+- char    tmpbuf[500];
+  
+!         /* translate the quota to a number, or leave it */
+!         i = strlen(q) - 1;
+!         tmpbuf[0] = '\0'; /* make sure tmpbuf is 0 length */
+!         if(strstr(q, ",") == NULL && q[i] != 'S') {
+!             per_user_limit = atol(q);
+!             for(i=0;q[i]!=0;++i) {
+!                 if ( q[i] == 'k' || 
+!                     q[i] == 'K' ) {
+!                     per_user_limit = per_user_limit * 1000;
+!                     sprintf(tmpbuf, "%dS", per_user_limit);
+!                     break;
+!                 }
+!                 if ( q[i] == 'm' || q[i] == 'M' ) {
+!                     per_user_limit = per_user_limit * 1000000;
+!                     sprintf(tmpbuf, "%dS", per_user_limit);
+!                     break;
+!                 }
+!             }
+!             if(strlen(tmpbuf) > 0) {
+!                 q = tmpbuf;
+!             } else {
+!                 sprintf(tmpbuf, "%sS", q);
+!                 q = tmpbuf;
+!             }
+!         }
+  
+          if (fstat(0, &stat_buf) == 0 && S_ISREG(stat_buf.st_mode) &&
+                  stat_buf.st_size > 0 && *q)
+--- 53,61 ----
+  {
+  struct  stat    stat_buf;
+  int     quotafd;
+  int     ret_value;
+  
+!         q = format_maildirquota(q);
+  
+          if (fstat(0, &stat_buf) == 0 && S_ISREG(stat_buf.st_mode) &&
+                  stat_buf.st_size > 0 && *q)
+***************
+*** 100,105 ****
+--- 75,134 ----
+          }
+  
+          return(ret_value);
++ }
++ 
++ void add_warningsize_to_quota( const char *dir, const char *q)
++ {
++ struct  stat    stat_buf;
++ int     quotafd;
++ char    quotawarnmsg[500];
++ 
++         q = format_maildirquota(q);
++ 
++         sprintf(quotawarnmsg, "%s/domains/.quotwarn.msg", VPOPMAILDIR);
++ 
++         if (stat(quotawarnmsg, &stat_buf) == 0 && S_ISREG(stat_buf.st_mode) &&
++                 stat_buf.st_size > 0 && *q)
++         {
++                 maildir_checkquota(dir, &quotafd, q, stat_buf.st_size, 1);
++                 if (quotafd >= 0)       close(quotafd);
++                 maildir_addquota(dir, quotafd, q, stat_buf.st_size, 1);
++                 if (quotafd >= 0)       close(quotafd);
++         }
++ }
++ 
++ char *format_maildirquota(const char *q) {
++ int     i;
++ int     per_user_limit;
++ static char    tempquota[500];
++ 
++     /* translate the quota to a number, or leave it */
++     i = strlen(q) - 1;
++     tempquota[0] = '\0'; /* make sure tempquota is 0 length */
++     if(strstr(q, ",") == NULL && q[i] != 'S') {
++         per_user_limit = atol(q);
++         for(i=0;q[i]!=0;++i) {
++             if ( q[i] == 'k' ||
++                 q[i] == 'K' ) {
++                 per_user_limit = per_user_limit * 1000;
++                 sprintf(tempquota, "%dS", per_user_limit);
++                 break;
++             }
++             if ( q[i] == 'm' || q[i] == 'M' ) {
++                 per_user_limit = per_user_limit * 1000000;
++                 sprintf(tempquota, "%dS", per_user_limit);
++                 break;
++             }
++         }
++ 
++         if(strlen(tempquota) == 0) {
++             sprintf(tempquota, "%sS", q);
++         } else {
++             sprintf(tempquota, "%s", q);
++         }
++     }
++ 
++     return(tempquota);
+  }
+  
+  
+diff -crN ../vpopmail-5.1.3/vdelivermail.c ./vdelivermail.c
+*** ../vpopmail-5.1.3/vdelivermail.c	Wed Dec 12 09:31:44 2001
+--- ./vdelivermail.c	Thu Dec 20 15:00:21 2001
+***************
+*** 75,82 ****
+  void get_arguments(int argc, char **argv);
+  off_t get_message_size();
+  int deliver_mail(char *address, char *quota);
+! int deliver_quota_warning(const char *dir);
+  int user_over_maildirquota(char *address, char *quota);
+  int check_forward_deliver(char *dir);
+  off_t count_dir(char *dir_name);
+  int is_looping( char *address );
+--- 75,83 ----
+  void get_arguments(int argc, char **argv);
+  off_t get_message_size();
+  int deliver_mail(char *address, char *quota);
+! int deliver_quota_warning(const char *dir, const char *q);
+  int user_over_maildirquota(char *address, char *quota);
++ void add_warningsize_to_quota( const char *dir, const char *q);
+  int check_forward_deliver(char *dir);
+  off_t count_dir(char *dir_name);
+  int is_looping( char *address );
+***************
+*** 390,400 ****
+                      }
+                      fclose(fs);
+                  }
+                  return(-1);
+              }
+              if (QUOTA_WARN_PERCENT >= 0 &&
+                  maildir_readquota(address, quota) >= QUOTA_WARN_PERCENT)
+!                 deliver_quota_warning(address);
+          }
+  
+          /* Format the email file name */
+--- 391,402 ----
+                      }
+                      fclose(fs);
+                  }
++                 deliver_quota_warning(address, quota);
+                  return(-1);
+              }
+              if (QUOTA_WARN_PERCENT >= 0 &&
+                  maildir_readquota(address, quota) >= QUOTA_WARN_PERCENT)
+!                 deliver_quota_warning(address, quota);
+          }
+  
+          /* Format the email file name */
+***************
+*** 897,906 ****
+   * -2 and below are system failures
+   * -3 mail is looping 
+   */
+! int deliver_quota_warning(const char *dir)
+  {
+   time_t tm;
+   long unsigned pid;
+   int write_fd, fdin, fd;
+   size_t l;
+   char newdir[400];
+--- 899,909 ----
+   * -2 and below are system failures
+   * -3 mail is looping 
+   */
+! int deliver_quota_warning(const char *dir, const char *q)
+  {
+   time_t tm;
+   long unsigned pid;
++  long unsigned wrn_msg_sz;
+   int write_fd, fdin, fd;
+   size_t l;
+   char newdir[400];
+***************
+*** 911,919 ****
+   char quotawarnmsg[BUFF_SIZE];
+  
+      sprintf(quotawarnmsg, "%s/domains/.quotawarn.msg", VPOPMAILDIR);
+!     if ((fdin=open(quotawarnmsg, O_RDONLY)) < 0)
+          return(0);
+  
+      l = strlen(dir)+sizeof("/quotawarn");
+  
+      if ((qname = malloc(l)) == 0)
+--- 914,924 ----
+   char quotawarnmsg[BUFF_SIZE];
+  
+      sprintf(quotawarnmsg, "%s/domains/.quotawarn.msg", VPOPMAILDIR);
+!     if (((fdin=open(quotawarnmsg, O_RDONLY)) < 0) || (stat(quotawarnmsg, &sb)<0))
+          return(0);
+  
++     wrn_msg_sz = sb.st_size;
++ 
+      l = strlen(dir)+sizeof("/quotawarn");
+  
+      if ((qname = malloc(l)) == 0)
+***************
+*** 954,964 ****
+      pid=getpid();
+      time (&tm);
+      snprintf(local_file, 156, "%stmp/%lu.%lu.%s,S=%lu",
+!         dir,(long unsigned)tm,(long unsigned)pid,
+!         hostname, (long unsigned)sb.st_size);
+      snprintf(local_file_new, 156, "%snew/%lu.%lu.%s,S=%lu",
+!         dir,(long unsigned)tm,(long unsigned)pid,hostname, 
+!     (long unsigned)sb.st_size);
+  
+      /* open the new email file */
+      if ((write_fd=open(local_file,O_CREAT|O_RDWR,S_IRUSR|S_IWUSR))== -1) {
+--- 959,967 ----
+      pid=getpid();
+      time (&tm);
+      snprintf(local_file, 156, "%stmp/%lu.%lu.%s,S=%lu",
+!         dir,(long unsigned)tm,pid,hostname, wrn_msg_sz);
+      snprintf(local_file_new, 156, "%snew/%lu.%lu.%s,S=%lu",
+!         dir,(long unsigned)tm,pid,hostname,wrn_msg_sz);
+  
+      /* open the new email file */
+      if ((write_fd=open(local_file,O_CREAT|O_RDWR,S_IRUSR|S_IWUSR))== -1) {
+***************
+*** 1062,1066 ****
+--- 1065,1070 ----
+      }
+  
+      /* return success */
++     add_warningsize_to_quota(dir,q);
+      return(0);
+  }
+*** ../vpopmail-5.1.3-shupp/vuserinfo.c	Wed Dec 12 09:31:44 2001
+--- ./vuserinfo.c	Thu Dec 20 19:24:10 2001
+***************
+*** 61,66 ****
+--- 61,67 ----
+  void usage();
+  void get_options(int argc, char **argv);
+  void display_user(struct vqpasswd *mypw, char *domain);
++ char *format_maildirquota(const char *q);
+  
+  int main(argc,argv)
+   int argc;
+***************
+*** 262,268 ****
+          sprintf(maildir, "%s/Maildir", mypw->pw_dir);
+          if((strcmp(mypw->pw_shell, "NOQUOTA"))) {
+              printf("usage:     %d%%\n", 
+!                 maildir_readquota(maildir, mypw->pw_shell));
+          } else {
+              printf("usage:     %s\n", mypw->pw_shell);
+          }
+--- 263,269 ----
+          sprintf(maildir, "%s/Maildir", mypw->pw_dir);
+          if((strcmp(mypw->pw_shell, "NOQUOTA"))) {
+              printf("usage:     %d%%\n", 
+!                 maildir_readquota(maildir, format_maildirquota(mypw->pw_shell)));
+          } else {
+              printf("usage:     %s\n", mypw->pw_shell);
+          }
+***************
+*** 315,321 ****
+              sprintf(maildir, "%s/Maildir", mypw->pw_dir);
+              if((strcmp(mypw->pw_shell, "NOQUOTA"))) {
+                  printf("%d%%\n", 
+!                     maildir_readquota(maildir, mypw->pw_shell));
+              } else {
+                  printf("%s\n", mypw->pw_shell);
+              }
+--- 316,322 ----
+              sprintf(maildir, "%s/Maildir", mypw->pw_dir);
+              if((strcmp(mypw->pw_shell, "NOQUOTA"))) {
+                  printf("%d%%\n", 
+!                     maildir_readquota(maildir, format_maildirquota(mypw->pw_shell)));
+              } else {
+                  printf("%s\n", mypw->pw_shell);
+              }

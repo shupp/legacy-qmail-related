@@ -1,0 +1,955 @@
+1.0
+11/19/01  "Einar Bordewich" <einar@bordewich.net>
+          - Updated norwegian dictionary
+
+          Oden Eriksson <oden.eriksson@kvikkjokk.net>
+          - Updated swedish dictionary
+
+11/18/01  "Tim Hunter" <tim.hunter@cimx.com>
+          - Added align=left to many table data tags to compensate for IE 6
+            not adhering to HTML specifications.
+
+          "Bill Shupp" <hostmaster@shupp.org>
+          - More html enhancments.
+          - Changed "Master Account" to "User Account" in english dictionary
+          - Changed POP to Email in english dictionary
+          - Verified that HTTP_X_FORWARDED_FOR fix works for users behing 
+            proxies with this environment set.
+
+
+11/16/01  "Ken Jones" <kbo@inter7.com>
+          - Makefile.am install-exec-local section didn't need the
+            test for /etc not being writable (What the hell was that??)
+            Now it just sets the ownership/permissions
+          - updated the INSTALL file: configure as root
+
+11/15/01  "Bill Shupp" <hostmaster@shupp.org>
+          - Fixed .qmail naming problems in mailinglist.c for lists 
+            containing '.' - Steve Wilson pointed this out.
+
+11/14/01  Oden Eriksson <oden.eriksson@kvikkjokk.net>
+          - Converted the gif:s to png:s to truly become GPL,
+            also make the proper changes in the source and html.
+            unisys holds the patent on the gif stuff, check:
+            http://www.unisys.com/unisys/lzw/, so just let them
+            have it, and say up yours unisys!
+
+11/12/01  Brent B.Powers <powers@b2pi.com>
+          - Fixed login bug: Swapped sprintf and show_login() lines in 
+            qmailadmin.c
+
+0.91
+11/08/01  Bill Shupp <hostmaster@shupp.org>
+          - Added default_quota option to .qmailadmin-limits, updated INSTALL
+
+0.90
+11/01/01  Richard A. Secor <rsecor@fcc.net>
+          - Change PACKAGE and VERSION variables to
+            QA_PACKAGE and QA_VERSION
+
+11/02/01  "Nicolas Croiset" <ncroiset@vdldiffusion.com>
+          - Update to 062 of fr translation
+
+11/01/01  Bill Shupp <hostmaster@shupp.org>
+          - If passwords didn't match when adding a POP user, nothing was 
+            returned to the browser - fixed.  Thanks to Gerald Villemure for 
+            pointing this out.
+          - Removed the last of the "heading 2" html tags from StatusMessage 
+            sprintf statements.
+
+10/29/01  "Christof Egner" <cegner@wireworm.de>
+          - Updated German translation
+
+
+0.89
+10/25/01  Bill Shupp <hostmaster@shupp.org>
+          - Cleanup in mailinglist.c and show_subscribers.html: modified 
+            Steve's changes to resemble Einar's cosmetic patches, fix for
+            display of odd numbered totals.  Applied Steve's new sorting 
+            code to show_moderators_now().
+          - Updated FAQ #5
+
+10/24/01  Steve Fulton <steve@esoteric.ca>
+          - Fixed sort mailing lists code to work with lists > 500 subscribers.
+            Should now work with up to 65,000. HTML enhancements too.
+
+10/19/01  Bill Shupp <hostmaster@shupp.org>
+          - Fix for count_aliases() and count_forwards() counting IDX list
+            owners
+
+
+0.88
+10/17/01  Gabriel Ambuehl <gabriel_ambuehl@buz.ch>
+          - Fix corrupted german translation
+
+10/15/01  "Einar Bordewich" <einar@bordewich.net>
+          - Update to no translation
+
+10/11/01  "Remo Mattei" <remo@webpipe.net>
+          - Update to Italian translation
+
+          "Oden Eriksson" <oden.eriksson@kvikkjokk.net>
+          - Update to Swedish translation
+
+
+0.87
+10/10/01  "Bill Shupp" <hostmaster@shupp.org>
+          - Updated version to 0.87
+10/08/01  - Added addclearfield-cdb.sh script to contrib directory.  This
+            is for people who have recompiled vpopmail-5.0 to use clear 
+            passwords and also use the cdb module.
+          - Added FAQ #5 do describe the above issue.
+          - Removed the last of the SYSTEM_ADMIN code
+
+10/06/01  Oden Eriksson <oden.eriksson@kvikkjokk.net>
+          - Update to Swedish translation
+
+          "Einar Bordewich" <einar@bordewich.net>
+           - Cosmetic updates to show_autorespond.html, show_forwards.html,
+             show_mailinglist.html, and mailinglist.c
+
+          "Nicolas Croiset" <ncroiset@vdldiffusion.com>
+          - Update to fr translation
+
+
+0.86
+10/01/01  "Bill Shupp" <hostmaster@shupp.org>
+          - One more fix for non-postmaster administrators
+09/28/01  - Removed #define QA_ADMIN statement and included vpopmail.h (auth.c)
+          - Re-added case 'i7' which got removed around 0.78
+          - Fixed case 'B' which got messed up around 0.77
+          - Fixed typos in add_mailinglist-idx.html.  
+            Ross Davis pointed these out.
+
+
+0.85
+09/26/01  "Bill Shupp" <hostmaster@shupp.org>
+          - Fix for non-postmaster administrators so they can't delete 
+            themselves
+          - Put a note in INSTALL about non-postmaster administrators
+          - Finished updating mailinglist.c and mod_mailinglist-idx.html to 
+            mirror add_mailinglist-idx.html
+
+
+0.84
+09/24/01  "Bill Shupp" <hostmaster@shupp.org>
+          - Added another missing  vclose() and exit(0) to modusergo().
+          - Added newlines to select list in case 'O' of template.c
+          - Added experimental support for non-postmaster administrators
+            (requires my patch to vpopmail-5.0 at http://shupp.org)
+          - Removed old sysadmin.c file that somehow got re-added to the source
+
+          Gabriel Ambuehl <gabriel_ambuehl@buz.ch>
+          - Updated German translation
+
+         - "Einar Bordewich" <einar@bordewich.net>
+           - Updated Norwegian translation
+
+
+0.83
+09/22/01  "Bill Shupp" <hostmaster@shupp.org>
+          - Missing "#" in del_users.html
+          - Minor html changes to show_user_lines()
+          - Fixed errors in mod_autoresponder.html
+          - Re-added "no-cache" meta tags to mod_mailinglist-idx.html
+          - Fixed html error in mailinglist.c that prevented you from modifying idx lists
+          - Stripped some newlines off of elements in case 'F' of template.c, cleaned up html
+          - Check for mailing lists,  robots, aliases/forwards before showing them
+          - Added dictionary entries 231, 232 and 233
+          - Added BUGS and TODO files
+
+          "Nicolas Croiset" <ncroiset@vdldiffusion.com>
+          - Typo in fr translation #230
+
+          Gabriel Ambuehl <gabriel_ambuehl@buz.ch>
+          - Updated German translation
+
+
+0.82
+09/18/01  Antonio Dias <accdias@sst.com.br>
+          - added --enable-vpopgroup configure option
+          - "make install" now installs with proper uid/gid
+            when not using defaults
+          - fixed html/*_users.html files and improved HTML generated
+            by user.c:show_user_lines()
+          - Brazilian Portuguese update
+          - HTML updates for main menu and template.c
+
+
+0.81
+09/17/01  Steve Fulton <steve@esoteric.ca>
+          - Sort mailing list subscribers
+
+          Antonio Dias <accdias@sst.com.br>
+          - Lots of HTML updates in templates and .c files
+          - Code style modifications
+          - New "disabled" gif
+
+          Oden Eriksson <oden.eriksson@kvikkjokk.net>
+          - Update to Swedish translation
+
+          "Nicolas Croiset" <ncroiset@vdldiffusion.com>
+          - Update to fr translation
+          - Fixed en dictionary #118
+
+
+0.80
+09/14/01  - delete alias/forward was still checking for AliasType. Fixed
+
+0.79
+09/10/01
+          Steve Fulton <steve@esoteric.ca>
+          - Add the name of the domain being edited to the main menu screen
+          - add total subscriber count to the mailing list subscribers page
+
+          Antonio Dias <accdias@sst.com.br>
+          - sync language files with lang/en and to update Brazilian
+            Portuguese translation.
+          - HTML changes
+
+0.78
+09/07/01  - remove unused main_table code/html
+
+          - change main menu to have one "Aliases/Forwards" line
+            instead of two lines "Aliases" and "Forwards"
+
+0.77
+09/04/01  Christof Egner <cegner@wireworm.de>
+          - new german translation
+
+08/30/01  - change password result message no longer shows password 
+
+0.76ac3
+8/23/01   "Bill Shupp" <hostmaster@shupp.org>
+          - Added missing  vclose() and exit(0) to modusergo().
+
+8/21/01   "Bill Shupp" <hostmaster@shupp.org>
+          - Added check_local_user() to addusernow() to prevent duplicates.
+          - Updated check_local_user() to use vauth when checking for user.
+          - Removed old sysadmin code and sysadmin.c (dead).
+
+0.76ac2
+8/20/01   - "Bill Shupp" <hostmaster@shupp.org>
+            - Fixed "Go user" hang when searching for accounts starting with
+              a number: separated Pagenumber from SearchUser (new variable).
+              Alfredo Hassaf pointed this out.
+            - Added "0-9" to POP Accounts index.
+            - More "show users" html tweaks.  "Previous Page" and "Next Page"
+              are no longer displayed if they don't go anywhere.
+
+8/19/01   - "Bill Shupp" <hostmaster@shupp.org>
+            - Updated mod_autorespond.html to mirror add_autorepond.html
+
+8/19/01   - Oden Eriksson <oden.eriksson@kvikkjokk.net>
+           - Update to Swedish translation
+
+0.76ac1
+8/18/01  - "Nicolas Croiset" <ncroiset@vdldiffusion.com>
+           - Several html fixes.
+           - Update to fr translation
+
+8/17/01   - "Bill Shupp" <hostmaster@shupp.org>
+            - Rewrote show_users.html (and user.c's html)
+            - added html/colortable so you can change colors of hard-coded html.
+              It's a copy of get_html_text(), but for bgcolor tags.
+            - Created contrib directory, put my deletegif.psd in there
+            - Updated "Total Users" to show the limit as well.
+
+
+0.76
+8/17/01   - "Bill Shupp" <hostmaster@shupp.org>
+            - Added "Total Users: " to show_users.html Thanks to Steve Fulton
+              for the idea.
+            - HTML fixes
+
+
+0.75
+8/13/01   - "Bill Shupp" <hostmaster@shupp.org>
+            - More fprintf->sprintf changes in alias.c
+            - Fixes in adddotqmailnow maxalias/forward checks.
+
+1/23/01   - "DJ (David J Radunz)" <dradunz@bigpond.net.au>
+            - (Found in archives, never applied) Fix for users behind a proxy by
+              adding support for HTTP_X_FORWARDED_FOR environment variable.
+
+
+0.74
+8/13/01   - "Bill Shupp" <hostmaster@shupp.org>
+           - Merged Ken's 0.73 and mine.  Updated version.
+           - Minor changes to mod_user.html
+           - modified what's in header.html by default, put back 
+             "no-cache" meta tags in mod_mailinglist-idx.html
+
+0.73
+08/13/01   - Ken Jones kbo@inter7.com
+             Integrated in aruba.it modify user page
+
+8/4/01   - "Bill Shupp" <hostmaster@shupp.org>
+           - Added check for maxusers in addusernow, not just adduser.
+             Cached web pages allowed you to exceed your limit.  Discovered 
+             by Evren Yurtesen.
+           - Added similar checks in adddotqmailnow, addmailinglistnow and 
+             addautorespondnow.
+
+8/2/01   - Oden Eriksson <oden.eriksson@kvikkjokk.net>
+           - Missing "border=0" in image tag in mailinglist.c
+
+         - "Einar Bordewich" <einar@bordewich.net>
+           - Updated Norwegian translation
+           - Patches fixing hard-coded text in template.c, mailinglist.c, and
+             del_forward.html.
+
+0.72
+8/1/01   - Bill Shupp <hostmaster@shupp.org>
+           - added ##N<filename># include hook for use in templates.
+             Thanks to Antonio Dias for the idea.
+           - Removed trailing "/" from HTMLLIBDIR definition in configure.in
+           - A few additions to the FAQ
+           - One more change to en dictionary 010
+
+         - Oden Eriksson <oden.eriksson@kvikkjokk.net>
+           - Update to Swedish translation
+
+0.71
+8/1/01   - Bill Shupp <hostmaster@shupp.org>
+           - added ##V hook to display PACKAGE, VERSION. This is NOT in 
+             templates by default.
+           - added html/header.html and html/footer.html.  send_template()
+             now sends these with every html file, so you can have global
+             headers and footers.  Other hooks (i.e. ##D) can be used in
+             these files.  Moved appropriate header and footer html into these
+             files
+
+
+0.70     - increase the version number
+
+0.60pre9
+7/31/01  - Bill Shupp <hostmaster@shupp.org>
+           - Added --enable-no-cache={N|y} as configure option
+           - Changed references in en dictionary of "pop" to "POP"
+           - Modified en dictionary 010 because ##D doesn't get parsed
+             in dictionaries
+           - Added "no-cache" meta tags to mod_mailinglist-idx.html
+           - Added "@##D" to several html templates to make local 
+             names more obvious to users.
+
+7/30/01  - Antonio Dias <accdias@sst.com.br>
+           - Added "no-cache" code for qmailadmin.c
+
+
+0.60pre8
+7/30/01  - Oden Eriksson <oden.eriksson@kvikkjokk.net>
+           - Update to Swedish translation
+
+7/30/01  - Bill Shupp <hostmaster@shupp.org>
+           - Added support for default GID of POP accounts via qmailadmin-limits
+             to limit available services.  See INSTALL #6 for details.
+
+7/27/01  - "Nicolas Croiset" <ncroiset@vdldiffusion.com>
+           - Update to fr translation
+
+7/25/01  - "Ender Hikmet KILICOGLU" <ender@kilicoglu.nom.tr>
+           - Update to tr translation
+
+
+0.60pre7
+7/21/01  - Antonio Dias <accdias@sst.com.br>
+           - Added line "227 Digest" in all languague files including "en";
+           - Updated Brazilian Portuguese translation file;
+           - Updated all html/add_* files; slight look change, and
+             tighter html code.
+
+7/20/01  - "Nicolas Croiset" <ncroiset@vdldiffusion.com>
+           - Update to fr translation
+
+
+0.60pre6
+7/19/01  - Bill Shupp <hostmaster@shupp.org>
+           - Fixed problems with "ezmlm-make -e" by adding del_list_links();
+           - moved "SQL Settings" from mailinglist.c into 099 of all 
+             dictionaries (non en need translating)
+           - fixed format problem in creating dir/sql file in add_mailinglistnow()
+           - Completed mod_mailinglist() code, now current ezmlm-idx values
+             are displayed.
+           - "Show Mailing Lists" no longer displays moderator functions unless 
+             ezmlm-idx is installed.
+
+7/18/01  - Antonio Dias <accdias@sst.com.br>
+           - adds 000 line to all language files including English;
+           - adds missing lines to all language files synchronizing with
+             English files (this will help translators);
+           - adds message 099 to all language files including English (this
+             one was skipped in the en file and all others have followed it);
+           - convert a lot of files to Unix format removing CRLF line
+             termination (I hate messy-DOS :-));
+           - updates Brazilian Portuguese translation.
+
+
+0.60pre5
+7/13/01  - "Nicolas Croiset" <ncroiset@vdldiffusion.com>
+           - Update to fr translation
+
+         - Bill Shupp <hostmaster@shupp.org>
+           - modmailinglist() now looks up the current owner
+           - fix to show_dotqmail_lines() so that idx list owners
+             no longer show up in "show forwards"
+           - minor html fixes to modify forwards
+
+0.60pre4
+7/12/01  - "Nicolas Croiset" <ncroiset@vdldiffusion.com>
+           - Updates to en dictionary (010) and fr translation
+
+         - Bill Shupp <hostmaster@shupp.org>
+           - Added mod_mailinglist_idx.html. You can now "click to modify"
+             ezmlm-idx lists, but it doesn't get the current values first yet.
+             It uses the defaults.  But hey, it works.
+           - Many more changes to mailinglist.c and related templates.
+           - A few new en dictionary entries for modifying idx mailing lists
+
+0.60pre3
+7/12/01  - "Nicolas Croiset" <ncroiset@vdldiffusion.com>
+           - Update to fr translation
+
+         - Bill Shupp <hostmaster@shupp.org>
+           - Moved "delete subscriber" and "delete moderator" into templates
+           - various changes to mailinglist.c
+           - freed up dictionary entry 082 (duplicate of 072)
+           - moved text into en dictionary from setdefaultaccount()
+           - even more fprintf -> sprintf changes
+           - Moved <h2></h2> tags from sprintf statements to templates (<h2>##S</h2>)
+           
+
+0.60pre2
+7/11/01  - Antonio Dias <accdias@sst.com.br>
+           - modified html/main_menu.html to add support to i18n for some
+             messages ("Main Menu" and "Log Out")
+           - expanded message buffer in util.c:get_html_text() so some long
+             translated messages are shown correctly.
+           - updated Brazilian Portuguese translation and English dictionary
+           - new "32 pixel wide" lowerright.gif
+
+         - Bill Shupp <hostmaster@shupp.org>
+           - more English dictionary shuffling to accomodate patches
+
+0.60pre1
+7/11/01  - Bill Shupp <hostmaster@shupp.org>
+           - Fixes html problem with "CatchAll:" row.  It's now in its
+             own table row, above the <th> tags.
+           - Moved "show subcribers" and "show moderators" into
+             templates.  Also, both "show subscribers" and "show moderators"
+             lists now have a delete button next to each name.  Pretty handy, huh?
+           - A few additions/mods to the en dictionary for the above changes
+           - more fprintf -> sprintf changes
+
+0.59
+07/06/01 - modify user password was displaying the wrong message.
+           reversed the status messages, success/failure, fixed
+
+0.58
+07/05/01 - A new rockin' delete gif courtesy of Mr. Bill Shupp
+
+07/04/01 - *LOTS* and I mean *LOTS* of changes by Bill Shupp to
+           move all the error/info messages into the html templates
+           More user.c text moved into the dictionary and some
+           cleanup of old changes.
+0.57
+07/03/01 - Change name of autorespond to Mail Robot to remove
+           confusion over vacation features.
+
+         - Remove redirect menu item for users and only show Modify user
+           and user name.
+
+         - Put back in check to not allow a mail robot to be added for
+           any email address that already exists as a pop account.
+
+         -  "Nicolas Croiset (VDL)" <ncroiset@vdldiffusion.com>
+           updates to French translation
+
+07/02/01 - Oden Eriksson
+           Updated swedish language file
+
+0.56
+07/02/01 - Bill Shupp 
+           Fixes mod/delete of autoresponders whose owner address is both 
+           local and has a "." in the username.  Marco Leeflang pointed 
+           this out.
+
+         - Bill Shupp
+           Moves the text of mod_user.html into the en dictionary
+
+         - Bill Shupp
+           Deletes extraneous .orig files.
+
+06/28/01 - finished up the vacation message testing, looks good 
+         - update the translation files to say "modify user"
+           instead of "change password"
+
+0.55
+06/28/01 - add new modify user page to provide vacation support, 
+           setting a forward or setting a forward and saving a 
+           copy. almost completed, need code to put the message
+           body in the page if there is a vacation set.           
+
+06/27/01 - "Bill Shupp" <hostmaster@shupp.org>
+           - fix to user/vacation code
+           - addition of setting remote account for catchall
+
+0.54
+06/18/01 - add vclose before any exit
+
+         - autoresponders can now be used as vacation 
+
+         - Bill Shupp <hostmaster@shupp.org>
+           extra space in autoresponder status message
+
+0.53
+06/13/01 - Added 204 line in dictionary for Goto User
+
+0.52    
+06/13/01 - Updated to work with vpopmail-4.10 
+        
+         - "Stefano Cecconi - Technorail s.r.l." i
+            <stefano.cecconi@technorail.com>
+            new Italian translation
+
+0.45       Bill Shupp
+04/24/01 - zero length check in aliases code caused bug. fixed
+
+0.44       vol@inter7.com
+04/18/01 - security audit and fix for language support  
+
+0.43
+Mar 15   Nicolas Croiset
+       - fixed syntax error in mod_dotqmail.html, missing an X
+       - fix for -5 option in mailing list.c creation
+       - additional <BR> lines in main_menu.html
+       - changes to French Translation
+
+Mar 15 - missing last parameter in scat in alias.c file
+
+Mar 13 - add AUTOMAKE_OPTIONS to Makefile.am to be more portable
+
+Mar 03 - Javier Ribelles Asco or Ultimobyte Espana, S.L sent in 
+         a Spanish translation. Thanks Javier!
+
+Feb 28 - Norwegian translation by "Einar Bordewich" <einar@bordewich.net>
+
+Feb 26 - GetValue in cgi.c modified to remove trailing white space.
+
+Feb 23 - check for zero length user names. 
+
+Jan 31 - remove chdir(TmpBuf1) from main()
+         "James" <daemus@oregonfast.net>
+
+0.42
+Jan 19 - added QMAILADMIN_TEMPLATEDIR as environment variable so virtual
+         domains can point to different template directories
+
+Jan 10 - change setreuid/gid to seteuid/gid and getuid to geteuid
+
+       - del user alias confirm and del user confirm had type=image,
+	     changed to type=submit
+
+       - delusergo was using character pointers for CGI variables instead
+	     of memory. Caused pointer crash. fixed.
+
+0.40
+
+Dec 18 - html template support for ezmlm and ezmlm-idx
+
+       - remove style line from html templates
+
+       - move title into <head> section
+
+       - better mailing list detection code
+         "Chris Bolt" <chris@bolt.cx>
+
+       - new mailing list generation code
+
+	   - new 203 message added to language files for deleting a user from
+         a mailing list.
+         "Chris Bolt" <chris@bolt.cx>
+
+	   - message changed for successfully deleting a user from a mailing list.
+         "Chris Bolt" <chris@bolt.cx>
+
+Dec 17 - Better mailing list html
+         "Nicolas Croiset (VDL)" <ncroiset@vdldiffusion.com>
+
+       - cleaned up the last of the images and html references to images
+
+	   - Brazilian portugese translation
+         Daniel Augusto Fernandes <daftm@gcsnet.com.br>
+
+Dec 15 - French translation by 
+	     "Support - cf-hebergement.com" <support@cf-hebergement.com> and
+         "Nicolas Croiset (VDL)" <ncroiset@vdldiffusion.com>
+
+       - German translation by Gabriel Ambuehl <gabriel_ambuehl@buz.ch>
+
+Dec 14 - update configure script to use vpopmail 4.9.7 new 
+         automatic detection of -I and -L -l lines needed
+         for linking and including. So cdb or mysql configurations
+         do not need tinkering with the qmailadmin Makefile
+
+Dec  4 - upgraded current release to 0.40 
+
+0.39
+Dec  4 - trailing white space in .qmail files causes the line to be ignored.
+         O'Shaughnessy Evans <oevans@acm.org>
+
+       - check_email_addr would not correctly parse email addresses if
+         the user name had a period in it.
+         O'Shaughnessy Evans <oevans@acm.org>
+
+Nov 21 - install the binary as vpopmail/vchkpw and not root
+
+       - change --enable-ezmlmidx=y to be the default. Before
+         the default was no. Which meant no ezmlm-idx code
+         was being used by default.
+
+       - check if running as root, and only attempt to setuid's if
+         we are root
+
+       - automatically check if ezmlm-idx is installed and set #define
+
+       - update the ezmlm delete code to remove all .qmail-"list"-*
+	     file names.
+
+Nov  1 - one final pass over the ezmlm code, fixed a strcat to strcpy
+         Bill Shupp <hostmaster@shupp.org>
+
+       - missing two spaces in html code generated in mailinglist.c
+         "Francis P. Ling" <fpling@pansar.com.my>
+         Daniel Augusto Fernandes <daftm@gcsnet.com.br>
+
+Oct 25 - fixed errors in user display page. When clicking on index or
+        'next' 'prior' buttons, if there were no more users, qmailadmin
+         would die. - Hampton Maxwell - Requires vpopmail-4.9.5 Oct25 
+
+       - when clicking next page in user display, when you get to the
+	     last page it no longer displays the 'next' button - Hampton Maxwell
+		
+Oct 19 - finally got the right code in for ezmlm-idx fix - Roland Irle
+
+       - update Makefile.in to have @htmllibdir@ instead of hard coded
+	     location - <calvin@presbychurch.net>
+
+       - missing comma on line 61 in configure.in - <calvin@presbychurch.net>
+
+	   - removed last vestiage of hard coded paths from qmailadmin.c. Now
+	     all paths are looked up in /var/qmail/users/cdb
+
+	   - missing use of AUTORESPOND_BIN in the mod_auto_respond code, fixed
+
+	   - added first japanese translation
+
+	   - update the code to include a language path to the images
+
+	   - moved all images to images/qmailadmin/"language"/
+
+Oct 18 - Support for Accept-Language and translations added
+
+Oct 17 - start moving english printfs to qlang.h #defines
+
+Oct 7  - fix to mailing list to put a NULL on the end of the arguments becore
+         calling ezmlm-make. Thanks to Nicolas Croiset
+
+Oct 6  - change installation to root with a setreuid() and setregid() in the
+         initial code.
+
+       - add support for vpopmail 4.9.5 which allows virtual email
+         domains to be created in a /etc/passwd users home dir and
+         to be owned by that user. (Allows for file system user
+         based quota's to provide domain based email quotas)
+
+0.38   - testing version
+
+0.37   
+Aug 25 - allow forwards for existing accounts
+
+0.36   
+Aug 24 - remove password from successful new pop account added message.
+
+Aug 23 - fix configure error message when it can't find the autoresponder
+
+Aug 21 - update template.c to close <A href's with a > Thanks to
+         Serge Volkov <vsv@dubna.ru>
+
+       - change the makefiles to correctly copy the html template
+         files to /usr/local/share/qmailadmin/html
+
+       - fixes to the Forwards section (prev,refresh,next) to properly
+         process forwards instead of going to alias section. And 
+         error checking code around chdir's
+         Thanks to Yves De Muyter <yves@vlaanderen.net> 
+
+0.35
+Aug 8  - fix autorespond problem. If you added an autoresponder with out
+         filling in the name. Then deleted the autoresponder, it would
+         delete the entire domain.
+
+       - modify the login page to display text better.
+
+       - remove excess files from html directory.
+
+       - clean up code indendation. Note: tab stops are set to 4 spaces.
+
+0.34   - new configure arguments, multiples editing, ability for user to 
+Aug 1   create own forward, page view for users/aliases/forwards and many 
+         random bugfxes
+
+0.31   - mailing list patch to fix ezmlm LeRoy C. Miller III
+
+Jul 11
+0.30
+Jun 07 - added user.c patch from Eugene at wizoffice.com. When deleting
+         a user it adds the ability to forward all emails to another
+         account.
+
+0.26j
+May 14  - fixed logic on display of aliases
+
+        - added display of multi-line forwards
+
+0.26i   - courtesy of Michael Boman and crew at Wizoffice.com ltd
+
+        - ezmlm-idx support (current version has only ezmlm support) including
+
+        - subscribe/unsubscribe email addresses to the moderators list (DIR/mod)
+
+        - when you create users you will have the option to subscribe them 
+          to any of the mailinglists that you have in the same domain.
+
+        - hooks to external programs when you add, modify or delete users.
+    
+0.26h
+Apr 04  - before adding or deleting anything, check the authorization
+
+        - Display if bounce-no-mailbox is set
+
+        - prettied up the del alias success message
+
+Mar 30  - allow alias, forwards and autoresponders with same name as pop user
+
+        - fix path to maildir for alias .qmail-user files
+
+0.26g
+
+Mar 29  - fix setting catchall acconut if .qmail-default had bounce-no-mailbox 
+
+Mar 28  - fix small syntax for buffer sizes
+
+0.26f
+
+Feb 29  - update auth.c code to use pw->pw_dir for sub directory users
+
+0.26e
+
+Feb 18 - Modify user screen did not take Gecos field update
+         - Didn't set default gecos correctly
+
+0.26
+
+Feb 16 - fixed autorespond.c code for deleting 
+           added fix to user.c to check return status of vadduser.
+
+Jan 19 - fixed autorespond.c code to add autorespon to AUTORESPOND_BIN
+
+dec 20 - added library checks for crypt, floor, socket, gethostbyname
+         to match vpopmail 3.4.11 
+
+dec 16 - added patch from Peter Green <pcg@gospelcom.net> to only
+         display users informaion when user logs in
+
+dec 16 - added code to not allow user to delete thier own account
+
+       - removed all snprintf calls, non portable
+
+       - removed need for fgetpwent function
+
+       - replaced all fork/execl calls that were deleting files with system
+         function calls to delete them.
+
+       - added --enable-vpopmaildir configure option with default 
+	     ../vpopmail-3.4.10
+
+       - fixed bug that didn't remove the *.qw files in the postmaster/Maildir
+
+       - uses vpopmail 3.4.10 libvpopmail.a library. All function code that
+         depended on vpasswd files are replaced with vpopmail api functions.
+
+0.25
+
+- new graphics and image layouts
+
+- fixes for mailling list errors
+
+- suse linux patch to remove all popen() and system() calls and use
+  fork/execl
+
+- Bug fixes for various files
+
+- removed unused set_compression function
+
+
+0.24
+
+- update to match vchkpw's move of vpasswd to users/vpasswd
+
+- fixed makefile gnu dependencies, compiles under solaris make now.
+
+- When anything is deleted, a confirmation page pops up to double check.
+  this is for autoresponders, mailinglists, users, aliases and forwards. 
+
+- broke the code up into more and smaller c files
+
+0.23
+
+- fixed change user password bug.
+
+- Successfully deletes a user even if they have mail in thier maildir.
+  logic error fixed.
+
+- better support for systems that don't have fgetpwent in them.
+  Configure automatically detects if it is available or not. 
+  If not, it uses a version in qmailadmin.c
+
+0.22
+
+- when adding anything, checks to see if the name is already used as
+  a pop user, forward/alias, mailing list or autoresponder. Returns
+  error if name already exists 
+
+- removed <HTML> blah blah printf during global init. Those tags are
+  now in the template files
+
+- Default value for Pop Account set to "postmaster"
+
+- better checking on local email names and remote email addresses
+  no control characters, spaces, non RFC characters.
+
+- forwards and aliases that contain a "." are converted to ":" for
+  creating the .qmail file. eg joe.shmoe becomes .qmail-joe:shmoe
+
+- removed compress default settings since it doesn't auto configure
+  correctly on all machines
+
+- fixed a few newlines within strings that SCO compiler complained about
+
+- real install documenation
+
+- system level postmaster login
+
+- add/delete virtual domains for system level postmaster
+
+0.21a
+
+- logic errors in tokenizing parts of alias, forward,mailinglist and 
+  autoresponder code
+
+0.21
+
+- moved configuration defines to config.h
+
+- removed snprintf.o from the objects. caused everything to die
+
+- put in bounds checking for user/file names when scanning directories
+
+- put back in autoresponder tag in main menu  
+
+- added max popusers, aliases, forwards, autoresponders, mailing lists to
+  configure for setting at compile time for system wide defaults
+
+- Checks for lower case force on all email addresses
+
+0.20
+
+- uninstall works too
+
+- added installation of html templates
+
+- added the beginings of the template system
+
+- put local of ezmlm directory into configure
+
+- put path to autorespond program into configure
+
+- put user for vpopmail in configure
+
+- put url path from base to qmailadin in configure /cgi-bin/qmailadmin 
+
+- put base qmail install dir in configure, default is /var/qmail
+
+0.19
+
+- added autoconf support for ./configure ; make ; make install support
+
+- Added support for BSD
+
+- If any of the .qmailadmin-limits values are set to zero, then
+  that functionality is disabled. For example: maxmailinglists 0
+  will not allow that domain to add mailing lists. Setting it to -1
+  means unlimited.
+
+- Added CGI_BIN_DIR define in Makefile
+
+- Added setting default limits in qmailadmin.h. Distritbuted default
+  is unlimited. By changing these values the installer can set the
+  system wide defaults and hopefully reduce the number of .qmailadmin-limits
+  files that need to be installed in each virtual domain directory.
+
+- added makefile dependencies
+
+- added logout button
+
+- added code to count everything and display it
+
+- started adding system/domain/user admin login 
+
+- added snprintf module for solaris 2.5.1 support
+
+0.18
+
+- Added reading of a .qmailadmin-limits file for setting
+  max number of pop accounts, aliases, forwards, autoresponders and 
+  mailing lists.
+
+- Added check of max number of pop accounts and rejecting with an
+  error message if the maximum is reached or exceeded.
+
+- Added check of max number of aliases.
+
+- Added check of max number of forwards.
+
+- Added check of max number of mailing lists.
+
+- Added check of max number of autoresponders.
+
+- Added closedir calls for sections of code that had called opendir. 
+
+- Fixed a bug in add pop account creation of encrypted password .
+
+- First public release on the net.
+
+0.17
+
+- Added modify autoresponder feature.
+
+- added auto detection of client browser compression.
+  If the browser supports gzip or x-gzip compression
+  then the page is compressed and sent to the browser.
+
+- re-organized code into multiple files based on features
+  user.c alias.c forward.c autorespond.c mailinglist.c
+
+- added GPL license.
+
+- wrote first INSTALL doc
+
+
+0.16
+
+- fixed memory error due to null termination of content length
+
+

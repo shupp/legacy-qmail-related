@@ -1,0 +1,22 @@
+2004-02-01  Jim Ramsay <i.am@jimramsay.com>
+
+	* Added vmailmgr1 stub.
+
+	  This was written by John Maslanik <maz@mlx.net> and posted at 
+          http://mla.libertine.org/tmda-workers/2003-12/msg00016.html
+
+	  According to his instructions, the Virtual Lookup program should
+	  be: "vmailmgr1 /path/to/tmda-cgi/stubs/vmailmgrinfo.py ~"
+
+	  (The patch listed in the post above has already been applied to 
+	  tmda-cgi.)
+
+2003-04-19  Gre7g Luterman  <gre7g@wolfhome.com>
+
+	* Added vpopmail1 stub.
+
+	  I'm calling it vpopmail1 instead of just vpopmail because it is
+	  possible that future versions (or perhaps even older versions) of
+	  vpopmail may require a radically different stub program.  We may
+	  have to add more stubs to support these versions instead of just
+	  making the current stub smarter.

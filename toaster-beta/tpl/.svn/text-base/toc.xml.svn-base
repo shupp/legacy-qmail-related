@@ -1,0 +1,77 @@
+<title><?php echo _("Table of Contents")?></title>
+<para>
+    <?php echo _("Available Languages:")?> <ulink url="?page=toc&amp;language=en"><?php echo _("English")?></ulink> <imageobject id='images/us.gif' role="<?php echo _('English')?>"/>
+    <ulink url="?page=toc&amp;language=es"><?php echo _("Spanish")?></ulink> <imageobject id='images/spain.gif' role="<?php echo _('Spanish')?>"/> 
+    <ulink url="?page=toc&amp;language=ro_RO"><?php echo _("Romanian")?></ulink> <imageobject id='images/romania.gif' role="<?php echo _('Romanian')?>"/>
+    <ulink url="?page=toc&amp;language=de"><?php echo _("German")?></ulink> <imageobject id='images/germany.gif' role="<?php echo _('German')?>"/>
+</para>
+<itemizedlist>
+<listitem>
+<literallayout role="listitem"><ulink url="?page=preface"><?php echo _("Preface")?></ulink></literallayout>
+    <itemizedlist>
+        <listitem><literallayout role="listitem"><ulink url="?page=preface#whatisatoaster"><?php echo _("What's a POP Toaster?")?></ulink></literallayout></listitem>
+        <listitem><literallayout role="listitem"><ulink url="?page=preface#doesanddoesnot"><?php echo _('What this toaster does and does not do')?></ulink></literallayout></listitem>
+        <listitem><literallayout role="listitem"><ulink url="?page=preface#assumptions"><?php echo _('Assumptions/Support (Please Read!)')?></ulink></literallayout></listitem>
+        <listitem><literallayout role="listitem"><ulink url="?page=preface#prerequisites"><?php echo _('Prerequisites')?></ulink></literallayout></listitem>
+        <listitem><literallayout role="listitem"><ulink url="?page=preface#debian"><?php echo _('Debian Notes')?></ulink></literallayout></listitem>
+        <listitem><literallayout role="listitem"><ulink url="?page=preface#trustix"><?php echo _('Trustix Notes')?></ulink></literallayout></listitem>
+        <listitem><literallayout role="listitem"><ulink url="?page=preface#license"><?php echo _('Toaster License')?></ulink></literallayout></listitem>
+    </itemizedlist>
+</listitem>
+<listitem>
+<literallayout role="listitem"><ulink url="?page=gettingstarted"><?php echo _("Getting Started")?></ulink></literallayout>
+    <itemizedlist>
+    <listitem><literallayout role="listitem"><ulink url="?page=gettingstarted#dns"><?php echo _("DNS")?></ulink></literallayout></listitem>
+    <listitem><literallayout role="listitem"><ulink url="?page=gettingstarted#remove"><?php echo _("Remove existing sendmail/pop/imap servers")?></ulink></literallayout></listitem>
+    <listitem><literallayout role="listitem"><ulink url="?page=gettingstarted#download"><?php echo _("Download packages")?></ulink></literallayout></listitem>
+    </itemizedlist>
+</listitem>
+<listitem><literallayout role="listitem"><ulink url="?page=daemontools"><?php echo _("Install Software")?></ulink></literallayout>
+
+    <itemizedlist>
+        <listitem><literallayout role="listitem"><ulink url="?page=daemontools"><?php echo _("daemontools")?></ulink></literallayout></listitem>
+        <listitem><literallayout role="listitem"><ulink url="?page=ucspi-tcp"><?php echo _("ucspi-tcp")?></ulink></literallayout></listitem>
+        <listitem><literallayout role="listitem"><ulink url="?page=qmail"><?php echo _("qmail")?></ulink></literallayout></listitem>
+        <listitem><literallayout role="listitem"><ulink url="?page=vpopmail"><?php echo _("vpopmail")?></ulink></literallayout></listitem>
+        <listitem><literallayout role="listitem"><ulink url="?page=courier-imap"><?php echo _("courier-imap")?></ulink></literallayout></listitem>
+        <listitem><literallayout role="listitem"><ulink url="?page=squirrelmail"><?php echo _("squirrel mail")?></ulink></literallayout></listitem>
+        <listitem><literallayout role="listitem"><ulink url="?page=autorespond"><?php echo _("autorespond")?></ulink></literallayout></listitem>
+        <listitem><literallayout role="listitem"><ulink url="?page=ezmlm-idx"><?php echo _("ezmlm-idx")?></ulink></literallayout></listitem>
+        <listitem><literallayout role="listitem"><ulink url="?page=qmailadmin"><?php echo _("qmailadmin")?></ulink></literallayout></listitem>
+    </itemizedlist>
+</listitem>
+
+<listitem><literallayout role="listitem"><ulink url="?page=test"><?php echo _("Test Drive")?></ulink></literallayout>
+</listitem>
+
+<listitem><literallayout role="listitem"><ulink url="?page=spamassassin"><?php echo _("Options")?></ulink></literallayout>
+
+    <itemizedlist>
+        <listitem><literallayout role="listitem"><ulink url="?page=spamassassin"><?php echo _("Spam Assassin")?></ulink></literallayout></listitem>
+        <listitem><literallayout role="listitem"><ulink url="?page=clamav"><?php echo _("ClamAV")?></ulink></literallayout></listitem>
+        <listitem><literallayout role="listitem"><ulink url="?page=ripmime"><?php echo _("ripmime")?></ulink></literallayout></listitem>
+        <listitem><literallayout role="listitem"><ulink url="?page=simscan"><?php echo _("simscan")?></ulink></literallayout></listitem>
+        <listitem><literallayout role="listitem"><ulink url="?page=tmda"><?php echo _("TMDA")?></ulink></literallayout></listitem>
+        <listitem><literallayout role="listitem"><ulink url="?page=qmailmrtg7"><?php echo _("Qmailmrtg7 - MRTG Graphs")?></ulink></literallayout></listitem>
+        <listitem><literallayout role="listitem"><ulink url="?page=qmailadmin-limits"><?php echo _("QmailAdmin Limits")?></ulink></literallayout></listitem>
+    </itemizedlist>
+
+</listitem>
+
+<listitem><literallayout role="listitem"><ulink url="?page=appendix"><?php echo _("Appendix")?></ulink></literallayout>
+    <itemizedlist>
+        <listitem><literallayout role="listitem"><ulink url="?page=appendix#donate"><?php echo _("Donate")?></ulink></literallayout></listitem>
+        <listitem><literallayout role="listitem"><ulink url="?page=appendix#troubleshooting"><?php echo _("Troubleshooting")?></ulink></literallayout></listitem>
+        <listitem><literallayout role="listitem"><ulink url="?page=appendix#credits"><?php echo _("Credits")?></ulink></literallayout></listitem>
+        <listitem><literallayout role="listitem"><ulink url="?page=appendix#translations"><?php echo _("Translations")?></ulink></literallayout></listitem>
+        <listitem><literallayout role="listitem"><ulink url="?page=appendix#resources"><?php echo _("Resources")?></ulink></literallayout></listitem>
+        <listitem><literallayout role="listitem"><ulink url="?page=appendix#success"><?php echo _("Success Reports")?></ulink></literallayout></listitem>
+    </itemizedlist>
+</listitem>
+
+<listitem><literallayout role="listitem"><ulink url="?page=changelog"><?php echo _("ChangeLog")?></ulink></literallayout>
+</listitem>
+
+</itemizedlist>
+
+<para><?php echo _("<emphasis>NOTE:</emphasis> This document is now paginated.  If you prefer to view it all as one page, click <ulink url='?page=all'>here</ulink>")?></para>

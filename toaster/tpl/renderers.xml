@@ -1,0 +1,6 @@
+<config>
+    <defaultRenderer>html</defaultRenderer>
+    <renderers>
+        <type>html</type>
+    </renderers>
+</config>

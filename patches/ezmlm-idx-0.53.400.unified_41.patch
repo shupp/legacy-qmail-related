@@ -1,0 +1,1632 @@
+diff -u ezmlm-0.53.old/error.3 ezmlm-0.53/error.3
+--- ezmlm-0.53.old/error.3	1997-06-29 22:11:54.000000000 -0500
++++ ezmlm-0.53/error.3	2003-01-14 12:48:19.000000000 -0600
+@@ -3,8 +3,8 @@
+ error \- syscall error codes
+ .SH SYNTAX
+ .B #include <error.h>
+-
+-extern int \fBerrno\fP;
++.br
++.B #include <errno.h>
+ 
+ extern int \fBerror_intr\fP;
+ .br
+diff -u ezmlm-0.53.old/error.h ezmlm-0.53/error.h
+--- ezmlm-0.53.old/error.h	2003-01-14 12:39:49.000000000 -0600
++++ ezmlm-0.53/error.h	2003-01-14 12:44:47.000000000 -0600
+@@ -1,7 +1,7 @@
+ #ifndef ERROR_H
+ #define ERROR_H
+ 
+-extern int errno;
++#include <errno.h>
+ 
+ extern int error_intr;
+ extern int error_nomem;
+diff -u ezmlm-0.53.old/ezmlm-cgi.1 ezmlm-0.53/ezmlm-cgi.1
+--- ezmlm-0.53.old/ezmlm-cgi.1	1999-12-24 14:15:01.000000000 -0600
++++ ezmlm-0.53/ezmlm-cgi.1	2003-01-14 12:43:33.000000000 -0600
+@@ -234,16 +234,21 @@
+ to avoid trapping robots in the archive.
+ .SH EXECUTION
+ .B ezmlm-cgi
+-can operate in three modes,
+-.IR SUID\ root ,
+-.IR SUID\ user ,
++can operate in two modes,
++.I SUID\ root
+ and
+ .IR normal .
++.B ezmlm-cgi
++should not be installed SUID
++.I user
++other than root.
++Please see the
++.B SECURITY
++section before installing SUID
++.IR root .
+ 
+ In
+ .I normal
+-and
+-.I SUID user
+ mode,
+ .B ezmlm-cgi
+ will read the configuration file
+@@ -255,9 +260,7 @@
+ .B ezmlm-cgi
+ is in), then
+ change directory to the list directory. ``uid'' is ignored.
+-.I SUID user
+-may be required to read the particular archive if it is not owned by the
+-httpd user. For user installations or systems where
++For user installations or systems where
+ the httpd user has access to all the lists,
+ .I normal
+ mode usually gives sufficient access.
+@@ -277,22 +280,10 @@
+ directory is not, it is safest to leave ``uid'' blank. The httpd user will still
+ be able to read the files.
+ .SH "EXECUTION OF BANNER PROGRAMS"
+-A banner program can be specified in the config file. It is executed
+-immediately before the end of the text. The formatting for
+-``<BODY>'' is active and the banner program output is encapsulated in
+-a ``<DIV class=banner>'' segment to allow additional formatting.
+-The banner program is called for all summary views, but not for the message
+-view itself.
+-
+-The banner program is give the list local name as argument 1, and the host
+-name as argument 2. It is expected to exit 0 on success. The return code is
+-checked, but the archive page (and whatever the banner program has already
+-produced) is output even if the banner program fails.
+-
+-.B chroot(3)
+-may make it difficult to run banner programs that depend on e.g. ``sh''
+-or ``perl''. For this reason, the chroot call can be suppressed by prefixing
+-the ``uid'' with a ``-''.
++.B ezmlm-cgi
++supports display of banners, but not execution of banner programs. To
++obtain dynamic banners, use a URL that points to a banner program elsewhere.
++
+ .SH SECURITY
+ .B ezmlm-cgi
+ will refuse to run as root.
+@@ -308,14 +299,8 @@
+ list directories and archives).
+ 
+ .B ezmlm-cgi
+-will allow execution of banner programs that are located outside of the list
+-directory. These are executed with the privileges of the userid set in the
+-config file. If the program is installed SUID root, banner programs outside
+-of the list directory are not normally accessible. Even when this is overridden,
+-.B ezmlm-cgi
+-will never execute the program with root permissions.
++will not allow execution of banner programs.
+ 
+-Input to the CGI script is not propagated to the banner program.
+ .SH BUGS
+ .B ezmlm-send(1)
+ updates the list message counter once a message is safely archived, but
+diff -u ezmlm-0.53.old/ezmlm-cgi.c ezmlm-0.53/ezmlm-cgi.c
+--- ezmlm-0.53.old/ezmlm-cgi.c	1999-12-24 14:15:01.000000000 -0600
++++ ezmlm-0.53/ezmlm-cgi.c	2003-01-14 12:43:33.000000000 -0600
+@@ -88,7 +88,7 @@
+ #define ITEM_DATE 4
+ #define ITEM_INDEX 5
+ 
+-#define DIRECT "psnpn"
++#define DIRECT "psnpnz"
+ #define DIRECT_SAME 0
+ #define DIRECT_NEXT 1
+ #define DIRECT_PREV -1
+@@ -136,7 +136,7 @@
+ int child,wstat;
+ int flagtoplevel;
+ unsigned int flagmime;
+-unsigned int cs,csbase;
++unsigned int cs,csbase,pos;
+ int flagrobot;
+ int flagpre;
+ int precharcount;
+@@ -146,6 +146,20 @@
+ char *bannerargs[4];
+ 
+ 
++struct msginfo {	/* clean info on the target message */
++  char item;		/* What we want */
++  char direction;	/* Relation to current msg */
++  char axis;		/* Axis of desired movement [may be calculated] */
++  unsigned long source;	/* reference message number */
++  unsigned long target;
++  unsigned long date;
++  unsigned long *authnav;	/* msgnav structure */
++  unsigned long *subjnav;	/* msgnav structure */
++  char *author;
++  char *subject;
++  char *cgiarg;			/* sub/auth as expected from axis */
++} msginfo;
++
+ mime_info *mime_current = 0;
+ mime_info *mime_tmp = 0;
+ 
+@@ -197,20 +211,6 @@
+ 
+ unsigned long msgnav[5]; /* 0 prev prev 1 prev 2 this 3 next 4 next-next */
+ 
+-struct msginfo {	/* clean info on the target message */
+-  char item;		/* What we want */
+-  char direction;	/* Relation to current msg */
+-  char axis;		/* Axis of desired movement [may be calculated] */
+-  unsigned long source;	/* reference message number */
+-  unsigned long target;
+-  unsigned long date;
+-  unsigned long *authnav;	/* msgnav structure */
+-  unsigned long *subjnav;	/* msgnav structure */
+-  char *author;
+-  char *subject;
+-  char *cgiarg;			/* sub/auth as expected from axis */
+-} msginfo;
+-
+ void toggle_flagpre(int flag)
+ {
+   flagpre = flag;
+@@ -254,7 +254,7 @@
+   return CS_BAD;
+ }
+ 
+-void htmlencode_put (register char *s,register unsigned int l)
++void html_put (register char *s,register unsigned int l)
+ /* At this time, us-ascii, iso-8859-? create no problems. We just encode  */
+ /* some html chars. iso-2022 may have these chars as character components.*/
+ /* cs is set for these, 3 for CN, 2 for others. Bit 0 set means 2 byte    */
+@@ -382,7 +382,7 @@
+ 	    case 5:  state = 0; break;		/* 4th char of ESC $ *|+|) X */
+ 	    case 11: state = 0; break;		/* 3nd char of ESC . */
+ 	    case 21: state = 0; break;		/* ESC ( X for JP */
+-	    default: die_prog("bad state in htmlencode_put"); break;
++	    default: die_prog("bad state in html_put"); break;
+ 	  }
+       } else if (so && flagpre && precharcount >= 84) {
+ 		/* 84 is nicer than 78/80 since most use GUI browser */
+@@ -431,6 +431,58 @@
+   urlencode_put(s,str_len(s));
+ }
+ 
++void anchor_put(unsigned char *s, unsigned int l)
++/* http://, ftp:// only */
++{
++  unsigned char *cpl,*cpafter,*cpstart,*cpend;
++  unsigned int pos,i;
++
++  pos = byte_chr(s,l,':');
++  if (pos + 3 >= l || !pos) {			/* no ':' no URL (most lines) */
++    html_put(s,l);
++    return;
++  }
++
++  cpl = s;
++  cpafter = s + l;
++  for (;;) {
++    cpstart = (char *) 0;
++    if (s[pos + 1] == '/' && s[pos + 2] == '/') {
++      cpend = s + pos + 2;
++      for (i = pos - 1; i + 6 >= pos; i--) {		/* pos always >=1 */
++        if ((s[i] < 'a' || s[i] > 'z') && (s[i] < 'A' || s[i] > 'Z')) {
++          cpstart = s + i + 1;	/* "[:alpha:]{1,5}://" accepted */
++	  break;
++        }
++	if (!i && i + 6 < pos) {
++	  cpstart = s;
++	  break;
++	}
++      }
++    }
++    if (cpstart) {					/* found URL */
++      while (cpend < cpafter && str_chr(" \t\n",*cpend) == 3) cpend++;
++      cpend--;						/* locate end */
++      while (cpend > cpstart && str_chr(".,;])>\"\'",*cpend) != 8) cpend--;
++      html_put(cpl,cpstart - cpl);			/* std txt */
++      oputs("<a href=\"");				/* link start */
++      oput(cpstart,cpend - cpstart + 1);		/* link */
++      oputs("\">");
++      html_put(cpstart,cpend - cpstart + 1);		/* visible */
++      oputs("</a>");					/* end */
++      cpl = cpend + 1;
++      pos = cpend - s;
++      if (pos >= l) return;
++    } else
++      pos++;
++    pos += byte_chr(s + pos,l - pos,':');
++    if (pos + 3 >= l) {
++      html_put(cpl,cpafter - cpl);	/* std txt */
++      return;
++    }
++  }
++}
++
+ int checkhash(register char *s)
+ {
+   register int l = HASHLEN;
+@@ -514,7 +566,7 @@
+     default: oputs("#b\">"); break;
+   }
+   if (HASHLEN + 1 < l)
+-    htmlencode_put(data + HASHLEN + 1,l - HASHLEN - 1);
++    html_put(data + HASHLEN + 1,l - HASHLEN - 1);
+   else
+     oputs("(none)");
+   oputs("</A>");
+@@ -722,7 +774,7 @@
+     oputs(": ");
+   }
+   if (t) oputs(t);
+-  if (s) htmlencode_put(s,l);
++  if (s) html_put(s,l);
+   oputs("</TITLE>\n");
+   if (class && *class && stylesheet && *stylesheet) {
+     oputs("<LINK href=\"");
+@@ -753,31 +805,8 @@
+   if ((flagspecial & SPC_BANNER) && banner && *banner) {
+     oputs("<DIV class=banner>\n");
+     if (*banner == '<') oputs(banner);
+-    else {
+-      substdio_flush(&ssout);
+-      sig_pipeignore();
+-      bannerargs[0] = banner;
+-      bannerargs[1] = host;
+-      bannerargs[2] = local;
+-      bannerargs[3] = 0;
+-	/* We log errors but just complete the page anyway, since we're */
+-	/* already committed to output something. */
+-      switch(child = fork()) {
+-        case -1:
+-          strerr_warn3(FATAL,ERR_FORK,"banner program: ",&strerr_sys);
+-          break;
+-        case 0:
+-          execv(*bannerargs,bannerargs);
+-          strerr_die3x(100,FATAL,ERR_EXECUTE,"banner program: ");
+-	  break;
+-      }
+-         /* parent */
+-      wait_pid(&wstat,child);
+-      if (wait_crashed(wstat))
+-        strerr_warn2(FATAL,ERR_CHILD_CRASHED,(struct strerr *) 0);
+-      if (wait_exitcode(wstat))
+-        strerr_warn2(FATAL,ERR_CHILD_UNKNOWN,(struct strerr *) 0);
+-    }
++    else
++      strerr_die2x(100,FATAL,"Sorry - banner programs not supported");
+     oputs("</DIV>\n");
+   }
+   oputs("</BODY>\n</HTML>\n");
+@@ -875,14 +904,14 @@
+   }
+ }
+ 
+-void firstdate(struct msginfo *infop,int flagfail)
++void firstdate(struct msginfo *infop)
+ {
+     infop->date = 0;
+     infop->direction = DIRECT_NEXT;
+     finddate(infop);
+ }
+ 
+-void getdate(struct msginfo *infop,int flagfail)
++void gtdate(struct msginfo *infop,int flagfail)
+ /* infop->date has to be 0 or valid on entry. Month outside of [1-12] on */
+ /* entry causes GIGO */
+ {
+@@ -1272,6 +1301,7 @@
+ 			/* base64/QP ignored for multipart */
+   r = CTENC_NONE;
+   while (l && (*s == ' ' || *s == '\t')) { s++; l--; }	/* skip LWSP */
++s[l-1] = 0;
+   if (case_startb(s,l,"quoted-printable")) {
+     r = CTENC_QP;
+   } else if (case_startb(s,l,"base64")) {
+@@ -1339,6 +1369,7 @@
+ 	hdr[HDR_VERSION - 1].len);
+   html_header(decline.s,line.s,line.len - 1,
+ 		"msgbody",SPC_BASE);
++  decline.len = 0;		/* reset */
+   msglinks(infop);
+   oputs("<DIV class=message>\n");
+ }
+@@ -1370,7 +1401,14 @@
+       strerr_die4sys(111,FATAL,ERR_READ,fn.s,": ");
+     if (!match) return;
+     if ((btype = check_boundary())) {
+-      if (flagpre) {
++      if (decline.len) {		/* flush last line that doesn't */
++	if (flaghtml)			/* end in \n for QP/base64 */
++	  oput(decline.s,decline.len);
++	else
++          anchor_put(decline.s,decline.len);
++        decline.len = 0;
++      }
++      if (flagpre) {			/* ending part was <PRE> */
+ 	oputs("</PRE>");
+ 	toggle_flagpre(0);
+       }
+@@ -1410,12 +1448,14 @@
+ 	      oputs("\">");
+ 	    }
+ 	    if (flagobscure && i == HDR_FROM - 1) {
++	      int k;
+ 	      oputs(" ");
+-	      decodeHDR(cp,author_name(&cp,line.s,line.len),&decline,"",FATAL);
+-	      htmlencode_put(decline.s,decline.len);
++	      k = author_name(&cp,line.s,line.len);
++	      decodeHDR(cp,k,&decline,"",FATAL);
++	      html_put(decline.s,decline.len);
+ 	    } else {
+ 	      decodeHDR(hdr[i].s,hdr[i].len,&decline,"",FATAL);
+-              htmlencode_put(decline.s,decline.len - 1);
++              html_put(decline.s,decline.len - 1);
+ 	    }
+ 	    if (i == HDR_SUBJECT - 1 && flagtoplevel)
+ 	      oputs("</A></SPAN>");
+@@ -1491,17 +1531,20 @@
+     } else {
+       if (flaggoodfield) {
+ 	if (mime_current->ctenc) {
+-	  if (!stralloc_copy(&decline,&line)) die_nomem();
+-	  line.len = 0;
+ 	  if (mime_current->ctenc == CTENC_QP)
+-	    decodeQ(decline.s,decline.len,&line);
++	    decodeQ(line.s,line.len,&decline);
+ 	  else
+-	    decodeB(decline.s,decline.len,&line);
++	    decodeB(line.s,line.len,&decline);
++	  if (decline.s[decline.len - 1] == '\n') {	/* complete line */
++	    if (!stralloc_copy(&line,&decline)) die_nomem();
++	    decline.len = 0;
++	  } else				/* incomplete - wait for next */
++	    line.len = 0;			/* in case URL is split */
+ 	}
+ 	if (flaghtml)
+ 	  oput(line.s,line.len);
+ 	else {
+-          htmlencode_put(line.s,line.len);		/* body */
++          anchor_put(line.s,line.len);		/* body */
+ 	}
+       }
+     }
+@@ -1698,7 +1741,7 @@
+       strerr_die4sys(111,FATAL,ERR_OPEN,fn.s,": ");
+   }
+   substdio_fdbuf(&ssin,read,fd,inbuf,sizeof(inbuf));
+-  if (infop->source != ITEM_DATE) {
++  if (infop->axis != ITEM_DATE) {
+     if (getln(&ssin,&line,&match,'\n') == -1)	/* first line */
+       strerr_die4sys(111,FATAL,ERR_READ,fn.s,": ");
+     if (!match)
+@@ -1713,8 +1756,13 @@
+     if (!match) break;
+     msgnav[0] = msgnav[1];
+     msgnav[1] = msgnav[2];
+-    (void) scan_ulong(line.s,&(msgnav[2]));
+-    if (infop->direction == DIRECT_FIRST) break;
++    pos = scan_ulong(line.s,&(msgnav[2]));
++    if (infop->direction == DIRECT_FIRST && infop->axis == ITEM_DATE) {
++      if (pos + HASHLEN + 1 < line.len)
++        if (!stralloc_copyb(&subject,line.s+pos+1,HASHLEN)) die_nomem();
++	if (!stralloc_0(&subject)) die_nomem();
++      break;
++    }
+     if (msgnav[2] == infop->source) {
+       if (getln(&ssin,&line,&match,'\n') == -1)
+         strerr_die4sys(111,FATAL,ERR_READ,fn.s,": ");
+@@ -1736,8 +1784,12 @@
+       infop->date = 0;
+       break;
+     case ITEM_SUBJECT:
+-      infop->subjnav = msgnav + 2 + infop->direction;
+-      infop->target = *(infop->subjnav);
++      if (infop->direction == DIRECT_FIRST)
++        infop->target = msgnav[2];
++      else {
++        infop->subjnav = msgnav + 2 + infop->direction;
++        infop->target = *(infop->subjnav);
++      }
+       infop->author = (char *)0;	/* what we know is not for this msg */
+       infop->date = 0;
+       break;
+@@ -1745,6 +1797,7 @@
+       infop->target = msgnav[2];
+       infop->subject = (char *)0;	/* what we know is not for this msg */
+       infop->author = (char *)0;	/* what we know is not for this msg */
++      break;
+     default:
+       die_prog("Bad item in setmsg");
+   }
+@@ -1766,9 +1819,15 @@
+ }
+ 
+ void date2msg(struct msginfo *infop)
++/* this is all a terrible hack */
+ {
+   (void) makefn(&fn,ITEM_DATE,infop->date,"");
+-  setmsg(infop);
++  infop->direction = DIRECT_FIRST;
++  infop->axis = ITEM_DATE;
++  setmsg(infop);		/* got first thread */
++  infop->subject = subject.s;
++  infop->axis = ITEM_SUBJECT;
++  subj2msg(infop);		/* get 1st message no in that thread */
+ }
+ 
+ void findlastmsg(struct msginfo *infop)
+@@ -1866,15 +1925,13 @@
+ 	      case ITEM_DATE:
+ 		if (!infop->date && infop->source)
+ 		  if (!msg2hash(infop)) return 0;
+-		  getdate(infop,0);
++		  gtdate(infop,0);
+ 		break;
+ 	    }
+ 	    break;
+ 	  case ITEM_INDEX:	/* ignore direction etc - only for index */
+ 	    if (!infop->target)
+ 	      infop->target = infop->source;
+-	    if (!infop->target)
+-	      findlastmsg(infop);
+ 	    break;
+   }
+   return 1;
+@@ -2019,6 +2076,9 @@
+   cmd = env_get("QUERY_STRING");			/* get command */
+   cppath = env_get("PATH_INFO");			/* get path_info */
+ 
++  if (!cmd && !cppath)
++    cmd = argv[1];
++
+   if (!cppath || !*cppath) {
+     if (cmd && *cmd) {
+       cmd += scan_ulong(cmd,&thislistno);
+@@ -2026,7 +2086,7 @@
+     } else
+       thislistno = 0L;
+   } else {
+-    cppath++;
++    if (*cppath == '/') cppath++;
+       cppath += scan_ulong(cppath,&thislistno);		/* this listno */
+       if (!thislistno || *cppath++ == '/') {
+ 	if (str_start(cppath,"index")) {
+@@ -2143,6 +2203,7 @@
+ 
+ /********************* Get info from server on BASE etc ****************/
+ 
++  if (!stralloc_copys(&url,"<A HREF=\"")) die_nomem();
+   if (!stralloc_copys(&base,"<BASE href=\"http://")) die_nomem();
+   cp = env_get("SERVER_PORT");
+   if (cp) {			/* port */
+@@ -2155,18 +2216,15 @@
+       if (!stralloc_cats(&base,":")) die_nomem();
+       if (!stralloc_catb(&base,strnum,fmt_ulong(strnum,port))) die_nomem();
+   }
+-  if (!(cp = env_get("HTTP_HOST")))
+-    if (!(cp = env_get("SERVER_NAME")))
+-      strerr_die2x(100,FATAL,"both HTTP_HOST and SERVER_NAME are empty");
+-  if (!stralloc_cats(&base,cp)) die_nomem();
+-  if (!(cp = env_get("SCRIPT_NAME")))
+-    strerr_die2x(100,FATAL,"empty SCRIPT_NAME");
+-  if (!stralloc_cats(&base,cp)) die_nomem();
++  if ((cp = env_get("HTTP_HOST")) || (cp = env_get("SERVER_NAME")))
++    if (!stralloc_cats(&base,cp)) die_nomem();
++  if (cp = env_get("SCRIPT_NAME")) {
++    if (!stralloc_cats(&base,cp)) die_nomem();
++    pos = str_rchr(cp,'/');
++    if (cp[pos])
++      if (!stralloc_cats(&url,cp + pos + 1)) die_nomem();
++  }
+   if (!stralloc_cats(&base,"\">\n")) die_nomem();
+-  if (!stralloc_copys(&url,"<A HREF=\"")) die_nomem();
+-  pos = str_rchr(cp,'/');
+-  if (cp[pos])
+-    if (!stralloc_cats(&url,cp + pos + 1)) die_nomem();
+   if (!stralloc_cats(&url,"?")) die_nomem();
+   if (thislistno) {
+     if (!stralloc_catb(&url,strnum,fmt_ulong(strnum,thislistno))) die_nomem();
+@@ -2189,7 +2247,7 @@
+ 
+   switch (msginfo.item) {
+     case ITEM_MESSAGE:
+-	if (!show_message(&msginfo)) {		/* assume next exists ... */
++	if (!(ret = show_message(&msginfo))) {	/* assume next exists ... */
+ 	  cache = 0;				/* border cond. - no cache */
+ 	  msginfo.target = msginfo.source;	/* show same */
+ 	  msginfo.subjnav = 0;
+@@ -2198,32 +2256,35 @@
+ 	}
+ 	break;
+     case ITEM_AUTHOR:
+-	if (!show_object(&msginfo,ITEM_AUTHOR))
++	if (!(ret = show_object(&msginfo,ITEM_AUTHOR)))
+ 	  cgierr ("I couldn't find the author for that message","","");
+ 	break;
+     case ITEM_SUBJECT:
+-	if (!show_object(&msginfo,ITEM_SUBJECT))
++	if (!(ret = show_object(&msginfo,ITEM_SUBJECT)))
+ 	  cgierr ("I couldn't find the subject for that message","","");
+ 	break;
+     case ITEM_DATE:
+-	if (!show_object(&msginfo,ITEM_DATE)) {
++	if (!(ret = show_object(&msginfo,ITEM_DATE))) {
+ 	  finddate(&msginfo);
+ 	  ret = show_object(&msginfo,ITEM_DATE);
+ 	}
+ 	break;
+     case ITEM_INDEX:
+-	if (!show_index(&msginfo)) {
+-	  tmptarget = msginfo.target;
+-	  findlastmsg(&msginfo);
+-	  cache = 0;			/* latest one - no cache */
+-	  if (!msginfo.target || msginfo.target > tmptarget) {
+-	    cache = 2;			/* won't change */
+-            firstdate(&msginfo,1);	/* first thread index */
+-	    msginfo.direction = DIRECT_FIRST;
+-	    date2msg(&msginfo);		/* (may not be 1 if parts removed) */
+-	  }
++	ret = 1;
++	if (show_index(&msginfo)) break;/* msgnumber valid */
++	tmptarget = msginfo.target;
++	findlastmsg(&msginfo);
++	cache = 0;			/* latest one - no cache */
++	if (msginfo.target > tmptarget) {
++	  cache = 2;			/* first one won't change */
++	  msginfo.target = 1;		/* try */
++	  if (show_index(&msginfo)) break;
++	  msginfo.date = 0;		/* first indexes missing */
++          firstdate(&msginfo);		/* instead get first msg of first */
++	  date2msg(&msginfo);		/* thread. */
++	  if (show_index(&msginfo)) break;
++	} else
+ 	  ret = show_index(&msginfo);
+-	}
+ 	break;
+     default:
+ 	strerr_die2x(100,FATAL,"bad item in main");
+diff -u ezmlm-0.53.old/ezmlm-idx.c ezmlm-0.53/ezmlm-idx.c
+--- ezmlm-0.53.old/ezmlm-idx.c	1999-12-24 14:15:01.000000000 -0600
++++ ezmlm-0.53/ezmlm-idx.c	2003-01-14 12:43:33.000000000 -0600
+@@ -282,6 +282,8 @@
+     } else if (fstat(fd,&st) == -1 || (!(st.st_mode & 0100)))
+         close(fd);
+     else {
++      int k;
++
+       subject.len = 0;		/* clear in case they're missing in msg */
+       author.len = 0;
+       received.len = 0;
+@@ -303,7 +305,9 @@
+       mkauthhash(lines.s,lines.len,hash);
+       if (!stralloc_catb(&line,hash,HASHLEN)) die_nomem();
+ 
+-      decodeHDR(cp,author_name(&cp,lines.s,lines.len),&author,charset.s,FATAL);
++      k = author_name(&cp,lines.s,lines.len);
++      decodeHDR(cp,k,&author,charset.s,FATAL);
++
+       (void) unfoldHDR(author.s,author.len,&lines,charset.s,&prefix,0,FATAL);
+ 
+       if (!stralloc_cats(&line," ")) die_nomem();
+diff -u ezmlm-0.53.old/ezmlm-manage.c ezmlm-0.53/ezmlm-manage.c
+--- ezmlm-0.53.old/ezmlm-manage.c	1999-12-24 14:15:01.000000000 -0600
++++ ezmlm-0.53/ezmlm-manage.c	2003-01-14 12:43:33.000000000 -0600
+@@ -915,6 +915,12 @@
+       copy(&qq,"text/sub-confirm",flagcd,FATAL);
+       copybottom();
+       qmail_to(&qq,target.s);
++    } else if (flagmod) {
++      store_from(&fromline,target.s);
++      doconfirm(ACTION_TC);
++      copy(&qq,"text/mod-sub-confirm",flagcd,FATAL);
++      copybottom();
++      sendtomods();	
+     } else {				/* normal subscribe, no confirm */
+       r = geton(action);		/* should be rarely used. */
+       copybottom();
+diff -u ezmlm-0.53.old/ezmlm-send.1 ezmlm-0.53/ezmlm-send.1
+--- ezmlm-0.53.old/ezmlm-send.1	2003-01-14 12:39:49.000000000 -0600
++++ ezmlm-0.53/ezmlm-send.1	2003-01-14 12:43:33.000000000 -0600
+@@ -4,7 +4,7 @@
+ .SH SYNOPSIS
+ .B ezmlm-send
+ [
+-.B \-cCrRvV
++.B \-aAcCrRvV
+ ] [
+ .B \-h\fI header
+ ]
+@@ -149,6 +149,43 @@
+ rejects the message.
+ .SH OPTIONS
+ .TP
++.B \-a
++.B ezmlm-send
++assumes that there are two trailer files:
++.I dir\fB/text/trailer
++and
++.IR dir\fB/text/alttrailer .
++.B ezmlm-send
++will scan the message for the occurence of ``##''. If found, the trailer
++used (if the message is otherwise suitable for trailer addition) will be
++.IR dir\fB/text/trailer .
++If not found,
++.I dir\fB/text/alttrailer
++will be used, and a header will be prefixed with ``#''. In conjunction with
++the qmail-verh patch to
++.B qmail-remote
++this allows inclusing of per-subscriber customized unsubscribe
++instructions in
++.I dir\fB/text/alttrailer
++in a manner that does not risk message corruption.
++.B \-aa
++Same as
++.B \-a
++(see that switch),
++but the message is assumed to be free of ``##'' without checking.
++This is especially useful if piping the message directly to
++.B ezmlm-send
++since it avoids the need to rewind stdin.
++.TP
++.B \-A
++(Default.)
++The message is not checked for ``##''. If
++.I dir\fB/text/trailer
++exists and the message is otherwise suitable for header addition,
++that trailer will be added. No signals for
++.B qmail-remote
++are added.
++.TP
+ .B \-c
+ No longer supported. Ignored for backwards compatibility.
+ .TP
+diff -u ezmlm-0.53.old/ezmlm-send.c ezmlm-0.53/ezmlm-send.c
+--- ezmlm-0.53.old/ezmlm-send.c	1999-12-24 14:15:00.000000000 -0600
++++ ezmlm-0.53/ezmlm-send.c	2003-01-14 12:43:33.000000000 -0600
+@@ -29,6 +29,7 @@
+ #include "cookie.h"
+ #include "idx.h"
+ #include "copy.h"
++#include "seek.h"
+ 
+ int flagnoreceived = 1;		/* suppress received headers by default. They*/
+ 				/* are still archived. =0 => archived and */
+@@ -39,7 +40,7 @@
+ 
+ void die_usage()
+ {
+-  strerr_die1x(100,"ezmlm-send: usage: ezmlm-send [-cClLqQrR] [-h header] dir");
++  strerr_die1x(100,"ezmlm-send: usage: ezmlm-send [-aAcClLqQrR] [-h header] dir");
+ }
+ void die_nomem()
+ {
+@@ -191,6 +192,7 @@
+ 
+ char buf0[256];
+ substdio ss0 = SUBSTDIO_FDBUF(read,0,buf0,sizeof(buf0));
++substdio ss1 = SUBSTDIO_FDBUF(read,0,buf0,sizeof(buf0));
+ 
+ void numwrite()
+ {		/* this one deals with msgnum, not outnum! */
+@@ -229,6 +231,7 @@
+   int match;
+   int r;
+   unsigned int pos;
++  int k;
+ 
+   if (!stralloc_copys(&fnadir,"archive/")) die_nomem();
+   if (!stralloc_catb(&fnadir,strnum,fmt_ulong(strnum,outnum / 100)))
+@@ -306,7 +309,9 @@
+   if (!stralloc_catb(&qline,hash,HASHLEN)) die_nomem();
+   if (!stralloc_cats(&qline," ")) die_nomem();
+ 
+-  decodeHDR(cp,author_name(&cp,lines.s,lines.len),&from,charset.s,FATAL);
++  k = author_name(&cp,lines.s,lines.len);
++  decodeHDR(cp,k,&from,charset.s,FATAL);
++
+   (void) unfoldHDR(from.s,from.len,&lines,charset.s,&dcprefix,0,FATAL);
+   if (!stralloc_cat(&qline,&lines)) die_nomem();
+ 
+@@ -360,8 +365,8 @@
+   char *ret;
+   char *err;
+   int flagmlwasthere;
+-  int flagqmqp = 0;	/* don't use qmqp by default */
+-  int flaglistid = 0;	/* no listid header added */
++  int flagqmqp = 0;		/* don't use qmqp by default */
++  int flaglistid = 0;		/* no listid header added */
+   int match;
+   unsigned int i;
+   int r,fd;
+@@ -373,7 +378,8 @@
+   int flagfromline;
+   int flagcontline;
+   int flagarchiveonly;
+-  int flagtrailer;
++  int flagtrailer = 1;
++  int flagalttrailer = 0;	/* std trailer if at all except if -a */
+   unsigned int pos;
+   int opt;
+   char *cp, *cpstart, *cpafter;
+@@ -381,8 +387,10 @@
+   umask(022);
+   sig_pipeignore();
+ 
+-  while ((opt = getopt(argc,argv,"cCh:H:lLrRqQs:S:vV")) != opteof)
++  while ((opt = getopt(argc,argv,"aAcCh:H:lLrRqQs:S:vV")) != opteof)
+     switch(opt) {
++      case 'a': flagalttrailer++; break;
++      case 'A': flagalttrailer = 0; break;
+       case 'c': case 'C': break;	/* ignore for backwards compat */
+       case 'h':
+       case 'H': mlheader = optarg;	/* Alternative sublist check header */
+@@ -398,8 +406,7 @@
+ 		(void) scan_ulong(optarg+pos,&hash_hi);
+ 		if (hash_hi > 52L) hash_hi = 52L;
+ 		if (hash_lo > hash_hi) hash_lo = hash_hi;
+-
+- break;
++		break;
+       case 'q': flagqmqp = 0; break;
+       case 'Q': flagqmqp = 1; break;
+       case 'v':
+@@ -409,7 +416,6 @@
+ 	die_usage();
+     }
+ 
+-
+   dir = argv[optind++];
+   if (!dir) die_usage();
+ 
+@@ -437,12 +443,13 @@
+     if (!stralloc_copy(&dcprefix,&line)) die_nomem();
+     serial = byte_rchr(prefix.s,prefix.len,'#');
+   }
+-  if ((fd = open_read("text/trailer")) == -1) {	/* see if there is a trailer */
+-    if (errno == error_noent) flagtrailer = 0;
+-    else strerr_die2sys(111,ERR_OPEN,"text/trailer: ");
+-  } else {
+-    close(fd);
+-    flagtrailer = 1;
++  if (!flagalttrailer) {				/* skip test if -a */
++    if ((fd = open_read("text/trailer")) == -1) {	/* see if trailer */
++      if (errno == error_noent) flagtrailer = 0;
++      else strerr_die2sys(111,ERR_OPEN,"text/trailer: ");
++    } else {
++      close(fd);
++    }
+   }
+ 
+   getconf(&mimeremove,"mimeremove",0,FATAL,dir);
+@@ -501,6 +508,27 @@
+   szmsgnum[fmt_ulong(szmsgnum,outnum)] = '\0';
+   set_cpnum(szmsgnum);				/* for copy */
+ 
++  if (flagalttrailer == 1) {
++    while (flagalttrailer) {			/* verify no '##L/##H */
++      if (getln(&ss1,&line,&match,'\n') == -1)
++        strerr_die2sys(111,FATAL,ERR_READ_INPUT);
++      if (!match) break;
++      pos = 0;
++      while ((pos += byte_chr(line.s + pos,line.len - pos,'#')) < line.len) {
++        if (++pos + 1 < line.len) {
++          if (line.s[pos] == '#') {
++	    if (line.s[pos + 1] == 'H' || line.s[pos + 1] == 'L') {
++	      flagalttrailer = 0;
++	      break;
++	    }
++	  }
++        }
++      }
++    }
++    if (seek_begin(0) == -1)		/* rewind */
++      strerr_die2sys(111,FATAL,ERR_SEEK_INPUT);
++  }
++
+   if (flagarchived) {
+     if (!stralloc_copys(&fnadir,"archive/")) die_nomem();
+     if (!stralloc_catb(&fnadir,strnum,
+@@ -548,6 +576,8 @@
+     }
+     qa_puts("\n");
+   }
++  if (flagalttrailer)
++    qmail_put(&qq,"#",1);		/* VERH body signal */
+   copy(&qq,"headeradd",'H',FATAL);
+   qa_put(mydtline.s,mydtline.len);
+ 
+@@ -704,7 +734,10 @@
+             qmail_puts(&qq,"\nContent-Type: text/plain; charset=");
+             qmail_puts(&qq,charset.s);
+             transferenc();		/* trailer for multipart message */
+-	    copy(&qq,"text/trailer",flagcd,FATAL);
++	    if (flagalttrailer)
++	      copy(&qq,"text/alttrailer",flagcd,FATAL);
++	    else
++	      copy(&qq,"text/trailer",flagcd,FATAL);
+             if (flagcd == 'B')	{	/* need to do our own flushing */
+               encodeB("",0,&qline,2,FATAL);
+               qmail_put(&qq,qline.s,qline.len);
+@@ -731,7 +764,9 @@
+           }
+         } else if (line.len == 1) {	/* end of content desc */
+           flagbadpart = 0;		/* default type, so ok */
++          flagfoundokpart = 1;		/* this is part of a multipart msg */
+           flagseenext = 0;		/* done thinking about it */
++          qa_put(lines.s,lines.len);	/* saved lines */
+         } else				/* save line in cont desc */
+           if (!stralloc_cat(&lines,&line)) die_nomem();
+       }
+@@ -746,7 +781,10 @@
+   if (!boundary.len && flagtrailer) {
+     qmail_puts(&qq,"\n");		/* trailer for non-multipart message */
+     if (!encin || encin == 'Q') {	/* can add for QP, but not for base64 */
+-      copy(&qq,"text/trailer",encin,FATAL);
++      if (flagalttrailer)
++	copy(&qq,"text/alttrailer",encin,FATAL);
++      else
++	copy(&qq,"text/trailer",encin,FATAL);
+       qmail_puts(&qq,"\n");		/* no need to flush for plain/QP */
+     }
+   }
+diff -u ezmlm-0.53.old/ezmlm-sub.1 ezmlm-0.53/ezmlm-sub.1
+--- ezmlm-0.53.old/ezmlm-sub.1	2003-01-14 12:39:49.000000000 -0600
++++ ezmlm-0.53/ezmlm-sub.1	2003-01-14 12:43:33.000000000 -0600
+@@ -4,7 +4,7 @@
+ .SH SYNOPSIS
+ .B ezmlm-sub
+ [
+-.B \-HmMnNsSvV
++.B \-HmMnNvV
+ ][
+ .B \-h
+ .I hash
+diff -u ezmlm-0.53.old/ezmlm-test.sh ezmlm-0.53/ezmlm-test.sh
+--- ezmlm-0.53.old/ezmlm-test.sh	1999-12-24 14:15:01.000000000 -0600
++++ ezmlm-0.53/ezmlm-test.sh	2003-01-14 12:43:33.000000000 -0600
+@@ -73,19 +73,53 @@
+ HEAD='head'
+ MKDIR='mkdir'
+ MV='mv'
+-# a ps command that would list qmail if running. This works for RedHat Linux
+-PS='ps auxw'
+ RM='rm'
+ SED='sed'
+ STRINGS='strings'
+ TAIL='tail'
+ UNSET='unset'
+ WC='wc'
+-# if you don't have this, you can put 'echo "user"' where user is the current
+-# login user name.
+-WHOAMI='whoami'
+ 
+-###################### END CONFIRGRABLE ITEMS #########################
++
++###################### END CONFIGURABLE ITEMS #########################
++if echo -n | grep n > /dev/null 2>&1; then
++    prompt()
++    {
++	echo "$*\c"
++    }
++else
++    prompt()
++    {
++	echo -n "$*"
++    }    
++fi
++
++if ps auxw > /dev/null 2>&1; then
++    PS='ps auxw'
++else
++    PS='ps -ef'
++fi
++
++if (whoami) > /dev/null 2>&1; then
++    myself() {
++        whoami
++    }
++elif (id) > /dev/null 2>&1; then
++    myself() {
++        id | cut -d'(' -f2 | cut -d')' -f1
++    }
++# the remaining two tests work only if `su -' was used
++# perhaps delete them
++elif (logname) > /dev/null 2>&1; then
++        myself() {
++        logname
++    }
++elif (who am i)  > /dev/null 2>&1; then
++    myself() {
++        who am i | cut -d' ' -f1 | cut -d'!' -f2
++    }
++fi
++
+ SQLUSER=''	# must be empty
+ ARR='-------------------->'
+ ALLOW='allow'
+@@ -152,13 +186,25 @@
+ 	SQLUSER="$SQLUSR"
+ fi
+ 
+-USER=`${WHOAMI}` >/dev/null 2>&1 || \
++USER=`myself` >/dev/null 2>&1 || \
+ 	{ ${ECHO} "whoami doesn't work. If you're not \"${EZTEST}\" the";
+-	  ${ECHO} "will fail."; USER="${EZTEST}"; }
++	  ${ECHO} "test will fail."; USER="${EZTEST}"; }
+ 
+ if [ "$USER" != "${EZTEST}" ]; then 
+   ${ECHO} "Must be user ${EZTEST} to execute"; exit 99
+ fi
++
++# test for the common uid=0 error; not foolproof 
++# any system w/o id or UID ?
++if (id) > /dev/null 2>&1 \
++    && test "x`id|cut -d'(' -f1 |cut -d'=' -f2`" = "x0"; then
++    ${ECHO} 'uid is 0 but superuser does not receive mail under qmail'
++    exit 1  
++elif test "x$UID" = "x0" ; then
++    ${ECHO} '$UID = 0 but superuser does not receive mail under qmail'
++    exit 1
++fi
++
+ LOC="$EZTEST-$LIST"
+ # calculate position in LOCAL where [normally] default starts
+ LOCLEN=`${ECHO} "$LOC-" | ${WC} -c | ${SED} 's/ //g'`
+@@ -293,9 +339,9 @@
+ ############################
+ sleep_5()
+ {
+-  sleep 1; ${ECHO} -n "."; sleep 1; ${ECHO} -n "."
+-  sleep 1; ${ECHO} -n "."; sleep 1; ${ECHO} -n "."
+-  sleep 1; ${ECHO} -n "${1}"
++  sleep 1; prompt "."; sleep 1; prompt "."
++  sleep 1; prompt "."; sleep 1; prompt "."
++  sleep 1; prompt "${1}"
+   return 0
+ }
+ 
+@@ -304,7 +350,7 @@
+ ################################
+ wait_test()
+ {
+-${ECHO} -n "max 35s for delivery: "
++prompt "max 35s for delivery: "
+ sleep_5 5s
+ TSTMSG=`${GREP} -l "#TSTMSG$1" $SINKDIR/new/* 2>/dev/null`
+ if [ -z "$TSTMSG" ]; then
+@@ -410,7 +456,7 @@
+ ##############
+ # ezmlm-make #
+ ##############
+-  ${ECHO} -n "ezmlm-make (1/2):     "
++  prompt "ezmlm-make (1/2):     "
+ 
+ # edit non-existant list
+   ${EZBIN}/ezmlm-make -e -C${EZBIN}/ezmlmrc "${DIR}" "${DOT}" \
+@@ -437,7 +483,7 @@
+   ${EZBIN}/ezmlm-make -ed -C${EZBIN}/ezmlmrc "${DIR}" "$DOT" "$LOC" "$HOST" \
+ 	>/dev/null 2>&1 || \
+ 	{ ${ECHO} "failed without DIR/config: 0.313 bug, fixed in 0.314."
+-	  ${ECHO} -n "ezmlm-make ......     "
++	  prompt "ezmlm-make ......     "
+ 	  BUG="${BUG} config"
+ 	}
+   ${MV} "${DIR}/config~" "${DIR}/config"
+@@ -446,19 +492,19 @@
+ 	{ ${ECHO} "no ezmlm-weed in bouncer"; exit 100; }
+   ${GREP} "ezmlm-return" "${DIR}/bouncer" >/dev/null 2>&1 || \
+ 	{ ${ECHO} "no ezmlm-return in bouncer: 0.32 bug, fixed in 0.321."
+-	  ${ECHO} -n "ezmlm-make ......     "
++	  prompt "ezmlm-make ......     "
+ 	  BUG="${BUG} return"
+ 	}
+ # digest/bouncer only for >=0.32
+   if [  "$EZVER" != '31' ]; then
+     if [ ! -f "${DIR}/digest/bouncer" ]; then
+-	echo "failed to create digest/bouncer"; exit 100;
++	${ECHO} "failed to create digest/bouncer"; exit 100;
+     fi
+     ${GREP} "ezmlm-weed" "${DIR}/digest/bouncer" >/dev/null 2>&1 || \
+ 	{ ${ECHO} "no ezmlm-weed in bouncer"; exit 100; }
+     ${GREP} "ezmlm-return" "${DIR}/digest/bouncer" >/dev/null 2>&1 || \
+ 	{ ${ECHO} "no ezmlm-return in digest/bouncer: 0.32 bug, OK in 0.321."
+-	  ${ECHO} -n "ezmlm-make ......     "
++	  prompt "ezmlm-make ......     "
+ 	  BUG="${BUG} return"
+ 	}
+   fi
+@@ -466,7 +512,7 @@
+ 
+ # Add sql files for sql testing
+ RDBMS='STD'
+-${ECHO} -n "Using RDBMS support:  "
++prompt "Using RDBMS support:  "
+ if [ $USESQL ]; then
+   ${EZBIN}/ezmlm-make -+6 "$SQLHOST::$SQLUSER:$PW:$DB:$TABLE" \
+ 	-C${EZBIN}/ezmlmrc "${DIR}"|| \
+@@ -538,7 +584,7 @@
+ 	fi
+ fi
+ 
+-${ECHO} -n "testing for qmail:    "
++prompt "testing for qmail:    "
+ if [ "$QMVER" = "n" ]; then
+ 	${ECHO} ">=1.02"
+ else
+@@ -600,7 +646,7 @@
+ #####################
+ # test ezmlm-reject #
+ #####################
+-  ${ECHO} -n "ezmlm-reject:         "
++  prompt "ezmlm-reject:         "
+   FROM="$EZTEST"
+   TO="$EZTEST-__tstlist@$HOST"
+   SUBJECT="test"
+@@ -632,31 +678,30 @@
+ 
+ #too large
+   ${ECHO} "20:10" > "${DIR}/msgsize"
+-  OUT=`make_message | ${EZBIN}/ezmlm-reject "${DIR}" 2>&1` && \
+-	{ ${ECHO} "ezmlm-reject failed to reject too large message"; \
+-		exit 100; }
++  { make_message  | ${EZBIN}/ezmlm-reject "${DIR}"; } > /dev/null 2>&1 && \
++        { ${ECHO} "ezmlm-reject failed to reject too large message"; \
++                exit 100; }
+ 
+ # restore
+   ${RM} -f "${DIR}/msgsize"
+ 
+ # without subject
+   SUBJECT=''
+-  OUT=`make_message | ${EZBIN}/ezmlm-reject "${DIR}" 2>&1` && \
+-	{ ${ECHO} "ezmlm-reject failed to reject message without subject"; \
+-		exit 100; }
+-  OUT=`make_message | ${EZBIN}/ezmlm-reject 2>&1` && \
+-	{ ${ECHO} "ezmlm-reject failed to reject message without subject"; \
+-		exit 100; }
++   { make_message  | ${EZBIN}/ezmlm-reject "${DIR}"; } > /dev/null 2>&1 && \
++        { ${ECHO} "ezmlm-reject failed to reject null subject"; \
++                exit 100; }
++   { make_message  | ${EZBIN}/ezmlm-reject ; } > /dev/null 2>&1 && \
++        { ${ECHO} "ezmlm-reject failed to reject null subject"; \
++                exit 100; }		
+ 
+ # with empty subject
+   SUBJECT='(NUll)'
+-  OUT=`make_message | ${EZBIN}/ezmlm-reject "${DIR}" 2>&1` && \
+-	{ ${ECHO} "ezmlm-reject failed to reject null subject"; \
+-		exit 100; }
+-  OUT=`make_message | ${EZBIN}/ezmlm-reject 2>&1` && \
+-	{ ${ECHO} "ezmlm-reject failed to reject null subject"; \
+-		exit 100; }
+-
++   { make_message  | ${EZBIN}/ezmlm-reject "${DIR}"; } > /dev/null 2>&1 && \
++        { ${ECHO} "ezmlm-reject failed to reject null subject with dir"; \
++                exit 100; }
++   { make_message  | ${EZBIN}/ezmlm-reject ; } > /dev/null 2>&1 && \
++        { ${ECHO} "ezmlm-reject failed to reject null subject without dir"; \
++                exit 100; }
+ # testing -S
+   OUT=`make_message | ${EZBIN}/ezmlm-reject -S "${DIR}"` || \
+ 	{ ${ECHO} "-S switch failed with dir"; exit 100; }
+@@ -665,20 +710,19 @@
+ 
+ # with command subject
+   SUBJECT='REmOVE'
+-  OUT=`make_message | ${EZBIN}/ezmlm-reject "${DIR}" 2>&1` && \
++  { make_message | ${EZBIN}/ezmlm-reject "${DIR}"; } > /dev/null 2>&1 && \
+ 	{ ${ECHO} "failed to reject command subject with dir"; \
+ 		exit 100; }
+-  OUT=`make_message | ${EZBIN}/ezmlm-reject 2>&1` && \
++  { make_message | ${EZBIN}/ezmlm-reject "${DIR}"; } > /dev/null 2>&1 && \
+ 	{ ${ECHO} "failed to reject command subject without dir"; \
+ 		exit 100; }
+-
+ # testing -C
+   OUT=`make_message | ${EZBIN}/ezmlm-reject -C "${DIR}"` || \
+ 	{ ${ECHO} "-C switch failed with dir"; exit 100; }
+   OUT=`make_message | ${EZBIN}/ezmlm-reject -C ` || \
+-	{ ${ECHO} "-C switch failed without dir"; exit 100; }
+-
+-  SUBJECT='test'
++        { ${ECHO} "-C switch failed without dir"; exit 100; }
++  
++SUBJECT='test'
+ 
+ # Test with list name in Cc:
+   CC="$TO"
+@@ -692,13 +736,13 @@
+ 
+ # Bad To/Cc
+   CC="$TO"
+-  OUT=`make_message "$MESSAGE" | ${EZBIN}/ezmlm-reject "${DIR}" 2>&1` && \
++  { make_message | ${EZBIN}/ezmlm-reject "${DIR}"; } > /dev/null 2>&1 && \
+ 		{ ${ECHO} "failed to reject bad To/Cc with dir"; \
+ 		exit 100; }
+   if [ "$?" != "100" ]; then
+ 	${ECHO} "failed to exit 100 on error"; exit 100
+   fi
+-  OUT=`make_message "$MESSAGE" | ${EZBIN}/ezmlm-reject -q "${DIR}" 2>&1` && \
++  { make_message | ${EZBIN}/ezmlm-reject -q "${DIR}"; } > /dev/null 2>&1 && \
+ 		{ ${ECHO} "failed to reject bad To/Cc with dir"; \
+ 		exit 100; }
+   if [ "$?" -ne "99" ]; then
+@@ -707,14 +751,14 @@
+ 
+ # for backwards-compatibility and since we don't know inlocal@inhost without
+ # dir, ezmlm-reject doesn't check To/Cc when there is no dir
+-  OUT=`make_message "$MESSAGE" | ${EZBIN}/ezmlm-reject` || \
++  OUT=`make_message | ${EZBIN}/ezmlm-reject` || \
+ 		{ ${ECHO} "failed to accept bad To/Cc without dir"; \
+ 		exit 100; }
+ 
+ # testing -T
+   OUT=`make_message | ${EZBIN}/ezmlm-reject -T "${DIR}"` || \
+ 	{ ${ECHO} "-T switch failed with dir"; exit 100; }
+-OUT=`make_message | ${EZBIN}/ezmlm-reject -T ` || \
++  OUT=`make_message | ${EZBIN}/ezmlm-reject -T ` || \
+ 	{ ${ECHO} "-T switch failed without dir"; exit 100; }
+ 
+ # restore good TO
+@@ -723,7 +767,7 @@
+ # if part is mimereject message should be rejected
+   touch "${DIR}"/mimeremove
+   ${ECHO} "text/html" > "${DIR}"/mimereject
+-  OUT=`make_message | ${EZBIN}/ezmlm-reject "${DIR}" 2>&1` && \
++  { make_message | ${EZBIN}/ezmlm-reject "${DIR}"; }  > /dev/null 2>&1 && \
+ 	{ ${ECHO} "mimereject failed with dir"; exit 100; }
+   OUT=`make_message | ${EZBIN}/ezmlm-reject` || \
+ 	{ ${ECHO} "mimereject without dir"; exit 100; }
+@@ -739,9 +783,9 @@
+ # test content-type with something after boundary=xxx
+   AFTERBOUND=';micalg=pgp-md5'
+   ${ECHO} "text/html" > "${DIR}"/mimereject
+-  OUT=`make_message | ${EZBIN}/ezmlm-reject "${DIR}" 2>&1` && \
++  { make_message | ${EZBIN}/ezmlm-reject "${DIR}" 2>&1; } > /dev/null 2>&1 && \
+ 	{ ${ECHO} "err with text after boundary: 0.30 bug fixed in 0.322"
+-	  ${ECHO} -n "ezmlm-reject.......   "
++	  prompt "ezmlm-reject.......   "
+ 	  BUG="${BUG} reject_bound"
+ 	}
+ 
+@@ -751,7 +795,7 @@
+ 
+ # if entire message is mimeremove type is should be rejected
+   ${ECHO} "multipart/mixed" > "${DIR}"/mimeremove
+-  OUT=`make_message | ${EZBIN}/ezmlm-reject "${DIR}" 2>&1` && \
++  { make_message | ${EZBIN}/ezmlm-reject "${DIR}"; } > /dev/null 2>&1  && \
+ 	{ ${ECHO} "mimereject failed with dir"; exit 100; }
+   OUT=`make_message | ${EZBIN}/ezmlm-reject` || \
+ 	{ ${ECHO} "mimereject without dir"; exit 100; }
+@@ -763,11 +807,11 @@
+   ${ECHO} "Content-TYPE" > "${DIR}"/headerreject
+   OUT=`make_message | ${EZBIN}/ezmlm-reject -H "${DIR}"` || \
+ 	{ ${ECHO} "headerreject -H failed with dir"; exit 100; }
+-  OUT=`make_message | ${EZBIN}/ezmlm-reject -h "${DIR}" 2>&1` && \
++  { make_message | ${EZBIN}/ezmlm-reject -h "${DIR}"; } > /dev/null 2>&1 && \
+ 	{ ${ECHO} "headerreject failed with dir"; exit 100; }
+   OUT=`make_message | ${EZBIN}/ezmlm-reject` || \
+ 	{ ${ECHO} "headerreject failed without dir"; exit 100; }
+-  OUT=`make_message | ${EZBIN}/ezmlm-reject -h 2>&1` && \
++  { make_message | ${EZBIN}/ezmlm-reject -h; }  > /dev/null 2>&1  && \
+ 	{ ${ECHO} "-h was accepted without dir"; exit 100; }
+ 
+ # Suppress content-type header
+@@ -783,7 +827,7 @@
+ # ezmlm-sub/unsub/list/issubn #
+ ###############################
+ 
+-  ${ECHO} -n "ezmlm-[un|is]sub[n]:  "
++  prompt "ezmlm-[un|is]sub[n]:  "
+ 
+   SENDER="XYZZY@HOst"; export SENDER
+ 
+@@ -861,7 +905,7 @@
+ ##############
+ # ezmlm-send #
+ ##############
+-  ${ECHO} -n "ezmlm-send (1/2):     "
++  prompt "ezmlm-send (1/2):     "
+ 
+   SENDER="${SND}@$HOST"; export SENDER
+   ${EZBIN}/ezmlm-sub "${DIR}" "$SENDER"
+@@ -887,13 +931,13 @@
+ 
+ # test to see that trailer is added to nom-mime messages
+   CONTENT=''
+-  { echo "X-num: msg5"; make_message; } | \
++  { ${ECHO} "X-num: msg5"; make_message; } | \
+ 	${EZBIN}/ezmlm-send "${DIR}" >"${ERR}" 2>&1  || \
+ 	{ ${ECHO} "failed to accept non-mime message"; exit 100; }
+ 
+ # test to see that trailer is suppressed for multipart/signed
+   CONTENT='multipart/signed'
+-  { echo "X-num: msg6"; make_message; } | \
++  { ${ECHO} "X-num: msg6"; make_message; } | \
+ 	${EZBIN}/ezmlm-send "${DIR}" >"${ERR}" 2>&1  || \
+ 	{ ${ECHO} "failed to accept multipart/signed message"; exit 100; }
+ 
+@@ -905,7 +949,7 @@
+   ${ECHO} "text/html" > "${DIR}"/mimeremove
+   make_message | ${EZBIN}/ezmlm-send "${DIR}" >"${ERR}" 2>&1  || \
+ 	{ ${ECHO} "err with text after boundary: 0.30 bug fixed in 0.322"
+-	  ${ECHO} -n "ezmlm-send.........   "
++	  prompt "ezmlm-send.........   "
+ 	  BUG="${BUG} send_bound"
+ 	}
+ # restore
+@@ -945,7 +989,7 @@
+ ################
+ # ezmlm-tstdig #
+ ################
+-  ${ECHO} -n "ezmlm-tstdig:         "
++  prompt "ezmlm-tstdig:         "
+ 
+   ${EZBIN}/ezmlm-tstdig -k2 -m5 -t1 "${DIR}" || \
+ 	{ ${ECHO} "-t1 failed"; exit 100; }
+@@ -970,7 +1014,7 @@
+   fi
+   ${EZBIN}/ezmlm-tstdig -k2 -m5 -t0 "${DIR}" || \
+ 	{ ${ECHO} "err with -digest- in mgr pos: 0.31 bug fixed in 0.321"
+-	  ${ECHO} -n "ezmlm-tstdig.......   "
++	  prompt "ezmlm-tstdig.......   "
+ 	  BUG="${BUG} digest"
+ 	}
+   LOCAL=''; export LOCAL
+@@ -985,7 +1029,7 @@
+   ${EZBIN}/ezmlm-tstdig -k1 -m5 -t0 "${DIR}" > "${ERR}" 2>&1 || \
+ 	{
+ 	 ${ECHO} "problem with DEFAULT unset: 0.32 bug, OK in 0.321."
+-	 ${ECHO} -n "ezmlm-tstdig.......   "
++	 prompt "ezmlm-tstdig.......   "
+ 	  BUG="${BUG} tstdig"
+ 	}
+   ${ECHO} "OK"
+@@ -994,7 +1038,7 @@
+ # ezmlm-weed #
+ ##############
+ 
+-  ${ECHO} -n "ezmlm-weed:           "
++  prompt "ezmlm-weed:           "
+ 
+   ${ECHO} "Subject: test" | ${EZBIN}/ezmlm-weed || \
+ 	{ ${ECHO} "failed to accept good message"; exit 100; }
+@@ -1006,7 +1050,7 @@
+ ##############
+ # ezmlm-make #
+ ##############
+-  ${ECHO} -n "ezmlm-make (2/2):     "
++  prompt "ezmlm-make (2/2):     "
+ 
+ # make sure a few ezmlm-make switches work
+   ${EZBIN}/ezmlm-make -+qkgu -C${EZBIN}/ezmlmrc "${DIR}" || \
+@@ -1067,7 +1111,7 @@
+ # ezmlm-clean #
+ ###############
+ 
+-  ${ECHO} -n "ezmlm-clean (1/2):    "
++  prompt "ezmlm-clean (1/2):    "
+ 
+ # clean1 should be silently removed (no -x).
+ # clean2 should result in a message
+@@ -1115,7 +1159,7 @@
+ # ezmlm-store #
+ ###############
+ 
+-  ${ECHO} -n "ezmlm-store (1/2):    "
++  prompt "ezmlm-store (1/2):    "
+ 
+   SENDER="${SND}@$HOST"; export SENDER
+   ${EZBIN}/ezmlm-sub "${DIR}/mod" "$SENDER"
+@@ -1172,7 +1216,7 @@
+ ################
+ # ezmlm-return #
+ ################
+-  ${ECHO} -n "ezmlm-return:         "
++  prompt "ezmlm-return:         "
+ 
+   SENDER="${BNC}@$HOST"; export SENDER
+   HOST="$HOST"; export HOST
+@@ -1229,7 +1273,7 @@
+ ##############
+ # ezmlm-warn #
+ ##############
+-  ${ECHO} -n "ezmlm-warn (1/3):     "
++  prompt "ezmlm-warn (1/3):     "
+ 
+ # should send a warning
+   ${EZBIN}/ezmlm-warn -t0 "${DIR}" >"${ERR}" 2>&1 || \
+@@ -1247,7 +1291,7 @@
+ ################
+ # ezmlm-manage #
+ ################
+-  ${ECHO} -n "ezmlm-manage (1/4):   "
++  prompt "ezmlm-manage (1/4):   "
+ 
+   LOCAL="$LOC-unsubscribe"; export LOCAL
+   if [ "$QMVER" = "n" ]; then
+@@ -1275,7 +1319,7 @@
+   ${EZBIN}/ezmlm-manage "${DIR}" </dev/null >/dev/null 2>&1 && \
+ 	{
+ 	 ${ECHO} "Deny open to regular subscribers: 0.31 bug, OK in 0.321."
+-	 ${ECHO} -n "ezmlm-manage ...      "
++	 prompt "ezmlm-manage ...      "
+ 	 BUG="${BUG} deny"
+ 	}
+   SENDER="${MOD}@$HOST"; export SENDER
+@@ -1293,7 +1337,7 @@
+   ${EZBIN}/ezmlm-manage "${DIR}" </dev/null > "${ERR}" 2>&1 && \
+ 	{
+ 	 ${ECHO} "Deny even without remote/modsub: 0.31 bug, OK in 0.321."
+-	 ${ECHO} -n "ezmlm-manage ...      "
++	 prompt "ezmlm-manage ...      "
+ 	 BUG="${BUG} deny"
+ 	}
+ 
+@@ -1350,7 +1394,7 @@
+ #################
+ # ezmlm-request #
+ #################
+-  ${ECHO} -n "ezmlm-request (1/2):  "
++  prompt "ezmlm-request (1/2):  "
+ 
+   SENDER="${SND}@$HOST"; export SENDER
+   LOCAL="$LOC-request"; export LOCAL
+@@ -1384,7 +1428,7 @@
+ # ezmlm-split #
+ ###############
+ if [ "$QMVER" = "n" ]; then
+-  ${ECHO} -n "ezmlm-split (1/2):    "
++  prompt "ezmlm-split (1/2):    "
+ # set up split file
+   ${ECHO} "edu:1:26:l1@h1" > "${DIR}/split"
+   ${ECHO} "edu:27:52:l2@h2" >> "${DIR}/split"
+@@ -1441,7 +1485,7 @@
+ #############
+ # ezmlm-idx #
+ #############
+-  ${ECHO} -n "ezmlm-idx:            "
++  prompt "ezmlm-idx:            "
+   ${RM} -f "${DIR}/archive/0/index" "${DIR}/indexed"
+   ${EZBIN}/ezmlm-idx "${DIR}" >"${ERR}" 2>&1 || \
+ 	{ ${ECHO} "failed to run"; exit 100; }
+@@ -1456,7 +1500,7 @@
+ #############
+ # ezmlm-get #
+ #############
+-${ECHO} -n "ezmlm-get (1/2):      "
++prompt "ezmlm-get (1/2):      "
+ 
+ # blast digest recipient account with all these excerpts.
+ ${EZBIN}/ezmlm-sub "${DIR}/digest" "${DIG}@$HOST"
+@@ -1708,7 +1752,7 @@
+ ##############
+ # ezmlm-send #
+ ##############
+-${ECHO} -n "ezmlm-send (2/2):     "
++prompt "ezmlm-send (2/2):     "
+ MSG1=`${GREP} -l "msg1" $SINKDIR/new/*` || \
+ 	{ ${ECHO} "failed to deliver message 1 to subscriber"; \
+ 	exit 100; }
+@@ -1738,7 +1782,7 @@
+ ${GREP} "msg3" $SINKDIR/new/* >/dev/null 2>&1 && \
+ 	{ ${ECHO} "-C failed to exclude sender (no longer supported)"; \
+ 	  BUG="${BUG}_noself"; \
+-	  echo -n "ezmlm-send:           "; }
++	  prompt "ezmlm-send:           "; }
+ 
+ MSG5=`${GREP} -l "msg5" $SINKDIR/new/*` || \
+ 	{ ${ECHO} "failed to deliver message 5 to subscriber"; \
+@@ -1753,9 +1797,9 @@
+ 
+ ${GREP} 'TRAILER' "$MSG6" >/dev/null 2>&1 && \
+ 	{ ${ECHO} "failed to suppress trailer for multipart/signed message"; \
+-	  echo "                      0.31 bug fixed in 0.316/0.323";
++	  ${ECHO} "                      0.31 bug fixed in 0.316/0.323";
+ 	  BUG="${BUG}_signed"; \
+-	  echo -n "ezmlm-send ......:    "; }
++	  prompt "ezmlm-send ......:    "; }
+ 
+ ${GREP} "msg3" $SINKDIR/new/* >/dev/null 2>&1 && \
+ 	{ 
+@@ -1763,7 +1807,7 @@
+ 	  {
+ 	    ${ECHO} "-C failed to exclude sender (no longer supported)"
+ 	    BUG="${BUG}_noself"
+-	    echo -n "ezmlm-send ......:   ${BUG} "
++	    prompt "ezmlm-send ......:   ${BUG} "
+ 	  }
+ 	}
+ 
+@@ -1772,7 +1816,7 @@
+ # ezmlm-clean #
+ ###############
+ 
+-${ECHO} -n "ezmlm-clean (2/2):    "
++prompt "ezmlm-clean (2/2):    "
+ 
+ ${GREP} "clean1" ${DIGDIR}/new/* >/dev/null 2>&1 && \
+ 	{ ${ECHO} "removal of non-x mod queue entry 1 wasn't silent"; exit 100; }
+@@ -1798,7 +1842,7 @@
+ ###############
+ # ezmlm-store #
+ ###############
+-${ECHO} -n "ezmlm-store (2/2):    "
++prompt "ezmlm-store (2/2):    "
+ 
+ MOD1=`${GREP} -l "mod1" $SINKDIR/new/* 2>/dev/null`
+ if [ -z "$MOD1" ]; then
+@@ -1822,7 +1866,7 @@
+ ################
+ # ezmlm-manage #
+ ################
+-${ECHO} -n "ezmlm-manage (2/4):   "
++prompt "ezmlm-manage (2/4):   "
+ 
+ # check digest-subscribe and list-unsubscribe replies
+ SUB1=`${GREP} -l 'sub1' $MANDIR/new/*` || \
+@@ -1937,7 +1981,7 @@
+ # ezmlm-moderate #
+ ##################
+ 
+-${ECHO} -n "ezmlm-moderate (1/2): "
++prompt "ezmlm-moderate (1/2): "
+ 
+ # MOD1 and MOD3 are defined from ezmlm-store testing
+ 
+@@ -2030,7 +2074,7 @@
+ ##############
+ # ezmlm-warn #
+ ##############
+-${ECHO} -n "ezmlm-warn (2/3):     "
++prompt "ezmlm-warn (2/3):     "
+ 
+ ${EZBIN}/ezmlm-warn -t0 "${DIR}" >"${ERR}" 2>&1 || \
+ 	{ ${ECHO} "failed with normal bounce for warning"; exit 100; }
+@@ -2044,7 +2088,7 @@
+ # ezmlm-request #
+ #################
+ 
+-  ${ECHO} -n "ezmlm-request (2/2):  "
++  prompt "ezmlm-request (2/2):  "
+ 
+   ${GREP} "$LOC-qqqq-$SND=$HOST" "${REQ}" >/dev/null || \
+ 	{ ${ECHO} "'qqqq' subject query rewriting failed"; exit 100; }
+@@ -2068,7 +2112,7 @@
+ # ezmlm-split #
+ ###############
+ if [ "$QMVER" = "n" ]; then
+-  ${ECHO} -n "ezmlm-split (2/2):    "
++  prompt "ezmlm-split (2/2):    "
+ 
+ # we know that ezmlm-manage works. A bounce would go to MODDIR, so a
+ # message in SINKDIR means that the request was forwarded to ezmlm-manage,
+@@ -2092,7 +2136,7 @@
+ # ezmlm-moderate #
+ ##################
+ 
+-  ${ECHO} -n "ezmlm-moderate (2/2): "
++  prompt "ezmlm-moderate (2/2): "
+ 
+   MOD1=`${GREP} -l "mod1" $SINKDIR/new/* | head -1` || \
+ 	{ ${ECHO} "failed to send rejection notice for message mod1"; exit 100; }
+@@ -2116,7 +2160,7 @@
+ ################
+ # ezmlm-manage #
+ ################
+-  ${ECHO} -n "ezmlm-manage (3/4):   "
++  prompt "ezmlm-manage (3/4):   "
+ 
+   SENDER="${MOD}@$HOST"; export SENDER
+   ${EZBIN}/ezmlm-issubn "${DIR}" && \
+@@ -2179,7 +2223,7 @@
+ #############
+ # ezmlm-get #
+ #############
+-  ${ECHO} -n "ezmlm-get (2/2):      "
++  prompt "ezmlm-get (2/2):      "
+ 
+ # index1/get1/thread1 should bounce and will not be looked for
+ # index2 ... should be in DIG@HOST's inbox
+@@ -2238,7 +2282,7 @@
+ ##############
+ # ezmlm-warn #
+ ##############
+-  ${ECHO} -n "ezmlm-warn (3/3):     "
++  prompt "ezmlm-warn (3/3):     "
+ 
+   SENDER="${BNC}@${HOST}"
+   export SENDER
+@@ -2252,7 +2296,7 @@
+ ################
+ # ezmlm-manage #
+ ################
+-  ${ECHO} -n "ezmlm-manage (4/4):   "
++  prompt "ezmlm-manage (4/4):   "
+ 
+   ${GREP} "#NEW_TEXT#" "${DIR}/text/test" >/dev/null 2>&1 || \
+ 	{ ${ECHO} "edit4 failed to update text file"; exit 100; }
+diff -u ezmlm-0.53.old/ezmlm-unsub.c ezmlm-0.53/ezmlm-unsub.c
+--- ezmlm-0.53.old/ezmlm-unsub.c	1999-12-24 14:15:00.000000000 -0600
++++ ezmlm-0.53/ezmlm-unsub.c	2003-01-14 12:43:33.000000000 -0600
+@@ -20,7 +20,7 @@
+ void die_usage()
+ {
+   strerr_die1x(100,
+-   "ezmlm-unsub: usage: ezmlm-unsub [-h hash] [-HmMnNvV] dir box@domain ...");
++   "ezmlm-unsub: usage: ezmlm-unsub [-h hash] [-HmMvV] dir box@domain ...");
+ }
+ 
+ void main(argc,argv)
+@@ -88,7 +88,7 @@
+ 	if (ch)
+ 	  *cp = '\0';
+       }
+-      (void) subscribe(dir,line.s,0,"","+manual",flagmysql,
++      (void) subscribe(dir,line.s,0,"","-manual",flagmysql,
+ 		forcehash,(char *) 0,FATAL);
+     }
+   }
+diff -u ezmlm-0.53.old/Makefile ezmlm-0.53/Makefile
+--- ezmlm-0.53.old/Makefile	2003-01-14 12:39:49.000000000 -0600
++++ ezmlm-0.53/Makefile	2003-01-14 12:43:33.000000000 -0600
+@@ -663,10 +663,10 @@
+ load ezmlm-send.o auto_qmail.o getconf.o qmail.o constmap.o slurp.o \
+ slurpclose.o wait.a getln.a strerr.a sig.a env.a open.a lock.a conf-sqlld \
+ substdio.a cookie.o stralloc.a alloc.a error.a str.a fd.a case.a fs.a surf.a \
+-getopt.a copy.o mime.a subdb.a makehash.o surf.o makehash.o str.a quote.o
++getopt.a copy.o mime.a subdb.a makehash.o surf.o makehash.o str.a quote.o seek.a
+ 	./load ezmlm-send subdb.a cookie.o surf.a auto_qmail.o getconf.o \
+ 	getopt.a qmail.o quote.o constmap.o slurp.o slurpclose.o \
+-	wait.a getln.a strerr.a \
++	wait.a getln.a strerr.a seek.a \
+ 	sig.a env.a open.a lock.a substdio.a stralloc.a alloc.a error.a \
+ 	fd.a case.a fs.a getopt.a copy.o mime.a makehash.o str.a ${SQLLD}
+ 
+@@ -679,17 +679,17 @@
+ subfd.h substdio.h strerr.h error.h qmail.h env.h makehash.h sgetopt.h \
+ lock.h sig.h open.h getln.h case.h scan.h str.h fmt.h readwrite.h quote.h \
+ exit.h getconf.h constmap.h byte.h errtxt.h idx.h mime.h subscribe.h \
+-uint32.h
++uint32.h seek.h
+ 	./compile ezmlm-send.c
+ 
+ ezmlm-master: \
+ load ezmlm-master.o auto_qmail.o getconf.o qmail.o constmap.o slurp.o \
+ slurpclose.o wait.a getln.a strerr.a sig.a env.a open.a lock.a conf-sqlld \
+ substdio.a cookie.o stralloc.a alloc.a error.a str.a fd.a case.a fs.a surf.a\
+-getopt.a copy.o mime.a subdb.a makehash.o surf.o makehash.o str.a quote.o
++getopt.a copy.o mime.a subdb.a makehash.o surf.o makehash.o str.a quote.o seek.a
+ 	./load ezmlm-master subdb.a cookie.o surf.a auto_qmail.o getconf.o \
+ 	getopt.a qmail.o quote.o constmap.o slurp.o slurpclose.o \
+-	wait.a getln.a strerr.a \
++	wait.a getln.a strerr.a seek.a \
+ 	sig.a env.a open.a lock.a substdio.a stralloc.a alloc.a error.a \
+ 	fd.a case.a fs.a getopt.a copy.o mime.a makehash.o str.a ${SQLLD}
+ 
+@@ -702,7 +702,7 @@
+ subfd.h substdio.h strerr.h error.h qmail.h env.h makehash.h sgetopt.h \
+ lock.h sig.h open.h getln.h case.h scan.h str.h fmt.h readwrite.h quote.h \
+ exit.h getconf.h constmap.h byte.h errtxt.h idx.h mime.h subscribe.h \
+-uint32.h
++uint32.h seek.h
+ 	./compile ezmlm-master.c
+ 
+ ezmlm-slave: \
+Common subdirectories: ezmlm-0.53.old/sub_mysql and ezmlm-0.53/sub_mysql
+Common subdirectories: ezmlm-0.53.old/sub_pgsql and ezmlm-0.53/sub_pgsql
+Common subdirectories: ezmlm-0.53.old/sub_std and ezmlm-0.53/sub_std
+diff -u ezmlm-0.53.old/tagmsg.c ezmlm-0.53/tagmsg.c
+--- ezmlm-0.53.old/tagmsg.c	1999-12-24 14:15:01.000000000 -0600
++++ ezmlm-0.53/tagmsg.c	2003-01-14 12:43:33.000000000 -0600
+@@ -47,6 +47,7 @@
+       case 0:
+ 	strerr_die3x(100,fatal,"key",ERR_NOEXIST);
+     }
++    if (!seed) seed = "";
+     cookie(hash,key.s,key.len,strnum,seed,action);
+     for (i = 0; i < COOKIE; i++)
+       hashout[i] = hash[i];

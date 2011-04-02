@@ -1,0 +1,305 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<?xml-stylesheet href="display/styles.css" type="text/css"?>
+<html>
+<!-- THIS PAGE IS AUTOMATICALLY GENERATED.  DO NOT EDIT. -->
+<!-- Thu Jun 19 21:48:06 2003 -->
+<!-- USING HT2HTML 2.1 -->
+<!-- SEE http://ht2html.sf.net -->
+<!-- User-specified headers:
+Title: Compiling tmda-cgi
+
+-->
+
+<head>
+<title>Compiling tmda-cgi</title>
+<meta http-equiv="Content-Type" content="text/html; charset=us-ascii">
+<meta name="generator" content="HT2HTML/2.1">
+<link rel="STYLESHEET" href="display/styles.css" type="text/css">
+</head>
+<body bgcolor="#A6A6B3" text="#000000"
+      onload="Preloader()"
+      link="#0000bb"  vlink="#551a8b"
+      alink="#ff0000">
+<!-- start of page table -->
+<table bgcolor="#FFFFFF" width="700" height="100%" border="0"
+cellspacing="0" cellpadding="0"><tr><td valign="top"><table class="matte"
+width="100%" height="100%" border="0" cellspacing="0" cellpadding="0"><tr>
+<td valign="top"><table width="100%" border="0" cellspacing="0" cellpadding="0">
+<!-- start of banner row -->
+<tr>
+<!-- start of corner cells -->
+<td width="194" height="135" valign="middle" bgcolor="#7B7CB6" class="corner"><img src="display/corner.gif" width="194" height="135" alt=""></td>
+<!-- end of corner cells -->
+<!-- start of banner -->
+<td height="135" valign="top" background="display/top_bg.gif" bgcolor="#7B7CB6" class="banner"><a href="/"><img src="display/title.png" width="341" height="135"
+border="0" alt="TMDA (http://tmda.net) CGI Interface"></a></td><!-- end of banner -->
+</tr><!-- end of banner row -->
+<tr><!-- start of sidebar/body row -->
+<!-- start of sidebar cells -->
+<td width="194" background="display/left_bg.gif" bgcolor="#7B7CB6" valign="top" class="sidebar">
+<!-- start of sidebar table -->
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+<tr><td><a href="index.html"
+onmouseover="document.images.x37.src='display/dyn_buttons/layout1_r1_c1_h.png'"
+onmouseout="document.images.x37.src='display/dyn_buttons/layout1_r1_c1.png'"><img
+src="display/dyn_buttons/layout1_r1_c1.png" name="x37" height="50" width="194" border="0" alt="Overview"></a></td></tr>
+<tr><td><a href="t_index.html"
+onmouseover="document.images.x115.src='display/dyn_buttons/layout1_r2_c1_h.png'"
+onmouseout="document.images.x115.src='display/dyn_buttons/layout1_r2_c1.png'"><img
+src="display/dyn_buttons/layout1_r2_c1.png" name="x115" height="35" width="194" border="0" alt="Tutorial"></a></td></tr>
+<tr><td><a href="virtual.html"
+onmouseover="document.images.x195.src='display/dyn_buttons/layout1_r3_c1_h.png'"
+onmouseout="document.images.x195.src='display/dyn_buttons/layout1_r3_c1.png'"><img
+src="display/dyn_buttons/layout1_r3_c1.png" name="x195" height="35" width="194" border="0" alt="Virtual Users"></a></td></tr>
+<tr><td><img src="display/dyn_buttons/layout1_r4_c1_h.png"
+height="35" width="194" border="0" alt="Install"></td></tr>
+<tr><td><a href="download.html" onmouseover="document.images.subtopic11.src='display/dyn_buttons/h-subtopic11.png'"
+onmouseout="document.images.subtopic11.src='display/dyn_buttons/subtopic11.png'"><img src="display/dyn_buttons/subtopic11.png" border="0" alt=" - Download" width="194" height="14"
+name="subtopic11"></a></td></tr>
+<tr><td><a href="modes.html" onmouseover="document.images.subtopic12.src='display/dyn_buttons/h-subtopic12.png'"
+onmouseout="document.images.subtopic12.src='display/dyn_buttons/subtopic12.png'"><img src="display/dyn_buttons/subtopic12.png" border="0" alt=" - Modes" width="194" height="14"
+name="subtopic12"></a></td></tr>
+<tr><td><img src="display/dyn_buttons/h-subtopic13.png" border="0" alt=" - Compilation" width="194" height="14"
+name="subtopic13"></td></tr>
+<tr><td><a href="nosu.html" onmouseover="document.images.subtopic14.src='display/dyn_buttons/h-subtopic14.png'"
+onmouseout="document.images.subtopic14.src='display/dyn_buttons/subtopic14.png'"><img src="display/dyn_buttons/subtopic14.png" border="0" alt=" - Centralized no-su" width="194" height="14"
+name="subtopic14"></a></td></tr>
+<tr><td><a href="auth.html"
+onmouseover="document.images.x536.src='display/dyn_buttons/layout1_r5_c1_h.png'"
+onmouseout="document.images.x536.src='display/dyn_buttons/layout1_r5_c1.png'"><img
+src="display/dyn_buttons/layout1_r5_c1.png" name="x536" height="35" width="194" border="0" alt="Passwords"></a></td></tr>
+<tr><td><a href="config.html"
+onmouseover="document.images.x616.src='display/dyn_buttons/layout1_r6_c1_h.png'"
+onmouseout="document.images.x616.src='display/dyn_buttons/layout1_r6_c1.png'"><img
+src="display/dyn_buttons/layout1_r6_c1.png" name="x616" height="35" width="194" border="0" alt="Config."></a></td></tr>
+<tr><td><a href="surprise.html"
+onmouseover="document.images.x696.src='display/dyn_buttons/layout1_r7_c1_h.png'"
+onmouseout="document.images.x696.src='display/dyn_buttons/layout1_r7_c1.png'"><img
+src="display/dyn_buttons/layout1_r7_c1.png" name="x696" height="35" width="194" border="0" alt="Support"></a></td></tr>
+</table><!-- end of sidebar table -->
+
+</td>
+<!-- end of sidebar cell -->
+<!-- start of body cell -->
+<td valign="top" class="body"><h2>Compilation</h2>
+
+<p>Once you have unzipped the source files into the directory where you plan
+  to keep tmda-cgi and selected your mode, you will need to compile tmda-cgi.
+  Compiling creates a binary executable which gives the program the rights to
+  access the files it will need. This also saves certain pieces of information
+  which it will need accessible before authentication.<p>
+
+<p>You will need to recompile if:</p>
+<ul>
+  <li>you move your configuration files</li>
+  <li>you move your supplimental display files (icons, images, and style
+    sheet)</li>
+  <li>you move your tmda-cgi or TMDA source trees</li>
+  <li>you change the tmda-cgi mode</li>
+  <li>you upgrade tmda-cgi to a more recent version (see UPGRADE file)</li>
+</ul>
+
+<p>Compiling is done with the typical:</p>
+
+<blockquote>
+  <pre># ./configure
+# make
+# make install</pre>
+</blockquote>
+
+<a href="#Running">Running <tt>configure</tt></a><br>
+<a href="#Display"><tt>display</tt> Directory</a><br>
+<a href="#AutoInstall">Auto-installation</a><br>
+<a href="#International">International Character Sets</a><br>
+<a href="#NoSu">Additional no-su Setup</a><p>
+
+<h3><a name="Running"></a>Running <tt>configure</tt></h3>
+
+<p>Although <tt>configure</tt> may be run with a large variety of command line
+  switches (see <tt><nobr>./configure -h | more</nobr></tt>), I think you'll
+  find it far easier to run in interactive mode (by not specifying any
+  options). Interactive mode will ask you a series of questions and provide
+  "best guess" answers as the defaults. Once you have answered all the
+  questions, you'll be all ready to compile and install.</p>
+
+<p>If you do not know the answer to one of the interactive questions, don't
+  panic. Simply hit control-C and the program will save the responses you have
+  given. These will be used as the defaults when you re-run <tt>configure</tt>.
+
+<p>Depending on the mode you have chosen, you may need to be logged in as a
+  specific user when you compile tmda-cgi. Consult the following chart:<p>
+
+<table>
+  <tr>
+    <td width="20">&nbsp;</td>
+    <th>Mode</th>
+    <td width="10">&nbsp;</td>
+    <th><tt>compile</tt> as user</th>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>system-wide</td>
+    <td>&nbsp;</td>
+    <td>root</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>single-user</td>
+    <td>&nbsp;</td>
+    <td>the user who will be able to log in</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>no-su</td>
+    <td>&nbsp;</td>
+    <td>any user</td>
+  </tr>
+</table>
+
+<p>Information requested in the interactive mode:</p>
+<ol>
+  <li>The location of your Python interpreter</li>
+  <li>Where to save the CGI</li>
+  <li>The path to TMDA's root directory</li>
+  <li>The path to tmda-cgi's root directory</li>
+  <li>An optional path or &quot;formula&quot; to find the user <tt>config</tt>
+    files</li>
+  <li>The <a href="auth.html">authentication mechanism</a> (file / program /
+    remote)
+  <li>The web path from the CGI to the <a href="#Display"><tt>display</tt>
+    directory</a></li>
+  <li>Mode</li>
+  <li><a href="virtual.html">Virtual user stub and parameters</a></li>
+  <li>Real user to use when someone logs in with a virtual e-mail account</li>
+  <li>Path and prefix to use for temporary, session files</li>
+  <li>How old session files may get before they can be cleaned</li>
+  <li>The odds of cleaning up session files</li>
+</ol>
+
+<p>The <tt>configure</tt> program will provide additional information and
+  its best-guess anwers as defaults.  Most of these defaults will probably be
+  just fine for your system, but check them all carefully before hitting
+  return.</p>
+
+<h3><a name="Display"></a><tt>display</tt> Directory</h3>
+
+<p>Finally, tmda-cgi requires a variety of visual elements saved in a
+  <tt>display</tt> directory (see #7, above). This directory comes with the
+  tmda-cgi source and will need to be manually copied or symbolically linked
+  (make sure your web server is configured to follow links!) into the
+  appropriate web directory.</p>
+<p>Please note that #7 specifies the relative <i>web path</i> from the CGI to
+  the <tt>display</tt> directory, which may be different than the actual path.
+  For example:</p>
+<table border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="35">&nbsp;</td>
+    <th>Web path</th>
+    <td width="15">&nbsp;</td>
+    <th>Actual path</th>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>http://your.domain/cgi-bin/tmda.cgi</td>
+    <td>&nbsp;</td>
+    <td>/www/tmda/cgi-bin/tmda.cgi</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>http://your.domain/display/</td>
+    <td>&nbsp;</td>
+    <td>/www/tmda/htdocs/display</td>
+  </tr>
+</table>
+<p>In the above example, the actual path from the CGI to the display directory
+  is <tt>../htdocs/display/</tt> but the web path is <tt>../display/</tt>. The
+  web path (<tt>../display/</tt>) is the one that should be entered in question
+  #7.</p>
+
+<h3><a name="AutoInstall"></a>Auto-installation</h3>
+
+<p>tmda-cgi can set up e-mail accounts to use TMDA. If you wish to allow this,
+  you will need to read over the <a href="autoinstall.html">auto-install
+  page</a>, as various files may need to be customized to support this.</p>
+
+<h3><a name="International"></a>International Character Sets</h3>
+
+<p>tmda-cgi supports various international character sets. Some of which,
+  however, require an additional download. Please refer to the following
+  list:</p>
+
+<blockquote>
+  <a href="http://sourceforge.net/cvs/?group_id=22022">Chinese</a>
+  <a href="http://www.asahi-net.or.jp/~rd6t-kjym/python/">Japanese</a>
+  <a href="http://sourceforge.net/cvs/?group_id=46747">Korean</a>
+</blockquote>
+
+<p>If tmda-cgi does not correctly support a character set you need, please
+  contact <a href="contact.html">the program authors</a> about adding this
+  support. As we do not speak any foreign languages, we will need your
+  assistance in both supplying sample e-mails that use alternate character sets
+  and checking over new versions of the code to verify that these e-mails are
+  correctly displayed. Please be prepared to spend some time discussing the
+  situation with us by e-mail.</p>
+
+<h3><a name="NoSu"></a>Additional no-su Setup</h3>
+
+<p>If you compile in no-su mode, you will need to change permissions on any
+  existing pending mail and configuration files so that they can be read by the
+  CGI. You can either make these files world accessible or group accessible.</p>
+
+<p>Group accessible is a little more secure than world accessible. World
+  accessible files are easily read by accident. Users actually have to take
+  intentional steps to mess with files in another group.</p>
+
+<p>We recommend you assign permissions of 660 to files and 2660 to directories
+  to make them group accessible. Don't forget to <tt>chgrp</tt> then into the
+  appropriate group! Look in your Apache (or other web server) configuration
+  file to find out which group you should use. For Apache, this directive will
+  look like:</p>
+
+<blockquote>
+  <pre>Group nobody</pre>
+</blockquote>
+
+<p>You will also need to add in code to make sure new e-mails are group
+  accessible. We recommend adding the following to your <tt>/etc/tmdarc</tt>:
+
+<blockquote>
+  <pre>os.umask(027)</pre>
+</blockquote>
+
+<p>If you have many users who use tmda-cgi in no-su mode, you may find it
+  advantageous to put all of the TMDA files in one central location, such as
+  <tt>/var/tmda</tt>. If this sounds appealing, check out the <a
+  href="nosu.html">centralized no-su</a> example.
+</td>
+<!-- end of body cell -->
+</tr><!-- end of sidebar/body row -->
+</table></td></tr></table></td></tr></table><!-- end of page table -->
+<script>
+<!--
+function Preloader()
+{
+  var x37 = new Image();
+x37.src = "display/dyn_buttons/layout1_r1_c1_h.png";
+  var x115 = new Image();
+x115.src = "display/dyn_buttons/layout1_r2_c1_h.png";
+  var x195 = new Image();
+x195.src = "display/dyn_buttons/layout1_r3_c1_h.png";
+var subtopic11 = new Image();
+subtopic11.src = "display/dyn_buttons/h-subtopic11.png";
+var subtopic12 = new Image();
+subtopic12.src = "display/dyn_buttons/h-subtopic12.png";
+var subtopic14 = new Image();
+subtopic14.src = "display/dyn_buttons/h-subtopic14.png";
+  var x536 = new Image();
+x536.src = "display/dyn_buttons/layout1_r5_c1_h.png";
+  var x616 = new Image();
+x616.src = "display/dyn_buttons/layout1_r6_c1_h.png";
+  var x696 = new Image();
+x696.src = "display/dyn_buttons/layout1_r7_c1_h.png";
+}
+//-->
+</script>
+</body></html>

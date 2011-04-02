@@ -1,0 +1,36 @@
+--- vdelivermail.c.orig	Wed Dec 22 16:31:10 2004
++++ vdelivermail.c	Wed Jan  5 11:13:45 2005
+@@ -454,7 +454,7 @@
+  FILE *fs;
+  char tmp_file[256];
+ #ifdef SPAMASSASSIN
+- int  pim[2];
++ /* int  pim[2]; */
+  int  local = 0;
+  struct vlimits limits;
+ #endif
+@@ -662,7 +662,14 @@
+       if ( limits.disable_spamassassin==0 && vpw!=NULL &&
+            !(vpw->pw_gid & NO_SPAMASSASSIN) ) {
+ 
+-        if (!pipe(pim)) {
++	run_command("| preline /usr/local/bin/maildrop");
++        close(write_fd);
++        if (unlink(local_file) != 0) {
++          printf("unlink failed %s errno = %d\n", local_file, errno);
++          return(errno);
++        }
++	return(0);
++        /*if (!pipe(pim)) {
+           pid = vfork();
+           switch (pid) {
+            case -1:
+@@ -685,7 +692,7 @@
+           close(pim[1]);
+           dup2(pim[0], 0);
+           close(pim[0]);
+-        }
++        } */
+       }
+     }
+ #endif

@@ -1,0 +1,80 @@
+VPOPMAIL CHANGE TO MAILDIRQUOTAS                         (updated 1/17/2002)
+
+* OVERVIEW
+
+    As of version 5.1.1, vpopmail's quota system was changed to support the 
+    Maildir++ specification used by the Courier Mail Server and its standalone 
+    components (SqWebmail, Courier-IMAP, maildrop).  The Maildir++ 
+    specification accounts for mail not only in the user's Maildir/new and 
+    Maildir/cur directories, but in maildirfolders as well.  This is good news 
+    for people who use vpopmail along with any of the agents mentioned above, 
+    as ALL messages should be accounted for.
+
+    See http://inter7.com/courierimap/README.maildirquota.html for details on 
+    the Maildir++ specification, maildirquotas, and maildirfolders.
+
+    This was accomplished by integrating a lot of functions from vdeliverquota,
+    a tool shipped with courier-imap (among others) to allow non-Maildir++ 
+    delivery agents to utilize maildirquotas.
+
+* BACKWARDS COMPATIBLE
+
+   The new system is completely backwards compatible with your existing quota
+   settings.  The main difference you will see is that current usage 
+   information is now stored in Maildir/maildirsize rather than
+   Maildir/.current_size.
+
+* CONFIGURATION
+
+    QUOTAS
+
+    Quota settings are still stored in vpopmail's authentication module. Just
+    set them as you have in the past with vmoduser -q or vsetuserquota.  But two
+    different formats are now supported:
+    
+    Old vpopmail style: 1000000 or 1MB or 1000KB 
+    (1MB quota)
+
+    maildirquota style: 1000000S or 1000000S,1000C 
+    (1MB quota, or 1MB Quota / 1000 Message Count limit, whichever comes first)
+
+    While both styles will work with 5.1.1 and above, the maildirquota  
+    style will ONLY work with 5.1.1 and above.  If you should downgrade your
+    vpopmail installation to a version below 5.1.1, you'll need to make sure
+    your quota settings are in the Old vpopmail style.
+
+    QUOTA WARN MESSAGES
+
+    You can have a quota warning delivered to a user when their message is 
+    delivered successfully, but they are now over 90 percent utilisation.  Just
+    edit quotawarn.msg and copy it to ~vpopmail/domains/.quotawarn.msg.  When
+    90 percent utilisation or more is reached, this message is copied verbatim
+    to their mailbox.
+
+    To change the percentage to something other than 90, edit 
+    QUOTA_WARN_PERCENT in vdelivermail.c and recompile.
+
+* CAVEATS
+
+    MAILDROP
+
+    If you use maildrop for filtering, compile it with maildirquota support 
+    if you want to use it with vpopmail 5.1.1 and above with quotas.
+
+    POP SERVERS
+
+    qmail-pop3d does not update maildirsize when you delete messages.  This 
+    problem will correct itself within 15 minutes, since the Maildir++ spec
+    dictates that the maildirsize file must be recalculated at least every
+    15 minutes.  But there are 2 ways to avoid this:
+
+    1. Patch qmail with the qmail-pop3d-maildirquota.patch in the contrib
+       directory.
+    2. Use courier's pop server which ships with courier-imap.  It supports
+       maildirquotas natively.  See http://www.inter7.com/courierimap for
+       details.
+
+* CREDITS
+
+    deliverquota was written by Sam Varshavchik <mrsam@courier-mta.com>
+    deliverquota -> vpopmail integration by Bill Shupp <hostmaster@shupp.org>

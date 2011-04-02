@@ -1,0 +1,83 @@
+*** maildirquota.c.orig	Wed May  1 16:07:36 2002
+--- maildirquota.c	Wed May  1 16:08:08 2002
+***************
+*** 203,215 ****
+  
+  static int qcalc(off_t s, unsigned n, const char *quota, int *percentage)
+  {
+! unsigned long i;
+  int	spercentage=0;
+  int	npercentage=0;
+  
+  	errno=ENOSPC;
+  	while (quota && *quota)
+  	{
+  		if (*quota < '0' || *quota > '9')
+  		{
+  			++quota;
+--- 203,217 ----
+  
+  static int qcalc(off_t s, unsigned n, const char *quota, int *percentage)
+  {
+! off_t i;
+  int	spercentage=0;
+  int	npercentage=0;
+  
+  	errno=ENOSPC;
+  	while (quota && *quota)
+  	{
++ 		int x=1;
++ 
+  		if (*quota < '0' || *quota > '9')
+  		{
+  			++quota;
+***************
+*** 225,239 ****
+  				*percentage=100;
+  				return (-1);
+  			}
+! 			spercentage = i ? s * 100 / i:100;
+  			break;
+  		case 'C':
+  			if (i < n)
+  			{
+  				*percentage=100;
+  				return (-1);
+  			}
+! 			npercentage = i ? n * (unsigned long)100 / i:100;
+  			break;
+  		}
+  	}
+--- 227,258 ----
+  				*percentage=100;
+  				return (-1);
+  			}
+! 
+! 			/*
+! 			** For huge quotas, over 20mb,
+! 			** divide numerator & denominator by 1024 to prevent
+! 			** an overflow when multiplying by 100
+! 			*/
+! 
+! 			x=1;
+! 			if (i > 20000000) x=1024;
+! 
+! 			spercentage = i ? (s/x) * 100 / (i/x):100;
+  			break;
+  		case 'C':
++ 
+  			if (i < n)
+  			{
+  				*percentage=100;
+  				return (-1);
+  			}
+! 
+! 			/* Ditto */
+! 
+! 			x=1;
+! 			if (i > 20000000) x=1024;
+! 
+! 			npercentage = i ? ((off_t)n/x) * 100 / (i/x):100;
+  			break;
+  		}
+  	}

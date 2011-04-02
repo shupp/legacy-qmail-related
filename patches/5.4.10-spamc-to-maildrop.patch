@@ -1,0 +1,63 @@
+--- ../vpopmail-5.4.10-spamc/vdelivermail.c	Thu Apr 28 12:51:05 2005
++++ vdelivermail.c	Thu Apr 28 12:05:56 2005
+@@ -453,7 +453,7 @@
+  FILE *fs;
+  char tmp_file[256];
+ #ifdef SPAMASSASSIN
+-  int  pim[2];
++  /* int  pim[2]; */
+   int  local = 0;
+   struct vlimits limits;
+ #endif
+@@ -490,6 +490,16 @@
+         }
+ 
+         /* if the user has a quota set */
++#ifdef SPAMASSASSIN
++      vget_limits(TheDomain, &limits);
++      if ( vpw==NULL ) {
++        parse_email(maildir_to_email(address), TheUser, TheDomain, AUTH_SIZE);
++        vpw=vauth_getpw(TheUser, TheDomain);
++      }
++      if ( vpw!=NULL && (limits.disable_spamassassin==1 ||
++           (vpw->pw_gid & NO_SPAMASSASSIN)) ) {
++#endif
++
+         if ( strncmp(quota, "NOQUOTA", 2) != 0 ) {
+ 
+             /* If the user is over their quota, return it back
+@@ -522,6 +532,9 @@
+                 deliver_quota_warning(address, format_maildirquota(quota));
+             }
+         }
++#ifdef SPAMASSASSIN
++      }
++#endif
+ 
+ #ifdef DOMAIN_QUOTAS
+ 	/* bk: check domain quota */
+@@ -660,7 +673,14 @@
+       if ( limits.disable_spamassassin==0 && vpw!=NULL &&
+            !(vpw->pw_gid & NO_SPAMASSASSIN) ) {
+ 
+-        if (!pipe(pim)) {
++	run_command("| preline /usr/local/bin/maildrop");
++        close(write_fd);
++        if (unlink(local_file) != 0) {
++          printf("unlink failed %s errno = %d\n", local_file, errno);
++          return(errno);
++        }
++	return(0);
++        /* if (!pipe(pim)) {
+           pid = vfork();
+           switch (pid) {
+            case -1:
+@@ -682,7 +702,7 @@
+           close(pim[1]);
+           dup2(pim[0], 0);
+           close(pim[0]);
+-        }
++        } */
+       }
+     }
+ #endif

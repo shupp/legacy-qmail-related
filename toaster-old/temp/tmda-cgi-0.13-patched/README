@@ -1,0 +1,31 @@
+tmda-cgi
+Copyright (C) 2003 Gre7g Luterman <gre7g@wolfhome.com>
+
+This software is OSI Certified Open Source Software.
+OSI Certified is a certification mark of the Open Source Initiative.
+
+TMDA is an OSI certified software application designed to
+significantly reduce the amount of spam/UCE (junk-mail) you receive.
+
+tmda-cgi is a web application which lets users manage their TMDA-
+protected e-mail account.  It is not web-mail.
+
+For more information, visit the tmda-cgi homepage:
+
+    <URL:http://tmda.net/tmda-cgi/>
+
+Information on the TMDA mailing lists can be found at:
+
+    <URL:http://tmda.net/lists/listinfo/>
+		
+Installation instructions can be found on the tmda-cgi homepage.
+
+ChangeLog tracks what major things were added, when, and by whom.
+
+UPGRADE contains upgrade instructions from selected releases.
+
+THANKS contains acknowledgments and thanks.
+
+TODO is a list of things we need to do.
+
+COPYING contains licensing information.

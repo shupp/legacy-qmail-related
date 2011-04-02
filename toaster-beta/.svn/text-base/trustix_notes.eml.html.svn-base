@@ -1,0 +1,257 @@
+<html>
+<head>
+<title>Trustix notes</title>
+<link rel="important stylesheet" href="chrome://messenger/skin/messageBody.css">
+</head>
+<body>
+<table border=0 cellspacing=0 cellpadding=0 width="100%" class="header-part1"><tr><td><b>Subject: </b>Trustix notes</td></tr><tr><td><b>From: </b>"Matthew Valentini" <matt@solextec.ca></td></tr><tr><td><b>Date: </b>Fri, 5 May 2006 16:05:08 -0300</td></tr></table><table border=0 cellspacing=0 cellpadding=0 width="100%" class="header-part2"><tr><td><b>To: </b>"'Bill Shupp'" <hostmaster@shupp.org></td></tr></table><br>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; ">
+<meta name=Generator content="Microsoft Word 11 (filtered medium)">
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:Wingdings;
+	panose-1:5 0 0 0 0 0 0 0 0 0;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:Arial;
+	color:windowtext;}
+@page Section1
+	{size:612.0pt 792.0pt;
+	margin:72.0pt 90.0pt 72.0pt 90.0pt;}
+div.Section1
+	{page:Section1;}
+ /* List Definitions */
+ @list l0
+	{mso-list-id:963851818;
+	mso-list-type:hybrid;
+	mso-list-template-ids:1812906730 -1923315556 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l0:level1
+	{mso-level-start-at:0;
+	mso-level-number-format:bullet;
+	mso-level-text:-;
+	mso-level-tab-stop:54.0pt;
+	mso-level-number-position:left;
+	margin-left:54.0pt;
+	text-indent:-18.0pt;
+	font-family:Arial;
+	mso-fareast-font-family:"Times New Roman";}
+@list l0:level2
+	{mso-level-number-format:bullet;
+	mso-level-text:o;
+	mso-level-tab-stop:90.0pt;
+	mso-level-number-position:left;
+	margin-left:90.0pt;
+	text-indent:-18.0pt;
+	font-family:"Courier New";}
+ol
+	{margin-bottom:0cm;}
+ul
+	{margin-bottom:0cm;}
+-->
+</style>
+
+</head>
+
+<body lang=EN-US link=blue vlink=purple>
+
+<div class=Section1>
+
+<p class=MsoNormal><b><font size=2 face=Arial><span lang=EN-CA
+style='font-size:10.0pt;font-family:Arial;font-weight:bold'>Trustix Secure
+Linux 3.0 Notes:<o:p></o:p></span></font></b></p>
+
+<p class=MsoNormal><font size=2 face=Arial><span lang=EN-CA style='font-size:
+10.0pt;font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=MsoNormal><font size=2 face=Arial><span lang=EN-CA style='font-size:
+10.0pt;font-family:Arial'>Firstly, Trustix comes packaged with the
+Postfix/Courier combo. Unfortunately you have to compile Courier from scratch
+to make it play nicely with qmail/vpopmail. Make sure postfix, courier-authlib,
+and courier-imap are completely removed from your system.<o:p></o:p></span></font></p>
+
+<p class=MsoNormal><font size=2 face=Arial><span lang=EN-CA style='font-size:
+10.0pt;font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=MsoNormal><font size=2 face=Arial><span lang=EN-CA style='font-size:
+10.0pt;font-family:Arial'>Secondly, su-exec is disabled by default in Trustix,
+but is required for both qmailadmin and vqadmin (not discussed in this
+toaster). In order to make it run, you need to install apache-suexec (<b><i><span
+style='font-weight:bold;font-style:italic'>swup --install apache-suexec; httpd &#8211;k
+restart</span></i></b>). FURTHERMORE, in order to satisfy the requirements of
+suexec (see <a href="http://apache-server.com/tutorials/LPsuexec.html">http://apache-server.com/tutorials/LPsuexec.html</a>
+for details), the following adjustments must be made:<o:p></o:p></span></font></p>
+
+<p class=MsoNormal><font size=2 face=Arial><span lang=EN-CA style='font-size:
+10.0pt;font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=MsoNormal style='margin-left:54.0pt;text-indent:-18.0pt;mso-list:l0 level1 lfo1'><![if !supportLists]><font
+size=2 face=Arial><span lang=EN-CA style='font-size:10.0pt;font-family:Arial'><span
+style='mso-list:Ignore'>-<font size=1 face="Times New Roman"><span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></font></span></span></font><![endif]><font size=2 face=Arial><span
+lang=EN-CA style='font-size:10.0pt;font-family:Arial'>The UID and GID for
+vpopmail/vchkpw MUST be a higher number, such as 500-600. If you already went
+through this guide using 89:89, then you have to Change the UID in /etc/passwd
+and the GID in /etc/group. Then type <b><i><span style='font-weight:bold;
+font-style:italic'>for f in `find / -uid 89`; do chown vpopmail:vchkpw $f;
+done</span></i></b>. Then you must recompile everything from scratch.<o:p></o:p></span></font></p>
+
+<p class=MsoNormal style='margin-left:54.0pt;text-indent:-18.0pt;mso-list:l0 level1 lfo1'><![if !supportLists]><font
+size=2 face=Arial><span lang=EN-CA style='font-size:10.0pt;font-family:Arial'><span
+style='mso-list:Ignore'>-<font size=1 face="Times New Roman"><span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></font></span></span></font><![endif]><font size=2 face=Arial><span
+lang=EN-CA style='font-size:10.0pt;font-family:Arial'>The CGI-BIN directory
+must run as vpopmail:vchkpw. This is done by adding the directive: <b><i><span
+style='font-weight:bold;font-style:italic'>SuexecUserGroup vpopmail vchkpw</span></i></b>
+to /etc/httpd/httpd.conf<o:p></o:p></span></font></p>
+
+<p class=MsoNormal style='margin-left:54.0pt;text-indent:-18.0pt;mso-list:l0 level1 lfo1'><![if !supportLists]><font
+size=2 face=Arial><span lang=EN-CA style='font-size:10.0pt;font-family:Arial'><span
+style='mso-list:Ignore'>-<font size=1 face="Times New Roman"><span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></font></span></span></font><![endif]><font size=2 face=Arial><span
+lang=EN-CA style='font-size:10.0pt;font-family:Arial'>The CGI-BIN directory and
+its contents must be owned by vpopmail:vchkpw. Type <b><i><span
+style='font-weight:bold;font-style:italic'>chown &#8211;R vpopmail.vchkpw /home/httpd/cgi-bin</span></i></b><o:p></o:p></span></font></p>
+
+<p class=MsoNormal style='margin-left:54.0pt;text-indent:-18.0pt;mso-list:l0 level1 lfo1'><![if !supportLists]><font
+size=2 face=Arial><span lang=EN-CA style='font-size:10.0pt;font-family:Arial'><span
+style='mso-list:Ignore'>-<font size=1 face="Times New Roman"><span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></font></span></span></font><![endif]><font size=2 face=Arial><span
+lang=EN-CA style='font-size:10.0pt;font-family:Arial'>The binary itself must
+not have the suid bit set: <b><i><span style='font-weight:bold;font-style:italic'>chmod
+&#8211;s /home/httpd/cgi-bin/qmailadmin</span></i> </b>(or <b><i><span
+style='font-weight:bold;font-style:italic'>chmod &#8211;s /home/httpd/cgi-bin/vqadmin/vqadmin.cgi</span></i></b>).
+Remember to do this every time you recompile qmailadmin/vqadmin.<b><span
+style='font-weight:bold'><o:p></o:p></span></b></span></font></p>
+
+<p class=MsoNormal style='margin-left:54.0pt;text-indent:-18.0pt;mso-list:l0 level1 lfo1'><![if !supportLists]><font
+size=2 face=Arial><span lang=EN-CA style='font-size:10.0pt;font-family:Arial'><span
+style='mso-list:Ignore'>-<font size=1 face="Times New Roman"><span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></font></span></span></font><![endif]><font size=2 face=Arial><span
+lang=EN-CA style='font-size:10.0pt;font-family:Arial'>Note: If you get ERROR
+500 then go through the requirements list again. You can check
+/etc/httpd/logs/suexec.log to see what&#8217;s happening.<b><span
+style='font-weight:bold'><o:p></o:p></span></b></span></font></p>
+
+<p class=MsoNormal style='margin-left:54.0pt;text-indent:-18.0pt;mso-list:l0 level1 lfo1'><![if !supportLists]><font
+size=2 face=Arial><span lang=EN-CA style='font-size:10.0pt;font-family:Arial'><span
+style='mso-list:Ignore'>-<font size=1 face="Times New Roman"><span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></font></span></span></font><![endif]><font size=2 face=Arial><span
+lang=EN-CA style='font-size:10.0pt;font-family:Arial'>Note: The above changes may
+apply to other linux distributions.<b><span style='font-weight:bold'><o:p></o:p></span></b></span></font></p>
+
+<p class=MsoNormal style='margin-left:54.0pt;text-indent:-18.0pt;mso-list:l0 level1 lfo1'><![if !supportLists]><font
+size=2 face=Arial><span lang=EN-CA style='font-size:10.0pt;font-family:Arial'><span
+style='mso-list:Ignore'>-<font size=1 face="Times New Roman"><span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></font></span></span></font><![endif]><font size=2 face=Arial><span
+lang=EN-CA style='font-size:10.0pt;font-family:Arial'>Warning: make sure
+nothing else is in your cgi-bin directory. By enabling suexec, you could be
+punching a big security hole!<b><span style='font-weight:bold'><o:p></o:p></span></b></span></font></p>
+
+<p class=MsoNormal><font size=2 face=Arial><span lang=EN-CA style='font-size:
+10.0pt;font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=MsoNormal><font size=2 face=Arial><span lang=EN-CA style='font-size:
+10.0pt;font-family:Arial'>Some more notes:<o:p></o:p></span></font></p>
+
+<p class=MsoNormal><font size=2 face=Arial><span lang=EN-CA style='font-size:
+10.0pt;font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=MsoNormal style='margin-left:54.0pt;text-indent:-18.0pt;mso-list:l0 level1 lfo1'><![if !supportLists]><font
+size=2 face=Arial><span lang=EN-CA style='font-size:10.0pt;font-family:Arial'><span
+style='mso-list:Ignore'>-<font size=1 face="Times New Roman"><span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></font></span></span></font><![endif]><font size=2 face=Arial><span
+lang=EN-CA style='font-size:10.0pt;font-family:Arial'>The default user
+directory in Trustix is /home/users. It&#8217;s probably best to leave vpopmail
+there. The configure scripts will find it. Just edit the following files to
+reflect the different home dir:<o:p></o:p></span></font></p>
+
+<p class=MsoNormal style='margin-left:90.0pt;text-indent:-18.0pt;mso-list:l0 level2 lfo1'><![if !supportLists]><font
+size=2 face="Courier New"><span lang=EN-CA style='font-size:10.0pt;font-family:
+"Courier New"'><span style='mso-list:Ignore'>o<font size=1
+face="Times New Roman"><span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></font></span></span></font><![endif]><b><font size=2 face=Arial><span
+lang=EN-CA style='font-size:10.0pt;font-family:Arial;font-weight:bold'>/var/qmail/supervise/qmail-smtpd/run<o:p></o:p></span></font></b></p>
+
+<p class=MsoNormal style='margin-left:90.0pt;text-indent:-18.0pt;mso-list:l0 level2 lfo1'><![if !supportLists]><font
+size=2 face="Courier New"><span lang=EN-CA style='font-size:10.0pt;font-family:
+"Courier New"'><span style='mso-list:Ignore'>o<font size=1
+face="Times New Roman"><span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></font></span></span></font><![endif]><b><font size=2 face=Arial><span
+lang=EN-CA style='font-size:10.0pt;font-family:Arial;font-weight:bold'>/var/qmail/supervise/qmail-pop3d/run<o:p></o:p></span></font></b></p>
+
+<p class=MsoNormal style='margin-left:90.0pt;text-indent:-18.0pt;mso-list:l0 level2 lfo1'><![if !supportLists]><font
+size=2 face="Courier New"><span lang=EN-CA style='font-size:10.0pt;font-family:
+"Courier New"'><span style='mso-list:Ignore'>o<font size=1
+face="Times New Roman"><span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></font></span></span></font><![endif]><b><font size=2 face=Arial><span
+lang=EN-CA style='font-size:10.0pt;font-family:Arial;font-weight:bold'>/var/qmail/supervise/qmail-pop3ds/run<o:p></o:p></span></font></b></p>
+
+<p class=MsoNormal style='margin-left:54.0pt;text-indent:-18.0pt;mso-list:l0 level1 lfo1'><![if !supportLists]><font
+size=2 face=Arial><span lang=EN-CA style='font-size:10.0pt;font-family:Arial'><span
+style='mso-list:Ignore'>-<font size=1 face="Times New Roman"><span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></font></span></span></font><![endif]><font size=2 face=Arial><span
+lang=EN-CA style='font-size:10.0pt;font-family:Arial'>From some reason imaplogin
+(the courier auth binary) ends up in the wrong place. Solve this with <b><i><span
+style='font-weight:bold;font-style:italic'>ln &#8211;s /usr/lib/courier-imap/sbin/imaplogin
+/usr/sbin/imaplogin</span></i></b><o:p></o:p></span></font></p>
+
+<p class=MsoNormal style='margin-left:54.0pt;text-indent:-18.0pt;mso-list:l0 level1 lfo1'><![if !supportLists]><font
+size=2 face=Arial><span lang=EN-CA style='font-size:10.0pt;font-family:Arial'><span
+style='mso-list:Ignore'>-<font size=1 face="Times New Roman"><span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></font></span></span></font><![endif]><font size=2 face=Arial><span
+lang=EN-CA style='font-size:10.0pt;font-family:Arial'>Qmail wants you to <b><i><span
+style='font-weight:bold;font-style:italic'>chmod 755 /home/users/vpopmail/etc/tcp.smtp.cdb</span></i></b><o:p></o:p></span></font></p>
+
+<p class=MsoNormal style='margin-left:54.0pt;text-indent:-18.0pt;mso-list:l0 level1 lfo1'><![if !supportLists]><font
+size=2 face=Arial><span lang=EN-CA style='font-size:10.0pt;font-family:Arial'><span
+style='mso-list:Ignore'>-<font size=1 face="Times New Roman"><span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></font></span></span></font><![endif]><font size=2 face=Arial><span
+lang=EN-CA style='font-size:10.0pt;font-family:Arial'>You might need to play with
+the permissions on <b><i><span style='font-weight:bold;font-style:italic'>/home/users/vpopmail/domains/[domain]</span></i></b>
+for qmailadmin to work properly.<o:p></o:p></span></font></p>
+
+<p class=MsoNormal style='margin-left:54.0pt;text-indent:-18.0pt;mso-list:l0 level1 lfo1'><![if !supportLists]><font
+size=2 face=Arial><span lang=EN-CA style='font-size:10.0pt;font-family:Arial'><span
+style='mso-list:Ignore'>-<font size=1 face="Times New Roman"><span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></font></span></span></font><![endif]><font size=2 face=Arial><span
+lang=EN-CA style='font-size:10.0pt;font-family:Arial'>Courier syslogs to
+/var/log/mail/ while qmail multilogs to /var/log/qmail/. Have a look at these if
+you&#8217;re getting authentication errors.<o:p></o:p></span></font></p>
+
+</div>
+
+</body>
+
+</html>
+
+</body>
+</html>

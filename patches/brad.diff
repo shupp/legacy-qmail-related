@@ -1,0 +1,190 @@
+diff -ur ../vpopmail-5.3.9/ChangeLog ./ChangeLog
+--- ../vpopmail-5.3.9/ChangeLog	Mon Oct 21 14:04:11 2002
++++ ./ChangeLog	Wed Oct 23 11:30:32 2002
+@@ -1,3 +1,15 @@
++5.3.10
++10/23/02   "Anders Brander" anders at brander dot dk
++           - vdelivermail: Check for | before /Maildir/ in .qmail processing
++           - vdelivermail: Add missing case for error 100
++
++10/23/02   "Bill Shupp" hostmaster at shupp dot org
++           - Changed valias_line to be type "blob" to accomodate for large
++             mailing list commands.  Increased FILE_LINE_SIZE to 1024 in 
++             vcalias for the same reason.  vcalias now escapes FileLine input.
++             Thanks to Brad Dameron for pointing this out.
++           - Added disable_smtp support to the new vlimits functions
++
+ 5.3.9
+ 10/21/02   "Bill Shupp" hostmaster at shupp dot org
+            - Add error checking to vpopbull so that if copy_email fails,
+diff -ur ../vpopmail-5.3.9/configure ./configure
+--- ../vpopmail-5.3.9/configure	Mon Oct 21 12:55:52 2002
++++ ./configure	Wed Oct 23 10:13:37 2002
+@@ -771,7 +771,7 @@
+ 
+ PACKAGE=vpopmail
+ 
+-VERSION=5.3.9
++VERSION=5.3.10
+ 
+ if test "`cd $srcdir && pwd`" != "`pwd`" && test -f $srcdir/config.status; then
+   { echo "configure: error: source directory already configured; run "make distclean" there first" 1>&2; exit 1; }
+diff -ur ../vpopmail-5.3.9/configure.in ./configure.in
+--- ../vpopmail-5.3.9/configure.in	Mon Oct 21 11:59:13 2002
++++ ./configure.in	Wed Oct 23 09:54:22 2002
+@@ -1,6 +1,6 @@
+ dnl Process this file with autoconf to produce a configure script.
+ AC_INIT(vchkpw.c)
+-AM_INIT_AUTOMAKE(vpopmail,5.3.9)
++AM_INIT_AUTOMAKE(vpopmail,5.3.10)
+ AM_CONFIG_HEADER(config.h)
+ AC_CANONICAL_HOST
+ 
+diff -ur ../vpopmail-5.3.9/convert/vcalias.c ./convert/vcalias.c
+--- ../vpopmail-5.3.9/convert/vcalias.c	Mon Oct 21 10:56:53 2002
++++ ./convert/vcalias.c	Wed Oct 23 10:59:42 2002
+@@ -44,8 +44,9 @@
+ char Dir[DIR_SIZE];
+ char File[DIR_SIZE];
+ 
+-#define FILE_LINE_SIZE 255
++#define FILE_LINE_SIZE 1024
+ char FileLine[FILE_LINE_SIZE];
++char EFileLine[FILE_LINE_SIZE];
+ 
+ #define ALIAS_NAME_SIZE 33
+ char AliasName[ALIAS_NAME_SIZE];
+@@ -127,9 +128,11 @@
+ 				printf("line = %s\n", FileLine);
+ 
+ 				/* insert in database */
++			    memset(EFileLine, 0, FILE_LINE_SIZE);
++                vmysql_escape(FileLine,EFileLine);
+ 				sprintf( SqlBuf1, "insert into valias \
+ ( alias, domain, valias_line ) values ( \"%s\", \"%s\", \"%s\")",
+-				AliasName, Domain, FileLine );
++				AliasName, Domain, EFileLine );
+ 
+         			if (mysql_query(&mysql,SqlBuf1)) {
+             				printf("insert error sql = %s\n",  
+diff -ur ../vpopmail-5.3.9/vdelivermail.c ./vdelivermail.c
+--- ../vpopmail-5.3.9/vdelivermail.c	Mon Oct 21 10:39:47 2002
++++ ./vdelivermail.c	Wed Oct 23 10:21:49 2002
+@@ -447,10 +447,18 @@
+         return(0);
+ #endif
+ 
++    /* This is an command */
++    if ( *address == '|' ) { 
++
++        /* run the command */ 
++        run_command(address);
++        return(0);
++      }
++
+     /* Contains /Maildir/ ? Then it must be a full or relative
+      * path to a Maildir 
+      */ 
+-    if ( strstr(address, "/Maildir/") != NULL ) {
++    else if ( strstr(address, "/Maildir/") != NULL ) {
+ 
+         /* if the user has a quota set */
+         if ( strncmp(quota, "NOQUOTA", 2) != 0 ) {
+@@ -516,13 +524,6 @@
+                 maildir_to_email(address));
+         }
+ 
+-    /* This is an command */
+-    } else if ( *address == '|' ) { 
+-
+-        /* run the command */ 
+-        run_command(address);
+-        return(0);
+-
+     /* must be an email address */
+     } else {
+       char *dtline;
+@@ -762,7 +763,7 @@
+   waitpid(wstat,&child,0);
+   switch(wait_exitcode(wstat))
+    {
+-    case 64: case 65: case 70: case 76: case 77: case 78: case 112: _exit(100);
++    case 64: case 65: case 70: case 76: case 77: case 78: case 100: case 112: _exit(100);
+     case 99: _exit(99);
+     case 0: break;
+     default: _exit(111);
+diff -ur ../vpopmail-5.3.9/vlimits.c ./vlimits.c
+--- ../vpopmail-5.3.9/vlimits.c	Mon Oct 21 13:07:59 2002
++++ ./vlimits.c	Wed Oct 23 11:27:05 2002
+@@ -45,6 +45,7 @@
+     limits->disabledialup = 0;
+     limits->disablepasswordchanging = 0;
+     limits->disablerelay = 0;
++    limits->disablesmtp = 0;
+     limits->disablewebmail = 0;
+ 
+     /* get filename */
+@@ -119,6 +120,10 @@
+       limits->disablerelay = 1;
+       }
+ 
++      if (!strcmp(s1, "disable_smtp")) {
++      limits->disablesmtp = 1;
++      }
++
+       if (!strcmp(s1, "disable_webmail")) {
+       limits->disablewebmail = 1;
+       }
+@@ -166,6 +171,8 @@
+       fprintf(fs, "disable_webmail\n");
+   if (limits->disablerelay)
+       fprintf(fs, "disable_external_relay\n");
++  if (limits->disablesmtp)
++      fprintf(fs, "disable_smtp\n");
+   fclose(fs);
+     } else {
+   fprintf(stderr, "vlimits: failed to open limits file (%d):  %s\n", errno, dir);
+diff -ur ../vpopmail-5.3.9/vlimits.h ./vlimits.h
+--- ../vpopmail-5.3.9/vlimits.h	Mon Oct 21 11:59:13 2002
++++ ./vlimits.h	Wed Oct 23 11:26:05 2002
+@@ -21,6 +21,7 @@
+       short     disablepasswordchanging;
+       short     disablewebmail;
+       short     disablerelay;
++      short     disablesmtp;
+ };
+ 
+ int vget_limits(char * domain, struct vlimits * limits);
+diff -ur ../vpopmail-5.3.9/vmysql.h ./vmysql.h
+--- ../vpopmail-5.3.9/vmysql.h	Mon Oct 21 14:04:55 2002
++++ ./vmysql.h	Wed Oct 23 11:47:59 2002
+@@ -235,7 +235,7 @@
+ 
+ #define VALIAS_TABLE_LAYOUT "alias char(32) not null, \
+ domain char(64) not null, \
+-valias_line char(160) not null, index (alias, domain)"
++valias_line blob not null, index (alias, domain)"
+ 
+ #endif
+ 
+@@ -250,3 +250,20 @@
+       INDEX error_idx (error), INDEX message_idx (message)"
+ #endif
+ 
++#ifdef ENABLE_MYSQL_LIMITS
++#define LIMITS_TABLE_LAYOUT "domain CHAR(64) PRIMARY KEY, \
++      maxpopaccounts          INT(10) NOT NULL DEFAULT -1, \
++      maxaliases              INT(10) NOT NULL DEFAULT -1, \
++      maxforwards             INT(10) NOT NULL DEFAULT -1, \
++      maxautoresponders       INT(10) NOT NULL DEFAULT -1, \
++      maxmailinglists         INT(10) NOT NULL DEFAULT -1, \
++      diskquota               INT(12) NOT NULL DEFAULT 0, \
++      defaultquota            INT(12) NOT NULL DEFAULT 0, \
++      disablepop              TINYINT(1) NOT NULL DEFAULT 0, \
++      disableimap             TINYINT(1) NOT NULL DEFAULT 0, \
++      disabledialup           TINYINT(1) NOT NULL DEFAULT 0, \
++      disablepasswordchanging TINYINT(1) NOT NULL DEFAULT 0, \
++      disablewebmail          TINYINT(1) NOT NULL DEFAULT 0, \
++      disablerelay            TINYINT(1) NOT NULL DEFAULT 0"
++      disablesmtp             TINYINT(1) NOT NULL DEFAULT 0"
++#endif

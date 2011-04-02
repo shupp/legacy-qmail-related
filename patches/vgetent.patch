@@ -1,0 +1,127 @@
+*** vpopmail.c.old	Fri Jul  5 10:34:52 2002
+--- vpopmail.c	Fri Jul  5 10:35:27 2002
+***************
+*** 1395,1454 ****
+   */ 
+  struct vqpasswd *vgetent(FILE *pw)
+  {
+!  static struct vqpasswd pwent;
+!  static char line[400];
+!  int i;
+!  char *tmpstr;
+! 
+!   if (fgets(line,sizeof(line),pw) == NULL) return NULL;
+! 
+!   memset(&pwent,0,sizeof(struct vqpasswd));
+! 
+!   pwent.pw_name = &line[0];
+!   for(i=0;line[i]!=0&&line[i]!=':';++i)
+!   if ( line[i] == 0 ) return(NULL);
+!   line[i] = 0;
+! 
+!   ++i; pwent.pw_passwd = &line[i];
+!   for(;line[i]!=0&&line[i]!=':';++i);
+!   if ( line[i] == 0 ) return(NULL);
+!   line[i] = 0;
+! 
+!   ++i;tmpstr = &line[i];
+!   for(;line[i]!=0&&line[i]!=':';++i);
+!   if ( line[i] == 0 ) return(NULL);
+!   line[i] = 0;
+!   pwent.pw_uid = atoi(tmpstr);
+! 
+!   ++i;tmpstr = &line[i];
+!   for(;line[i]!=0&&line[i]!=':';++i);
+!   if ( line[i] == 0 ) return(NULL);
+!   line[i] = 0;
+!   pwent.pw_gid = atoi(tmpstr);
+! 
+!   ++i; pwent.pw_gecos = &line[i];
+!   for(;line[i]!=0&&line[i]!=':';++i);
+!   if ( line[i] == 0 ) return(NULL);
+!   line[i] = 0;
+! 
+!   ++i; pwent.pw_dir = &line[i];
+!   for(;line[i]!=0&&line[i]!=':';++i);
+!   if ( line[i] == 0 ) return(NULL);
+!   line[i] = 0;
+! 
+!   ++i; pwent.pw_shell = &line[i];
+!   for(;line[i]!=0&&line[i]!=':'&&line[i]!='\n';++i);
+!   if ( line[i] == 0 ) {  
+!     pwent.pw_clear_passwd = "";
+!   } else {
+!     line[i] = 0;
+! 
+!     ++i; pwent.pw_clear_passwd = &line[i];
+!     for(;line[i]!=0&&line[i]!=':'&&line[i]!='\n';++i);
+!   }
+! 
+!   return &pwent;
+  
+  }
+  
+  /*
+--- 1395,1456 ----
+   */ 
+  struct vqpasswd *vgetent(FILE *pw)
+  {
+!     static struct vqpasswd pwent;
+!     static char line[200];
+!     int i=0,j=0;
+!     char *tmpstr;
+!     char *tmpstr1;
+! 
+!     if (fgets(line,sizeof(line),pw) == NULL) return NULL;
+! 
+!     for (i=0; line[i] != 0; i++) if (line[i] == ':') j++;
+! 
+! #ifdef CLEAR_PASS
+!     /* Must count the clear password field */
+!     if ( j != 7) return NULL;
+! #else
+!     if ( j != 6) return NULL;
+! #endif
+! 
+!     tmpstr = line;
+!     pwent.pw_name   = line;
+!     while (*tmpstr!=0 && *tmpstr!=':') ++tmpstr;
+!     *tmpstr = 0; ++tmpstr;
+! 
+!     pwent.pw_passwd = tmpstr;
+!     while (*tmpstr!=0 && *tmpstr!=':') ++tmpstr;
+!     *tmpstr = 0; ++tmpstr;
+!  
+!     tmpstr1 = tmpstr; 
+!     while (*tmpstr!=0 && *tmpstr!=':') ++tmpstr;
+!     *tmpstr = 0; ++tmpstr;
+!     pwent.pw_uid = atoi(tmpstr1); 
+! 
+!     tmpstr1 = tmpstr; 
+!     while (*tmpstr!=0 && *tmpstr!=':') ++tmpstr;
+!     *tmpstr = 0; ++tmpstr;
+!     pwent.pw_gid = atoi(tmpstr1); 
+! 
+! 
+!     pwent.pw_gecos  = tmpstr; 
+!     while (*tmpstr!=0 && *tmpstr!=':') ++tmpstr;
+!     *tmpstr = 0; ++tmpstr;
+! 
+!     pwent.pw_dir    = tmpstr; 
+!     while (*tmpstr!=0 && *tmpstr!=':') ++tmpstr;
+!     *tmpstr = 0; ++tmpstr;
+! 
+!     pwent.pw_shell  = tmpstr; 
+!     while (*tmpstr!=0 && *tmpstr!=':' && *tmpstr!='\n') ++tmpstr;
+!     *tmpstr = 0; ++tmpstr;
+! 
+! #ifdef CLEAR_PASS
+!     pwent.pw_clear_passwd  = tmpstr; 
+!     while (*tmpstr!=0 && *tmpstr!=':' && *tmpstr!='\n') ++tmpstr;
+!     *tmpstr = 0; ++tmpstr;
+! #endif
+  
++     return &pwent;
+  }
+  
+  /*

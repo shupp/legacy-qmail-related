@@ -1,0 +1,281 @@
+--- config.h.in.orig	2007-04-21 04:27:43.683785160 -0700
++++ config.h.in	2007-04-21 04:30:05.332251320 -0700
+@@ -262,6 +262,12 @@
+ #undef RETSIGTYPE
+ 
+ /* "" */
++#undef SPAMASSASSIN
++
++/* "" */
++#undef SPAMC_PROG
++
++/* "" */
+ #undef SQWEBMAIL_PASS
+ 
+ /* Define to 1 if you have the ANSI C header files. */
+--- configure.in.orig	2007-04-21 05:15:58.209750328 -0700
++++ configure.in	2007-04-21 04:25:18.889797192 -0700
+@@ -822,6 +822,59 @@
+ esac
+ 
+ #----------------------------------------------------------------------
++
++AC_MSG_CHECKING(whether spamassassin is enabled)
++AC_ARG_ENABLE(spamassassin,
++        [  --enable-spamassassin      Enable spamassassin. See  README.spamassassin for more info.],
++        ENABLE_SPAMASSASSIN=$enableval,
++                [
++                        ENABLE_SPAMASSASSIN=0
++                ]
++)
++
++case $ENABLE_SPAMASSASSIN in
++  0*|n*|N*)
++      AC_MSG_RESULT(no)
++      ;;
++  *)
++      AC_MSG_RESULT(yes)
++      ENABLE_SPAMASSASSIN=1
++      AC_DEFINE_UNQUOTED(SPAMASSASSIN,$ENABLE_SPAMASSASSIN,"")
++
++    AC_MSG_CHECKING(whether we can locate the spamc program)
++    for f in /usr/bin/spamc /usr/local/bin/spamc
++    do
++        if test -f $f
++        then
++            spamc_prog=$f
++            break
++        fi
++    done
++    AC_ARG_ENABLE(spamc-prog,
++        [  --enable-spamc-prog=PATH    Full path to spamc program [/usr/{local/}bin/spamc].],
++        spamc_prog="$enableval",
++        [
++            if test "$spamc_prog" = ""
++            then
++                AC_MSG_RESULT(no)
++                AC_MSG_ERROR([Unable to find your spamc prog, specify --enable-spamc-prog.])
++            fi
++        ]
++    )
++
++    if test ! -f "$spamc_prog"
++    then
++        AC_MSG_RESULT(no)
++        AC_MSG_ERROR([Unable to find your spamc program, specify --enable-spamc-prog=/full/path/to/spamc])
++    fi
++
++    AC_MSG_RESULT(yes)
++    AC_DEFINE_UNQUOTED(SPAMC_PROG,"$spamc_prog","")
++
++      ;;
++esac
++
++#----------------------------------------------------------------------
+ #  -- domain quotas disabled until they actually work again --
+ #AC_MSG_CHECKING(whether domainquotas is enabled)
+ #AC_ARG_ENABLE(domainquotas,
+@@ -1659,6 +1712,15 @@
+   fi
+ fi
+ 
++case $ENABLE_SPAMASSASSIN in
++  1*|y*|Y*)
++    echo "      spamassassin = ON  --enable-spamassassin"
++    ;;
++  *)
++    echo "      spamassassin = OFF --disable-spamassassin (default)"
++    ;;
++esac
++
+ echo "${CC} -O2" > cdb/conf-cc
+ echo "${CC} -s" > cdb/conf-ld
+ 
+--- vdelivermail.c.orig	2007-04-21 02:02:44.025334272 -0700
++++ vdelivermail.c	2007-04-21 05:05:40.253693928 -0700
+@@ -42,6 +42,9 @@
+ #ifdef MAKE_SEEKABLE
+ #include "seek.h"
+ #endif
++#ifdef SPAMASSASSIN
++#include "vlimits.h"
++#endif
+ 
+ /* Globals */
+ #define AUTH_SIZE 300
+@@ -67,6 +70,12 @@
+ #define FILE_SIZE 156
+ char loop_buf[FILE_SIZE];
+ 
++#ifdef SPAMASSASSIN
++int  InHeaders = 1;
++int  DeleteSpam = 0;
++int is_spam();
++#endif
++
+ #define MSG_BUF_SIZE 5000
+ char msgbuf[MSG_BUF_SIZE];
+ 
+@@ -352,6 +361,77 @@
+     return 0;
+ }
+ 
++#ifdef SPAMASSASSIN
++int fdcopy_spamassassin (int write_fd, int read_fd, const char *extra_headers, size_t headerlen, char *address)
++{
++  char msgbuf[4096];
++  ssize_t file_count;
++  int  pim[2];
++  struct vlimits limits;
++  long unsigned pid;
++
++    /* write the Return-Path: and Delivered-To: headers */
++    if (headerlen > 0) {
++        if (write(write_fd, extra_headers, headerlen) != headerlen) return -1;
++    }
++
++#ifdef SPAMASSASSIN
++    InHeaders=1;
++    /* fork the SpamAssassin client - based on work by Alex Dupre */
++      vget_limits(TheDomain, &limits);
++      if ( vpw==NULL ) {
++        parse_email(address, TheUser, TheDomain, AUTH_SIZE);
++        vpw=vauth_getpw(TheUser, TheDomain);
++      }
++      if ( limits.disable_spamassassin==0 && vpw!=NULL &&
++           !(vpw->pw_gid & NO_SPAMASSASSIN) ) {
++
++        if (!pipe(pim)) {
++          pid = vfork();
++          switch (pid) {
++           case -1:
++            close(pim[0]);
++            close(pim[1]);
++            break;
++           case 0:
++            close(pim[0]);
++            dup2(pim[1], 1);
++            close(pim[1]);
++            if (execl(SPAMC_PROG, SPAMC_PROG, "-f", "-u",
++                 address, 0) == -1) {
++              while ((file_count = read(0, msgbuf, MSG_BUF_SIZE)) > 0) {
++                write(1, msgbuf, file_count);
++              }
++              _exit(0);
++            }
++          }
++          close(pim[1]);
++          dup2(pim[0], 0);
++          close(pim[0]);
++        }
++      }
++#endif
++
++    
++    /* read it in chunks and write it to the new file */
++    while ((file_count = read(read_fd, msgbuf, sizeof(msgbuf))) > 0) {
++#ifdef SPAMASSASSIN
++        if ( InHeaders==1 &&
++             (limits.delete_spam==1 || vpw->pw_gid & DELETE_SPAM) ) {
++          printf("check is_spam\n");
++          if (is_spam(msgbuf) == 1) {
++            DeleteSpam = 1;
++            return(0);
++          }
++        }
++#endif
++        if ( write(write_fd, msgbuf, file_count) == -1 ) return -1;
++    }
++    
++    return 0;
++}
++#endif
++
+ void read_quota_from_maildir (const char *maildir, char *qbuf, size_t qlen)
+ {
+   FILE *quota_file;
+@@ -435,7 +515,11 @@
+         return(-2);
+     }
+ 
++#ifdef SPAMASSASSIN
++    if (fdcopy_spamassassin (write_fd, read_fd, extra_headers, headerlen, maildir_to_email(maildir)) != 0) {
++# else
+     if (fdcopy (write_fd, read_fd, extra_headers, headerlen) != 0) {
++#endif
+         /* Did the write fail because we were over quota? */
+         if ( errno == EDQUOT ) {
+             close(write_fd);
+@@ -463,6 +547,14 @@
+ #endif
+         close (write_fd) == 0 ) {
+ 
++	if(DeleteSpam == 1) {
++	    if (unlink(local_file_tmp) != 0) {
++                printf("unlink failed %s errno = %d\n", local_file_tmp, errno);
++                return(errno);
++            }
++            return(0);
++	}
++
+         /* if this succeeds link the file to the new directory */
+         if ( link( local_file_tmp, local_file_new ) == 0 ) {
+             /* file was successfully delivered, remove temp file */
+@@ -1063,3 +1155,57 @@
+ 
+     return (strcasecmp (compare, (dt+14)) == 0);
+ }
++
++#ifdef SPAMASSASSIN
++/* Check for a spam message
++ *  * This is done by checking for a matching line
++ *   * in the email headers for X-Spam-Level: which
++ *    * we put in each spam email
++ *     *
++ *      * Return 1 if spam
++ *       * Return 0 if not spam
++ *        * Return -1 on error
++ *         */
++int is_spam(char *spambuf)
++{
++ int i,j,k;
++ int found;
++
++    for(i=0,j=0;spambuf[i]!=0;++i) {
++
++       /* found a line */
++       if (spambuf[i]=='\n' || spambuf[i]=='\r' ) {
++
++         /* check for blank line, end of headers */
++         for(k=j,found=0;k<i;++k) {
++           switch(spambuf[k]) {
++             /* skip blank spaces and new lines */
++             case ' ':
++             case '\n':
++             case '\t':
++             case '\r':
++               break;
++
++             /* found a non blank, so we are still
++              * in the headers
++              */
++             default:
++               /* set the found non blank char flag */
++               found = 1;
++               break;
++           }
++         }
++         if ( found == 0 ) {
++           InHeaders=0;
++           return(0);
++         }
++
++         /* still in the headers check for spam header */
++         if ( strncmp(&spambuf[j], "X-Spam-Flag: YES", 16 ) == 0 ) return(1);
++
++         if (spambuf[i+1]!=0) j=i+1;
++       }
++     }
++     return(0);
++}
++#endif

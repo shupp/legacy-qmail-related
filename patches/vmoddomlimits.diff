@@ -1,0 +1,37 @@
+--- vmoddomlimits.c.orig	2007-04-29 14:17:20.000000000 -0500
++++ vmoddomlimits.c	2007-04-29 14:22:41.000000000 -0500
+@@ -163,6 +163,10 @@
+                 printf("  DEL_SPAM\n");
+                 strncat(OptionString, "x", sizeof(OptionString)-strlen(OptionString)-1);
+             }
++            if (limits.disable_maildrop != 0) {
++                printf("  NO_MAILDROP\n");
++                strncat(OptionString, "m", sizeof(OptionString)-strlen(OptionString)-1);
++            }
+             printf("Flags (for commandline): %s\n", OptionString);
+             printf("Flags for non postmaster accounts:");
+             printf("\n  pop account:            ");
+@@ -251,6 +255,7 @@
+             limits.disable_relay = 0;
+             limits.disable_spamassassin = 0;
+             limits.delete_spam = 0;
++            limits.disable_maildrop = 0;
+             for (i=0; i<(int)strlen(GidFlagString); i++) {
+                 switch(GidFlagString[i]) {
+                     case 'u': limits.disable_dialup = 1; break;
+@@ -262,6 +267,7 @@
+                     case 'r': limits.disable_relay = 1; break;
+                     case 'c': limits.disable_spamassassin = 1; break;
+                     case 'x': limits.delete_spam = 1; break;
++                    case 'm': limits.disable_maildrop = 1; break;
+                 }
+             }
+         }
+@@ -411,6 +417,7 @@
+     printf("            r ( set no external relay flag )\n");
+     printf("            c ( set no spamassasssin flag )\n");
+     printf("            x ( set delete spam flag )\n");
++    printf("            m ( set no maildrop flag )\n");
+ 
+     
+     printf("the following options are bit flags for non postmaster admins\n");

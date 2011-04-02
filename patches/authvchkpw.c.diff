@@ -1,0 +1,92 @@
+--- authvchkpw.c.orig	Wed Apr 25 16:14:50 2007
++++ authvchkpw.c	Wed Apr 25 16:16:06 2007
+@@ -60,44 +60,6 @@
+ #include        "libhmac/hmac.h"
+ #include        "cramlib.h"
+ 
+-
+-static int auth_vchkpw_cram(const char *service,
+-                           const char *authtype, char *authdata,
+-                           int (*callback_func)(struct authinfo *, void *),
+-                           void *callback_arg)
+-{
+-        struct  cram_callback_info      cci;
+-
+-        if (auth_get_cram(authtype, authdata, &cci))
+-                return (-1);
+-
+-        cci.callback_func=callback_func;
+-        cci.callback_arg=callback_arg;
+-
+-        return auth_vchkpw_pre(cci.user, service, &auth_cram_callback, &cci);
+-}
+-#endif
+-
+-int auth_vchkpw(const char *service, const char *authtype, char *authdata,
+-               int (*callback_func)(struct authinfo *, void *),
+-               void *callback_arg)
+-{
+-        if (strcmp(authtype, AUTHTYPE_LOGIN) == 0)
+-                return (auth_vchkpw_login(service, authdata,
+-                        callback_func, callback_arg));
+-
+-#if HAVE_HMACLIB
+-        return (auth_vchkpw_cram(service, authtype, authdata,
+-                        callback_func, callback_arg));
+-#else
+-        errno=EPERM;
+-        return (-1);
+-#endif
+-
+-}
+-
+-
+-
+ static int auth_vchkpw_login(const char *service, char *authdata,
+ 	int (*callback_func)(struct authinfo *, void *), void *callback_arg)
+ {
+@@ -162,6 +124,44 @@
+ 
+ 	return 0;
+ }
++
++static int auth_vchkpw_cram(const char *service,
++                           const char *authtype, char *authdata,
++                           int (*callback_func)(struct authinfo *, void *),
++                           void *callback_arg)
++{
++        struct  cram_callback_info      cci;
++
++        if (auth_get_cram(authtype, authdata, &cci))
++                return (-1);
++
++        cci.callback_func=callback_func;
++        cci.callback_arg=callback_arg;
++
++        return auth_vchkpw_pre(cci.user, service, &auth_cram_callback, &cci);
++}
++#endif
++
++int auth_vchkpw(const char *service, const char *authtype, char *authdata,
++               int (*callback_func)(struct authinfo *, void *),
++               void *callback_arg)
++{
++        if (strcmp(authtype, AUTHTYPE_LOGIN) == 0)
++                return (auth_vchkpw_login(service, authdata,
++                        callback_func, callback_arg));
++
++#if HAVE_HMACLIB
++        return (auth_vchkpw_cram(service, authtype, authdata,
++                        callback_func, callback_arg));
++#else
++        errno=EPERM;
++        return (-1);
++#endif
++
++}
++
++
++
+ 
+ static void authvchkpwclose()
+ {

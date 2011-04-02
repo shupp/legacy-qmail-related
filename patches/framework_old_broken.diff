@@ -1,0 +1,348 @@
+--- /Users/shupp/pear/lib/Framework/DB/ADODBLite.php	1969-12-31 16:00:00.000000000 -0800
++++ Framework/DB/ADODBLite.php	2007-07-20 14:35:20.000000000 -0700
+@@ -0,0 +1,53 @@
++<?php
++
++/**
++ * Framework_DB_ADODBLite
++ *
++ * ADODB Lite Framework Database Driver
++ *
++ * @author Bill Shupp <hostmaster@shupp.org>
++ * @license http://www.opensource.org/licenses/bsd-license.php
++ * @package Framework
++ * @filesource
++ */
++
++require_once 'adodb_lite/adodb.inc.php';
++
++/**
++ * Framework_DB_ADODBLite
++ *
++ * ADODB Lite Framework Database Driver
++ *
++ * @author Bill Shupp <hostmaster@shupp.org>
++ * @package Framework
++ */
++class Framework_DB_ADODBLite
++implements Framework_DB_Interface
++{
++    /**
++     * start 
++     * 
++     * @param mixed $dsn 
++     * @access public
++     * @return void
++     */
++    public function start($dsn)
++    {
++        Framework::$db = ADONewConnection($dsn);
++    }
++    /**
++     * stop 
++     * 
++     * @param mixed $db 
++     * @access private
++     * @return void
++     */
++    public function stop(&$db)
++    {
++        if (is_object($db)) {
++            $db->Close();
++        }
++    }
++}
++
++?>
+--- /Users/shupp/pear/lib/Framework/DB/Interface.php	1969-12-31 16:00:00.000000000 -0800
++++ Framework/DB/Interface.php	2007-07-20 13:16:46.000000000 -0700
+@@ -0,0 +1,45 @@
++<?php
++
++/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
++
++/**
++ * Framework_DB_Interface
++ *
++ * @author      Bill Shupp <hostmaster@shupp.org>
++ * @copyright   Bill Shupp <hostmaster@shupp.org>
++ * @package     Framework
++ * @subpackage  DB
++ * @filesource
++ */
++
++/**
++ * Framework_DB_Interface
++ *
++ * All Framework_DB drivers must implement this so they all behave in
++ * the same basic manner. 
++ *
++ * @author      Bill Shupp <hostmaster@shupp.org
++ * @package     Framework
++ * @subpackage  DB
++ */
++interface Framework_DB_Interface
++{
++    /**
++     * start 
++     * 
++     * @param mixed $dsn 
++     * @access public
++     * @return void
++     */
++    public function start($dsn);
++    /**
++     * stop 
++     * 
++     * @param mixed $db 
++     * @access public
++     * @return void
++     */
++    public function stop(&$db);
++}
++
++?>
+--- /Users/shupp/pear/lib/Framework/DB/None.php	1969-12-31 16:00:00.000000000 -0800
++++ Framework/DB/None.php	2007-07-20 15:23:34.000000000 -0700
+@@ -0,0 +1,49 @@
++<?php
++
++/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
++
++/**
++ * Framework_DB_None
++ *
++ * @author      Bill Shupp <hostmaster@shupp.org>
++ * @copyright   Bill Shupp <hostmaster@shupp.org>
++ * @package     Framework
++ * @subpackage  DB
++ * @filesource
++ */
++
++/**
++ * Framework_DB_None
++ *
++ * All Framework_DB drivers must implement this so they all behave in
++ * the same basic manner. 
++ *
++ * @author      Bill Shupp <hostmaster@shupp.org
++ * @package     Framework
++ * @subpackage  DB
++ */
++class Framework_DB_None implements Framework_DB_Interface
++{
++    /**
++     * start 
++     * 
++     * @access public
++     * @return void
++     */
++    public function start($dsn)
++    {
++        Framework::$db = null;
++    }
++    /**
++     * stop 
++     * 
++     * @access public
++     * @return void
++     */
++    public function stop()
++    {
++        Framework::$db = null;
++    }
++}
++
++?>
+--- /Users/shupp/pear/lib/Framework/DB.php	1969-12-31 16:00:00.000000000 -0800
++++ Framework/DB.php	2007-07-20 13:09:05.000000000 -0700
+@@ -0,0 +1,58 @@
++<?php
++
++/**
++ * Framework_DB
++ *
++ * Default Framework Database Driver
++ *
++ * @author Bill Shupp <hostmaster@shupp.org>
++ * @license http://www.opensource.org/licenses/bsd-license.php
++ * @package Framework
++ * @filesource
++ */
++
++require_once 'DB.php';
++
++/**
++ * Framework_DB
++ *
++ * Default Framework Database Driver
++ *
++ * @author Bill Shupp <hostmaster@shupp.org>
++ * @package Framework
++ */
++class Framework_DB 
++implements Framework_DB_Interface
++{
++    /**
++     * start 
++     * 
++     * @param mixed $dsn 
++     * @access public
++     * @return void
++     */
++    public function start($dsn)
++    {
++        Framework::$db = DB::connect($dsn);
++        if (!PEAR::isError(Framework::$db)) {
++            Framework::$db->setFetchMode(DB_FETCHMODE_ASSOC);
++        } else {
++            throw new Framework_Exception(Framework::$db);
++        }
++    }
++    /**
++     * stop 
++     * 
++     * @param mixed $db 
++     * @access private
++     * @return void
++     */
++    public function stop(&$db)
++    {
++        if ($db instanceof DB) {
++            $db->disconnect();
++        }
++    }
++}
++
++?>
+--- /Users/shupp/pear/lib/Framework/Object/DB.php	2007-07-03 21:43:59.000000000 -0700
++++ Framework/Object/DB.php	2007-07-20 16:28:04.000000000 -0700
+@@ -31,12 +31,23 @@
+      * $db
+      *
+      * @access protected
+-     * @var object $db Instance of PEAR DB connection
++     * @var object $db
+      * @see DB
+      */
+     protected $db = null;
+ 
+     /**
++     * driver 
++     * 
++     * Database Driver class
++     * 
++     * @static
++     * @var mixed
++     * @access protected
++     */
++    static protected $dbDriver = null;
++
++    /**
+      * __construct
+      *
+      * @access public
+@@ -53,22 +64,35 @@
+      *
+      * @access  private
+      * @return  reference
+-     * @static
+      */
+     static private function &createDB()
+     {
+-        if (is_null(Framework::$db)) {
+-            if (!isset(Framework::$site->config->dsn)) {
+-                Framework::$db = null;
+-            } else {
++        if (is_null(self::$dbDriver)) {
++            $dsn = null;
++            $class = 'Framework_DB';
++            $file = null;
++            if (isset(Framework::$site->config->dbClass)) {
++                $class = 'Framework_DB_' . (string)Framework::$site->config->dbClass;
++                $file = 'Framework/DB/' . Framework::$site->config->dbClass.'.php';
++            }
++
++            if (isset(Framework::$site->config->dsn)) {
+                 $dsn = (string)Framework::$site->config->dsn;
+-                Framework::$db = DB::connect($dsn);
+-                if (!PEAR::isError(Framework::$db)) {
+-                    Framework::$db->setFetchMode(DB_FETCHMODE_ASSOC);
+-                } else {
+-                    throw new Framework_Exception(Framework::$db);
++            } else {
++                $class = 'Framework_DB_None';
++            }
++
++            if (!is_null($file)) {
++                if (!include_once($file)) {
++                    return PEAR::raiseError('Could not load class file: '.$file);
+                 }
+             }
++
++            self::$dbDriver = new $class;
++        }
++
++        if (is_null(Framework::$db)) {
++            self::$dbDriver->start($dsn);
+         }
+ 
+         return Framework::$db;
+@@ -97,6 +121,21 @@
+     }
+ 
+     /**
++     * stopDB
++     * 
++     * Disconnect DB
++     * 
++     * @access public
++     * @return void
++     */
++    private function stopDB()
++    {
++        if (!is_null($this->dbDriver)) {
++            $this->dbDriver->stop($this->db);
++        }
++    }
++
++    /**
+      * __destruct
+      * 
+      * @access public
+@@ -104,6 +143,7 @@
+      */
+     public function __destruct()
+     {
++        $this->stopDB();
+         parent::__destruct();
+     }
+ }
+--- /Users/shupp/pear/lib/Framework/User.php	2007-07-03 21:43:59.000000000 -0700
++++ Framework/User.php	2007-07-20 15:31:15.000000000 -0700
+@@ -44,6 +44,12 @@
+     public function __construct($userID=null)
+     {
+         parent::__construct();
++        $this->getUserData($userID);
++
++    }
++
++    protected function getUserData($userID)
++    {
+         if (is_null($userID)) {
+             $session = & Framework_Session::singleton(); 
+             $userID = $session->{Framework::$site->config->user->userField};
+--- /Users/shupp/pear/lib/Framework.php	2007-07-03 21:43:59.000000000 -0700
++++ Framework.php	2007-07-20 16:29:11.000000000 -0700
+@@ -183,10 +183,6 @@
+             return $result;
+         }
+ 
+-        if (DB::isConnection(self::$db)) {
+-            self::$db->disconnect();
+-        }
+-
+         if (self::$log instanceof Log) {
+             self::$log->close();
+         }

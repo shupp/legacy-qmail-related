@@ -1,0 +1,2826 @@
+diff -crN ../qmail-1.03/Makefile ./Makefile
+*** ../qmail-1.03/Makefile	Mon Jun 15 05:53:16 1998
+--- ./Makefile	Sat May 18 01:45:14 2002
+***************
+*** 136,141 ****
+--- 136,145 ----
+  compile auto_usera.c
+  	./compile auto_usera.c
+  
++ base64.o: \
++ compile base64.c base64.h stralloc.h substdio.h str.h
++ 	./compile base64.c
++ 
+  binm1: \
+  binm1.sh conf-qmail
+  	cat binm1.sh \
+***************
+*** 1446,1452 ****
+  	timeoutwrite.o timeoutconn.o tcpto.o now.o dns.o ip.o \
+  	ipalloc.o ipme.o quote.o ndelay.a case.a sig.a open.a \
+  	lock.a seek.a getln.a stralloc.a alloc.a substdio.a error.a \
+! 	str.a fs.a auto_qmail.o  `cat dns.lib` `cat socket.lib`
+  
+  qmail-remote.0: \
+  qmail-remote.8
+--- 1450,1457 ----
+  	timeoutwrite.o timeoutconn.o tcpto.o now.o dns.o ip.o \
+  	ipalloc.o ipme.o quote.o ndelay.a case.a sig.a open.a \
+  	lock.a seek.a getln.a stralloc.a alloc.a substdio.a error.a \
+! 	str.a fs.a auto_qmail.o  `cat dns.lib` `cat socket.lib` \
+! 	-L/usr/local/ssl/lib -lssl -lcrypto
+  
+  qmail-remote.0: \
+  qmail-remote.8
+***************
+*** 1483,1494 ****
+  trigger.o fmtqfn.o quote.o now.o readsubdir.o qmail.o date822fmt.o \
+  datetime.a case.a ndelay.a getln.a wait.a seek.a fd.a sig.a open.a \
+  lock.a stralloc.a alloc.a substdio.a error.a str.a fs.a auto_qmail.o \
+! auto_split.o
+  	./load qmail-send qsutil.o control.o constmap.o newfield.o \
+  	prioq.o trigger.o fmtqfn.o quote.o now.o readsubdir.o \
+  	qmail.o date822fmt.o datetime.a case.a ndelay.a getln.a \
+  	wait.a seek.a fd.a sig.a open.a lock.a stralloc.a alloc.a \
+! 	substdio.a error.a str.a fs.a auto_qmail.o auto_split.o 
+  
+  qmail-send.0: \
+  qmail-send.8
+--- 1488,1499 ----
+  trigger.o fmtqfn.o quote.o now.o readsubdir.o qmail.o date822fmt.o \
+  datetime.a case.a ndelay.a getln.a wait.a seek.a fd.a sig.a open.a \
+  lock.a stralloc.a alloc.a substdio.a error.a str.a fs.a auto_qmail.o \
+! auto_split.o env.a
+  	./load qmail-send qsutil.o control.o constmap.o newfield.o \
+  	prioq.o trigger.o fmtqfn.o quote.o now.o readsubdir.o \
+  	qmail.o date822fmt.o datetime.a case.a ndelay.a getln.a \
+  	wait.a seek.a fd.a sig.a open.a lock.a stralloc.a alloc.a \
+! 	substdio.a error.a str.a fs.a auto_qmail.o auto_split.o env.a
+  
+  qmail-send.0: \
+  qmail-send.8
+***************
+*** 1536,1548 ****
+  timeoutwrite.o ip.o ipme.o ipalloc.o control.o constmap.o received.o \
+  date822fmt.o now.o qmail.o cdb.a fd.a wait.a datetime.a getln.a \
+  open.a sig.a case.a env.a stralloc.a alloc.a substdio.a error.a str.a \
+! fs.a auto_qmail.o socket.lib
+  	./load qmail-smtpd rcpthosts.o commands.o timeoutread.o \
+  	timeoutwrite.o ip.o ipme.o ipalloc.o control.o constmap.o \
+  	received.o date822fmt.o now.o qmail.o cdb.a fd.a wait.a \
+  	datetime.a getln.a open.a sig.a case.a env.a stralloc.a \
+! 	alloc.a substdio.a error.a str.a fs.a auto_qmail.o  `cat \
+! 	socket.lib`
+  
+  qmail-smtpd.0: \
+  qmail-smtpd.8
+--- 1541,1553 ----
+  timeoutwrite.o ip.o ipme.o ipalloc.o control.o constmap.o received.o \
+  date822fmt.o now.o qmail.o cdb.a fd.a wait.a datetime.a getln.a \
+  open.a sig.a case.a env.a stralloc.a alloc.a substdio.a error.a str.a \
+! fs.a auto_qmail.o base64.o socket.lib
+  	./load qmail-smtpd rcpthosts.o commands.o timeoutread.o \
+  	timeoutwrite.o ip.o ipme.o ipalloc.o control.o constmap.o \
+  	received.o date822fmt.o now.o qmail.o cdb.a fd.a wait.a \
+  	datetime.a getln.a open.a sig.a case.a env.a stralloc.a \
+! 	alloc.a substdio.a error.a str.a fs.a auto_qmail.o base64.o `cat \
+! 	socket.lib` -L/usr/local/ssl/lib -lssl -lcrypto
+  
+  qmail-smtpd.0: \
+  qmail-smtpd.8
+***************
+*** 1553,1559 ****
+  substdio.h alloc.h auto_qmail.h control.h received.h constmap.h \
+  error.h ipme.h ip.h ipalloc.h ip.h gen_alloc.h ip.h qmail.h \
+  substdio.h str.h fmt.h scan.h byte.h case.h env.h now.h datetime.h \
+! exit.h rcpthosts.h timeoutread.h timeoutwrite.h commands.h
+  	./compile qmail-smtpd.c
+  
+  qmail-start: \
+--- 1558,1565 ----
+  substdio.h alloc.h auto_qmail.h control.h received.h constmap.h \
+  error.h ipme.h ip.h ipalloc.h ip.h gen_alloc.h ip.h qmail.h \
+  substdio.h str.h fmt.h scan.h byte.h case.h env.h now.h datetime.h \
+! exit.h rcpthosts.h timeoutread.h timeoutwrite.h commands.h wait.h \
+! fd.h base64.h
+  	./compile qmail-smtpd.c
+  
+  qmail-start: \
+***************
+*** 2139,2141 ****
+--- 2145,2166 ----
+  wait_pid.o: \
+  compile wait_pid.c error.h haswaitp.h
+  	./compile wait_pid.c
++ 
++ cert:
++ 	/usr/bin/openssl req -new -x509 -nodes \
++ 	-out /var/qmail/control/servercert.pem -days 366 \
++ 	-keyout /var/qmail/control/servercert.pem
++ 	chmod 640 /var/qmail/control/servercert.pem
++ 	chown vpopmail.vchkpw /var/qmail/control/servercert.pem
++ 	ln -s /var/qmail/control/servercert.pem /var/qmail/control/clientcert.pem
++ 
++ cert-req:
++ 	/usr/local/ssl/bin/openssl req -new -nodes \
++ 	-out req.pem \
++ 	-keyout /var/qmail/control/servercert.pem
++ 	chmod 640 /var/qmail/control/servercert.pem
++ 	chown qmaild.qmail /var/qmail/control/servercert.pem
++ 	ln -s /var/qmail/control/servercert.pem /var/qmail/control/clientcert.pem
++ 	@echo
++ 	@echo "Send req.pem to your CA to obtain signed_req.pem, and do:"
++ 	@echo "cat signed_req.pem >> /var/qmail/control/servercert.pem"
+diff -crN ../qmail-1.03/README.auth ./README.auth
+*** ../qmail-1.03/README.auth	Wed Dec 31 18:00:00 1969
+--- ./README.auth	Sat May 18 01:43:07 2002
+***************
+*** 0 ****
+--- 1,175 ----
++ *** Warning! Cuidado! Vorsicht! ***
++ ===================================
++ *** Version 0.30 of the patch changes the arguments which must be
++ *** passed to qmail-smtpd.  If you are upgrading from a previous
++ *** version of the patch, take care to ensure your invocation of
++ *** qmail-smtpd uses the correct arguments.  Otherwise, your server
++ *** may run as an open relay!
++ ===================================
++ *** Warning! Cuidado! Vorsicht! ***
++ 
++ 
++ This patch adds ESMTP AUTH authentication protocol support to
++ qmail-1.03.  It's originally based on Mrs. Brisby's smtp-auth patch
++ with many enhancements from Krzysztof Dabrowski <brush@elysium.pl>.
++ 
++ Beginning with version 0.30, the patch was completely rewritten to
++ use only djb's string functions by Eric M. Johnston <emj@postal.net>.
++ 
++ You can always get the newest version from:
++ http://members.elysium.pl/brush/qmail-smtpd-auth/
++ 
++ To use all of it's functionality you will also have to obtain and
++ install Krzysztof's cmd5checkpw utility available at:
++ http://members.elysium.pl/brush/cmd5checkpw/
++ 
++ If you need more information about SMTP-AUTH itself and the
++ client/server support and configuration, visit:
++ http://members.elysium.pl/brush/smtp-auth/
++ 
++ ---
++ 
++ Detailed patch information:
++ 
++ This patch adds the ESMTP AUTH option to qmail-1.03, allowing the
++ LOGIN, PLAIN, and CRAM-MD5 AUTH types. An appropriate checkpassword
++ tool is necessary to support the authentication.  See
++ http://cr.yp.to/checkpwd.html for more information on the interface.
++ Note that the checkpassword tool should support all of the AUTH types
++ advertised by qmail-smtpd.
++ 
++ As reflected in the modified qmail-smtpd(8) man page, qmail-smtpd
++ must be invoked with three arguments: hostname, checkprogram, and
++ subprogram.  If these arguments are missing, qmail-smtpd will still
++ advertise availability of AUTH, but will fail with a permanent error
++ when AUTH is used.
++ 
++ hostname is simply used to form the CRAM-MD5 challenge.  qmail-smtpd
++ invokes checkprogram, feeding it the username and password, in the
++ case of LOGIN or PLAIN, or the username, challenge, and response, in
++ the case of CRAM-MD5.  If the user is permitted, checkprogram invokes
++ subprogram, which just has to exit with a status of 0 for the user to
++ be authenticated.  Otherwise, checkprogram exits with a non-zero
++ status.  subprogram can usually be /usr/bin/true (or /bin/true,
++ depending on your flavor of OS).
++ 
++ If the user is successfully authenticated, the RELAYCLIENT
++ environment variable is effectively set for the SMTP session, and
++ the TCPREMOTEINFO environment variable is effectively set to the
++ authenticated username, overriding any value that tcpserver may have
++ set.  The value of TCPREMOTEINFO is reflected in a Received header.
++ 
++ 
++ How to install it:
++ 
++ Simply patch your qmail-1.03 distribution with the included patch
++ file and recompile & install like usual.
++ 
++ The steps to do this are as follows (assuming your virgin
++ qmail-1.03 install is in "../qmail-1.03"):
++ 
++   cp README.auth base64.c base64.h ../qmail-1.03
++   patch -d ../qmail-1.03 < auth.patch
++ 
++ Install qmail normally, with the exception of the new arguments
++ to qmail-smtpd described elsewhere in this file.
++ 
++ Also obtain, unpack, compile and install the cmd5checkpw utility
++ (or some other checkpassword utility) and add a sample account to
++ /etc/poppasswd file.  This file must be readable by the qmail-smtpd
++ user, usually qmaild.
++ 
++ 
++ How to use it:
++ 
++ *** Warning: In version 0.30 the arguments have changed from
++ *** previous versions of qmail-smtpd-auth.  Take care to make sure
++ *** you update your startup scripts if updating!
++ 
++ If you're running qmail-smtpd from inetd, you'll want to do the
++ following:
++ 
++ smtp stream tcp nowait qmaild /var/qmail/bin/tcp-env tcp-env \
++ /var/qmail/bin/qmail-smtpd mail.acme.com /bin/cmd5checkpw /bin/true
++ 
++ Replace mail.acme.com with your hostname.  The second argument to
++ qmail-smtpd is your checkpassword utility (preferably cmd5checkpw
++ or some alternative that can handle CRAM-MD5).  The third argument
++ is the executable that the checkpassword utility execs when
++ authentication is successful.  (Note that the location of "true"
++ is OS dependent: you may need /usr/bin/true.)
++ 
++ Invocations using tcpserver will require analagous changes.  Give
++ your inetd a kill -HUP or restart tcpserver and away you go.
++ 
++ 
++ Caveats:
++ 
++ Please note that as authentication needs vary wildly across
++ installations, no effort has been made to make this patch work ``out
++ of the box.''  You'll have to procure or develop your own
++ checkpassword program.  Also note that CRAM-MD5 will require you to
++ keep plaintext passwords.  You'll probably want to disable this AUTH
++ type if you're just using /etc/passwd (keeping in mind that PLAIN and
++ LOGIN aren't quite as safe over the wire) -- just undefine AUTHCRAM
++ in qmail-smtpd.
++ 
++ Krzysztof Dabrowski's cmd5checkpw tool used as an example in this
++ document supports the three AUTH types included in this patch.
++ It's available at http://www.elysium.pl/members/brush/cmd5checkpw/.
++ 
++ This patch has been generated against the stock qmail 1.03
++ distribution.  The results of combining this patch with others are
++ unknown.
++ 
++ 
++ Features:
++ 
++ This patch supports the following auth methods: LOGIN, PLAIN and
++ CRAM-MD5.
++ 
++ 
++ Compatibility:
++ 
++ The following MUA's are confirmed to work with this patch:
++ 
++ Eudora 4.2.2		-	CRAM-MD5
++ Eudora 5.0.2 		- 	CRAM-MD5
++ The Bat 1.39		-	LOGIN & CRAM-MD5
++ Outlook Express 4	- 	LOGIN
++ Outlook Express 5	-	LOGIN
++ Outlook 2000 		- 	LOGIN
++ Netscape 4.x		-	LOGIN & PLAIN
++ Netscape 4.0x		-	LOGIN
++ Pegasus Mail 3.1x	-	CRAM-MD5
++ 
++ 
++ Various compatibility issues:
++ 
++ Testing with Pegasus Mail 3.1 revealed that it requires the new style
++ (RFC recommended) greeting message.  Both styles are now enabled to
++ maintain the highest degree of compatibility with various clients.
++ This fix was suggested by David Harris <David.Harris@pmail.gen.nz>,
++ the developer of Pegasus Mail.
++ 
++ 
++ Acknowledgments:
++ 
++ This patch is based on work by Krzysztof Dabrowski at
++ http://members.elysium.pl/brush/qmail-smtpd-auth/ and ``Mrs. Brisby''
++ at http://www.nimh.org/hacks/qmail-smtpd.c which has been further
++ developed by Eric M. Johnston <emj@postal.net>.
++ 
++ ---
++ 
++ THIS SOFTWARE IS IN THE PUBLIC DOMAIN, IS PROVIDED BY THE AUTHOR
++ ``AS IS,'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
++ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
++ A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE
++ LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
++ CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
++ SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
++ BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
++ WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
++ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
++ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+diff -crN ../qmail-1.03/TARGETS ./TARGETS
+*** ../qmail-1.03/TARGETS	Mon Jun 15 05:53:16 1998
+--- ./TARGETS	Sat May 18 01:43:07 2002
+***************
+*** 250,255 ****
+--- 250,256 ----
+  qmail-qmtpd.o
+  rcpthosts.o
+  qmail-qmtpd
++ base64.o
+  qmail-smtpd.o
+  qmail-smtpd
+  sendmail.o
+diff -crN ../qmail-1.03/base64.c ./base64.c
+*** ../qmail-1.03/base64.c	Wed Dec 31 18:00:00 1969
+--- ./base64.c	Sat May 18 01:43:07 2002
+***************
+*** 0 ****
+--- 1,90 ----
++ #include "base64.h"
++ #include "stralloc.h"
++ #include "substdio.h"
++ #include "str.h"
++ 
++ static char *b64alpha =
++   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
++ #define B64PAD '='
++ 
++ /* returns 0 ok, 1 illegal, -1 problem */
++ 
++ int b64decode(in,l,out)
++ const unsigned char *in;
++ int l;
++ stralloc *out; /* not null terminated */
++ {
++   int i, j;
++   unsigned char a[4];
++   unsigned char b[3];
++   char *s;
++ 
++   if (l == 0)
++   {
++     if (!stralloc_copys(out,"")) return -1;
++     return 0;
++   }
++ 
++   if (!stralloc_ready(out,l + 2)) return -1; /* XXX generous */
++   s = out->s;
++ 
++   for (i = 0;i < l;i += 4) {
++     for (j = 0;j < 4;j++)
++       if ((i + j) < l && in[i + j] != B64PAD)
++       {
++         a[j] = str_chr(b64alpha,in[i + j]);
++         if (a[j] > 63) return 1;
++       }
++       else a[j] = 0;
++ 
++     b[0] = (a[0] << 2) | (a[1] >> 4);
++     b[1] = (a[1] << 4) | (a[2] >> 2);
++     b[2] = (a[2] << 6) | (a[3]);
++ 
++     *s++ = b[0];
++ 
++     if (in[i + 1] == B64PAD) break;
++     *s++ = b[1];
++ 
++     if (in[i + 2] == B64PAD) break;
++     *s++ = b[2];
++   }
++   out->len = s - out->s;
++   while (out->len && !out->s[out->len - 1]) --out->len; /* XXX avoid? */
++   return 0;
++ }
++ 
++ int b64encode(in,out)
++ stralloc *in;
++ stralloc *out; /* not null terminated */
++ {
++   unsigned char a, b, c;
++   int i;
++   char *s;
++ 
++   if (in->len == 0)
++   {
++     if (!stralloc_copys(out,"")) return -1;
++     return 0;
++   }
++ 
++   if (!stralloc_ready(out,in->len / 3 * 4 + 4)) return -1;
++   s = out->s;
++ 
++   for (i = 0;i < in->len;i += 3) {
++     a = in->s[i];
++     b = i + 1 < in->len ? in->s[i + 1] : 0;
++     c = i + 2 < in->len ? in->s[i + 2] : 0;
++ 
++     *s++ = b64alpha[a >> 2];
++     *s++ = b64alpha[((a & 3 ) << 4) | (b >> 4)];
++ 
++     if (i + 1 >= in->len) *s++ = B64PAD;
++     else *s++ = b64alpha[((b & 15) << 2) | (c >> 6)];
++ 
++     if (i + 2 >= in->len) *s++ = B64PAD;
++     else *s++ = b64alpha[c & 63];
++   }
++   out->len = s - out->s;
++   return 0;
++ }
+diff -crN ../qmail-1.03/base64.h ./base64.h
+*** ../qmail-1.03/base64.h	Wed Dec 31 18:00:00 1969
+--- ./base64.h	Sat May 18 01:43:07 2002
+***************
+*** 0 ****
+--- 1,7 ----
++ #ifndef BASE64_H
++ #define BASE64_H
++ 
++ extern int b64decode();
++ extern int b64encode();
++ 
++ #endif
+diff -crN ../qmail-1.03/conf-cc ./conf-cc
+*** ../qmail-1.03/conf-cc	Mon Jun 15 05:53:16 1998
+--- ./conf-cc	Sat May 18 01:44:16 2002
+***************
+*** 1,3 ****
+! cc -O2
+  
+  This will be used to compile .c files.
+--- 1,3 ----
+! cc -O2 -DTLS -ISSLINC
+  
+  This will be used to compile .c files.
+diff -crN ../qmail-1.03/conf-sslbin ./conf-sslbin
+*** ../qmail-1.03/conf-sslbin	Wed Dec 31 18:00:00 1969
+--- ./conf-sslbin	Sat May 18 01:44:16 2002
+***************
+*** 0 ****
+--- 1,3 ----
++ /usr/bin/openssl
++ 
++ This is the location of your openssl binary
+diff -crN ../qmail-1.03/conf-sslinc ./conf-sslinc
+*** ../qmail-1.03/conf-sslinc	Wed Dec 31 18:00:00 1969
+--- ./conf-sslinc	Sat May 18 01:44:16 2002
+***************
+*** 0 ****
+--- 1,3 ----
++ /usr/include/openssl
++ 
++ This is where your openssl include files are located
+diff -crN ../qmail-1.03/conf-ssllib ./conf-ssllib
+*** ../qmail-1.03/conf-ssllib	Wed Dec 31 18:00:00 1969
+--- ./conf-ssllib	Sat May 18 01:44:16 2002
+***************
+*** 0 ****
+--- 1,3 ----
++ /usr/lib
++ 
++ This is where your ssl libs can be found
+diff -crN ../qmail-1.03/dns.c ./dns.c
+*** ../qmail-1.03/dns.c	Mon Jun 15 05:53:16 1998
+--- ./dns.c	Sat May 18 01:43:07 2002
+***************
+*** 270,275 ****
+--- 270,283 ----
+  {
+   int r;
+   struct ip_mx ix;
++ #ifdef TLS
++  stralloc fqdn = {0};
++ 
++  if (!stralloc_copy(&fqdn,sa)) return DNS_MEM;
++  if (!stralloc_0(&fqdn)) return DNS_MEM;
++  ix.fqdn = fqdn.s;
++  alloc_free(fqdn);
++ #endif
+  
+   if (!stralloc_copy(&glue,sa)) return DNS_MEM;
+   if (!stralloc_0(&glue)) return DNS_MEM;
+***************
+*** 330,335 ****
+--- 338,346 ----
+     ix.pref = 0;
+     if (!glue.s[ip_scan(glue.s,&ix.ip)] || !glue.s[ip_scanbracket(glue.s,&ix.ip)])
+      {
++ #ifdef TLS
++      ix.fqdn = NULL;
++ #endif
+       if (!ipalloc_append(ia,&ix)) return DNS_MEM;
+       return 0;
+      }
+diff -crN ../qmail-1.03/ipalloc.h ./ipalloc.h
+*** ../qmail-1.03/ipalloc.h	Mon Jun 15 05:53:16 1998
+--- ./ipalloc.h	Sat May 18 01:43:07 2002
+***************
+*** 3,9 ****
+--- 3,14 ----
+  
+  #include "ip.h"
+  
++ #ifdef TLS
++ #include "stralloc.h"
++ struct ip_mx { struct ip_address ip; int pref; char *fqdn; } ;
++ #else
+  struct ip_mx { struct ip_address ip; int pref; } ;
++ #endif
+  
+  #include "gen_alloc.h"
+  
+diff -crN ../qmail-1.03/maildirquota.h ./maildirquota.h
+*** ../qmail-1.03/maildirquota.h	Wed Dec 31 18:00:00 1969
+--- ./maildirquota.h	Sat May 18 01:48:33 2002
+***************
+*** 0 ****
+--- 1,282 ----
++ /* This is a composite of deliverquota's maildirquota.h, maildirmisc.h, 
++    maildirgetquota.h and numlib.h.  I only consolidated them to keep this 
++    patch to qmail a bit less intrusive.
++    -Bill Shupp
++  */
++ 
++ 
++ 
++ 
++ /* from maildirquota.h */
++ 
++ #ifndef	maildirquota_h
++ #define	maildirquota_h
++ 
++ /*
++ ** Copyright 1998 - 1999 Double Precision, Inc.
++ ** See COPYING for distribution information.
++ */
++ 
++ #include	<sys/types.h>
++ #include	<time.h>
++ 
++ #ifdef  __cplusplus
++ extern "C" {
++ #endif
++ 
++ static const char maildirquota_h_rcsid[]="$Id: maildirquota.h,v 1.2 2000/09/04 17:10:28 mrsam Exp $";
++ 
++ int maildir_checkquota(const char *,	/* Pointer to directory */
++ 	int *,	/* Initialized to -1, or opened descriptor for maildirsize */
++ 	const char *,	/* The quota */
++ 	long,		/* Extra bytes planning to add/remove from maildir */
++ 	int);		/* Extra messages planning to add/remove from maildir */
++ 
++ int maildir_addquota(const char *,	/* Pointer to the maildir */
++ 	int,	/* Must be the int pointed to by 2nd arg to checkquota */
++ 	const char *,	/* The quota */
++ 	long,	/* +/- bytes */
++ 	int);	/* +/- files */
++ 
++ int maildir_readquota(const char *,	/* Directory */
++ 	const char *);			/* Quota, from getquota */
++ 
++ int maildir_parsequota(const char *, unsigned long *);
++ 	/* Attempt to parse file size encoded in filename.  Returns 0 if
++ 	** parsed, non-zero if we didn't parse. */
++ 
++ #ifdef  __cplusplus
++ }
++ #endif
++ 
++ #endif
++ 
++ 
++ 
++ 
++ /* from maildirmisc.h */
++ 
++ 
++ #ifndef	maildirmisc_h
++ #define	maildirmisc_h
++ 
++ /*
++ ** Copyright 2000 Double Precision, Inc.
++ ** See COPYING for distribution information.
++ */
++ 
++ #ifdef  __cplusplus
++ extern "C" {
++ #endif
++ 
++ static const char maildirmisc_h_rcsid[]="$Id: maildirmisc.h,v 1.8 2000/12/25 17:33:06 mrsam Exp $";
++ 
++ /*
++ **
++ ** Miscellaneous maildir-related code
++ **
++ */
++ 
++ /* Some special folders */
++ 
++ #define	INBOX	"INBOX"
++ #define	DRAFTS	"Drafts"
++ #define	SENT	"Sent"
++ #define	TRASH	"Trash"
++ 
++ #define	SHAREDSUBDIR	"shared-folders"
++ 
++ char *maildir_folderdir(const char *,		/* maildir */
++ 	const char *);				/* folder name */
++ 	/* Returns the directory corresponding to foldername (foldername is
++ 	** checked to make sure that it's a valid name, else we set errno
++ 	** to EINVAL, and return (0).
++ 	*/
++ 
++ char *maildir_filename(const char *,		/* maildir */
++ 	const char *,				/* folder */
++ 	const char *);				/* filename */
++ 	/*
++ 	** Builds the filename to this message, suitable for opening.
++ 	** If the file doesn't appear to be there, search the maildir to
++ 	** see if someone changed the flags, and return the current filename.
++ 	*/
++ 
++ int maildir_safeopen(const char *,		/* filename */
++ 	int,				/* mode */
++ 	int);				/* perm */
++ 
++ /*
++ **	Same arguments as open().  When we're accessing a shared maildir,
++ **	prevent someone from playing cute and dumping a bunch of symlinks
++ **	in there.  This function will open the indicate file only if the
++ **	last component is not a symlink.
++ **	This is implemented by opening the file with O_NONBLOCK (to prevent
++ **	a DOS attack of someone pointing the symlink to a pipe, causing
++ **	the open to hang), clearing O_NONBLOCK, then stat-int the file
++ **	descriptor, lstating the filename, and making sure that dev/ino
++ **	match.
++ */
++ 
++ int maildir_semisafeopen(const char *,	/* filename */
++ 	int,				/* mode */
++ 	int);				/* perm */
++ 
++ /*
++ ** Same thing, except that we allow ONE level of soft link indirection,
++ ** because we're reading from our own maildir, which points to the
++ ** message in the sharable maildir.
++ */
++ 
++ int maildir_mkdir(const char *);	/* directory */
++ /*
++ ** Create maildir including all subdirectories in the path (like mkdir -p)
++ */
++ 
++ void maildir_purgetmp(const char *);		/* maildir */
++ 	/* purges old stuff out of tmp */
++ 
++ void maildir_purge(const char *,		/* directory */
++ 	unsigned);				/* time_t to purge */
++ 
++ void maildir_getnew(const char *,		/* maildir */
++ 	const char *);				/* folder */
++ 	/* move messages from new to cur */
++ 
++ int maildir_deletefolder(const char *,		/* maildir */
++ 	const char *);				/* folder */
++ 	/* deletes a folder */
++ 
++ int maildir_mddelete(const char *);	/* delete a maildir folder by path */
++ 
++ void maildir_list_sharable(const char *,	/* maildir */
++ 	void (*)(const char *, void *),		/* callback function */
++ 	void *);				/* 2nd arg to callback func */
++ 	/* list sharable folders */
++ 
++ int maildir_shared_subscribe(const char *,	/* maildir */
++ 		const char *);			/* folder */
++ 	/* subscribe to a shared folder */
++ 
++ void maildir_list_shared(const char *,		/* maildir */
++ 	void (*)(const char *, void *),		/* callback function */
++ 	void *);			/* 2nd arg to the callback func */
++ 	/* list subscribed folders */
++ 
++ int maildir_shared_unsubscribe(const char *,	/* maildir */
++ 		const char *);			/* folder */
++ 	/* unsubscribe from a shared folder */
++ 
++ char *maildir_shareddir(const char *,		/* maildir */
++ 	const char *);				/* folder */
++ 	/*
++ 	** Validate and return a path to a shared folder.  folderdir must be
++ 	** a name of a valid shared folder.
++ 	*/
++ 
++ void maildir_shared_sync(const char *);		/* maildir */
++ 	/* "sync" the shared folder */
++ 
++ int maildir_sharedisro(const char *);		/* maildir */
++ 	/* maildir is a shared read-only folder */
++ 
++ int maildir_unlinksharedmsg(const char *);	/* filename */
++ 	/* Remove a message from a shared folder */
++ 
++ /* Internal function that reads a symlink */
++ 
++ char *maildir_getlink(const char *);
++ 
++ 	/* Determine whether the maildir filename has a certain flag */
++ 
++ int maildir_hasflag(const char *filename, char);
++ 
++ #define	MAILDIR_DELETED(f)	maildir_hasflag((f), 'T')
++ 
++ #ifdef  __cplusplus
++ }
++ #endif
++ 
++ #endif
++ 
++ 
++ 
++ 
++ 
++ 
++ /* from numlib.h */
++ 
++ 
++ 
++ #ifndef	numlib_h
++ #define	numlib_h
++ 
++ /*
++ ** Copyright 1998 - 1999 Double Precision, Inc.
++ ** See COPYING for distribution information.
++ */
++ 
++ #ifdef	__cplusplus
++ extern "C" {
++ #endif
++ 
++ static const char numlib_h_rcsid[]="$Id: numlib.h,v 1.3 2001/08/12 15:46:40 mrsam Exp $";
++ 
++ #define	NUMBUFSIZE	60
++ 
++ /* Convert various system types to decimal */
++ 
++ char	*str_time_t(time_t, char *);
++ char	*str_off_t(off_t, char *);
++ char	*str_pid_t(pid_t, char *);
++ char	*str_ino_t(ino_t, char *);
++ char	*str_uid_t(uid_t, char *);
++ char	*str_gid_t(gid_t, char *);
++ char	*str_size_t(size_t, char *);
++ 
++ char	*str_sizekb(unsigned long, char *);	/* X Kb or X Mb */
++ 
++ /* Convert selected system types to hex */
++ 
++ char	*strh_time_t(time_t, char *);
++ char	*strh_pid_t(pid_t, char *);
++ char	*strh_ino_t(ino_t, char *);
++ 
++ #ifdef	__cplusplus
++ }
++ #endif
++ #endif
++ 
++ 
++ /* from maildirgetquota.h */
++ 
++ #ifndef maildirgetquota_h
++ #define maildirgetquota_h
++ 
++ /*
++ ** Copyright 1998 - 1999 Double Precision, Inc.
++ ** See COPYING for distribution information.
++ */
++ 
++ #if     HAVE_CONFIG_H
++ #include        "config.h"
++ #endif
++ 
++ #include        <sys/types.h>
++ 
++ #ifdef  __cplusplus
++ extern "C" {
++ #endif
++ 
++ static const char maildirgetquota_h_rcsid[]="$Id: maildirgetquota.h,v 1.5 1999/12/06 13:21:05 m
++ rsam Exp $";
++ 
++ #define QUOTABUFSIZE    256
++ 
++ int maildir_getquota(const char *, char [QUOTABUFSIZE]);
++ 
++ #ifdef  __cplusplus
++ }
++ #endif
++ 
++ #endif
+diff -crN ../qmail-1.03/qmail-pop3d.c ./qmail-pop3d.c
+*** ../qmail-1.03/qmail-pop3d.c	Mon Jun 15 05:53:16 1998
+--- ./qmail-pop3d.c	Sat May 18 01:48:33 2002
+***************
+*** 17,22 ****
+--- 17,38 ----
+  #include "timeoutread.h"
+  #include "timeoutwrite.h"
+  
++ /* maildirquota includes */
++ #if	HAVE_UNISTD_H
++ #include	<unistd.h>
++ #endif
++ #include <errno.h>
++ #include <stdlib.h>
++ #include <unistd.h>
++ #include <string.h>
++ #include <fcntl.h>
++ #include <dirent.h>
++ #include <sys/uio.h>
++ #include <time.h>
++ #include "maildirquota.h"
++ 
++ 
++ 
+  void die() { _exit(0); }
+  
+  int saferead(fd,buf,len) int fd; char *buf; int len;
+***************
+*** 180,188 ****
+  void pop3_quit()
+  {
+    int i;
+    for (i = 0;i < numm;++i)
+      if (m[i].flagdeleted) {
+!       if (unlink(m[i].fn) == -1) err_nounlink();
+      }
+      else
+        if (str_start(m[i].fn,"new/")) {
+--- 196,227 ----
+  void pop3_quit()
+  {
+    int i;
++   char quotabuf[QUOTABUFSIZE];
++   int has_quota=maildir_getquota(".", quotabuf);
++ 
++   long deleted_bytes=0;
++   long deleted_messages=0;
++ 
+    for (i = 0;i < numm;++i)
+      if (m[i].flagdeleted) {
+!       unsigned long un=0;
+!       const char *filename=m[i].fn;
+!       if (has_quota == 0 && !MAILDIR_DELETED(filename)) {
+!           if (maildir_parsequota(filename, &un)) {
+!               struct stat stat_buf;
+! 
+!               if (stat(filename, &stat_buf) == 0)
+!                   un=stat_buf.st_size;
+!           }
+!       }
+!       if (unlink(m[i].fn) == -1) {
+!           err_nounlink();
+!           un=0;
+!       }
+!       if (un) {
+!           deleted_bytes -= un;
+!           deleted_messages -= 1;
+!       }
+      }
+      else
+        if (str_start(m[i].fn,"new/")) {
+***************
+*** 192,197 ****
+--- 231,251 ----
+  	if (!stralloc_0(&line)) die_nomem();
+  	rename(m[i].fn,line.s); /* if it fails, bummer */
+        }
++ 
++     if (deleted_messages < 0) {
++         int quotafd;
++ 
++         if (maildir_checkquota(".", &quotafd, quotabuf, deleted_bytes,
++                                deleted_messages) && errno != EAGAIN &&
++                                deleted_bytes >= 0)
++             {
++                 if (quotafd >= 0) close (quotafd);
++             } else {
++                  maildir_addquota(".", quotafd, quotabuf,
++                                  deleted_bytes, deleted_messages);
++                  if (quotafd >= 0) close(quotafd);
++             }
++         }
+    okay();
+    die();
+  }
+***************
+*** 303,305 ****
+--- 357,1110 ----
+    commands(&ssin,pop3commands);
+    die();
+  }
++ 
++ 
++ 
++ /* maildirquota stuff */
++ 
++ 
++ /*
++ ** Copyright 1998 - 2000 Double Precision, Inc.
++ ** See COPYING for distribution information.
++ */
++ 
++ static char *makenewmaildirsizename(const char *, int *);
++ static int countcurnew(const char *, time_t *, off_t *, unsigned *);
++ static int countsubdir(const char *, const char *,
++                 time_t *, off_t *, unsigned *);
++ static int statcurnew(const char *, time_t *);
++ static int statsubdir(const char *, const char *, time_t *);
++ static int      doaddquota(const char *, int, const char *, long, int, int);
++ static int docheckquota(const char *dir,
++         int *maildirsize_fdptr,
++         const char *quota_type,
++         long xtra_size,
++         int xtra_cnt, int *percentage);
++ static int docount(const char *, time_t *, off_t *, unsigned *);
++ static int qcalc(off_t s, unsigned n, const char *quota, int *percentage);
++ char *str_time_t(time_t t, char *arg);
++ char *str_pid_t(pid_t t, char *arg);
++ 
++ 
++ 
++ int	maildir_getquota(const char *dir, char buf[QUOTABUFSIZE])
++ {
++ char	*p;
++ struct	stat	stat_buf;
++ int	n;
++ int	l;
++ 
++ 	p=(char *)malloc(strlen(dir)+sizeof("/maildirfolder"));
++ 	if (!p)	return (-1);
++ 
++ 	strcat(strcpy(p, dir), "/maildirfolder");
++ 	if (stat(p, &stat_buf) == 0)
++ 	{
++ 		strcat(strcpy(p, dir), "/..");
++ 		n=maildir_getquota(p, buf);
++ 		free(p);
++ 		return (n);
++ 	}
++ 
++ 	strcat(strcpy(p, dir), "/maildirsize");
++ 	n=maildir_safeopen(p, O_RDONLY, 0);
++ 	free(p);
++ 	if (n < 0)	return (n);
++ 	if ((l=read(n, buf, QUOTABUFSIZE-1)) < 0)
++ 	{
++ 		close(n);
++ 		return (-1);
++ 	}
++ 	close(n);
++ 	for (n=0; n<l; n++)
++ 		if (buf[n] == '\n')	break;
++ 	buf[n]=0;
++ 	return (0);
++ }
++ 
++ 
++ int maildir_safeopen(const char *path, int mode, int perm)
++ {
++ struct  stat    stat1, stat2;
++ 
++ int     fd=open(path, mode
++ #ifdef  O_NONBLOCK
++                         | O_NONBLOCK
++ #else
++                         | O_NDELAY
++ #endif
++                                 , perm);
++ 
++         if (fd < 0)     return (fd);
++         if (fcntl(fd, F_SETFL, (mode & O_APPEND)) || fstat(fd, &stat1)
++             || lstat(path, &stat2))
++         {
++                 close(fd);
++                 return (-1);
++         }
++ 
++         if (stat1.st_dev != stat2.st_dev || stat1.st_ino != stat2.st_ino)
++         {
++                 close(fd);
++                 errno=ENOENT;
++                 return (-1);
++         }
++ 
++         return (fd);
++ }
++ 
++ int maildir_hasflag(const char *filename, char flag)
++ {
++         const char *p=strrchr(filename, '/');
++ 
++         if (p)
++                 filename=p+1;
++ 
++         p=strrchr(p, ':');
++         if (p && strncmp(p, ":2,", 3) == 0 &&
++             strchr(p+3, flag))
++                 return (1);
++         return (0);
++ }
++ 
++ int maildir_parsequota(const char *n, unsigned long *s)
++ {
++ const char *o;
++ int     yes;
++ 
++         if ((o=strrchr(n, '/')) == 0)   o=n;
++ 
++         for (; *o; o++)
++                 if (*o == ':')  break;
++         yes=0;
++         for ( ; o >= n; --o)
++         {
++                 if (*o == '/')  break;
++ 
++                 if (*o == ',' && o[1] == 'S' && o[2] == '=')
++                 {
++                         yes=1;
++                         o += 3;
++                         break;
++                 }
++         }
++         if (yes)
++         {
++                 *s=0;
++                 while (*o >= '0' && *o <= '9')
++                         *s= *s*10 + (*o++ - '0');
++                 return (0);
++         }
++         return (-1);
++ }
++ 
++ int maildir_checkquota(const char *dir,
++         int *maildirsize_fdptr,
++         const char *quota_type,
++         long xtra_size,
++         int xtra_cnt)
++ {
++ int     dummy;
++ 
++         return (docheckquota(dir, maildirsize_fdptr, quota_type,
++                 xtra_size, xtra_cnt, &dummy));
++ }
++ 
++ static int docheckquota(const char *dir,
++         int *maildirsize_fdptr,
++         const char *quota_type,
++         long xtra_size,
++         int xtra_cnt,
++         int *percentage)
++ {
++ char    *checkfolder=(char *)malloc(strlen(dir)+sizeof("/maildirfolder"));
++ char    *newmaildirsizename;
++ struct stat stat_buf;
++ int     maildirsize_fd;
++ off_t   maildirsize_size;
++ unsigned maildirsize_cnt;
++ unsigned maildirsize_nlines;
++ int     n;
++ time_t  tm;
++ time_t  maxtime;
++ DIR     *dirp;
++ struct dirent *de;
++ 
++         if (checkfolder == 0)   return (-1);
++         *maildirsize_fdptr= -1;
++         strcat(strcpy(checkfolder, dir), "/maildirfolder");
++         if (stat(checkfolder, &stat_buf) == 0)  /* Go to parent */
++         {
++                 strcat(strcpy(checkfolder, dir), "/..");
++                 n=docheckquota(checkfolder, maildirsize_fdptr,
++                         quota_type, xtra_size, xtra_cnt, percentage);
++                 free(checkfolder);
++                 return (n);
++         }
++         if (!quota_type || !*quota_type)        return (0);
++ 
++         strcat(strcpy(checkfolder, dir), "/maildirsize");
++         time(&tm);
++         if (maildirsize_read(checkfolder, &maildirsize_fd,
++                 &maildirsize_size, &maildirsize_cnt,
++                 &maildirsize_nlines, &stat_buf) == 0)
++         {
++                 n=qcalc(maildirsize_size+xtra_size, maildirsize_cnt+xtra_cnt,
++                         quota_type, percentage);
++ 
++                 if (n == 0)
++                 {
++                         free(checkfolder);
++                         *maildirsize_fdptr=maildirsize_fd;
++                         return (0);
++                 }
++                 close(maildirsize_fd);
++ 
++                 if (maildirsize_nlines == 1 && tm < stat_buf.st_mtime + 15*60)
++                         return (n);
++         }
++ 
++         maxtime=0;
++         maildirsize_size=0;
++         maildirsize_cnt=0;
++ 
++         if (countcurnew(dir, &maxtime, &maildirsize_size, &maildirsize_cnt))
++         {
++                 free(checkfolder);
++                 return (-1);
++         }
++ 
++         dirp=opendir(dir);
++         while (dirp && (de=readdir(dirp)) != 0)
++         {
++                 if (countsubdir(dir, de->d_name, &maxtime, &maildirsize_size,
++                         &maildirsize_cnt))
++                 {
++                         free(checkfolder);
++                         closedir(dirp);
++                         return (-1);
++                 }
++         }
++         if (dirp)
++         {
++ #if     CLOSEDIR_VOID
++                 closedir(dirp);
++ #else
++                 if (closedir(dirp))
++                 {
++                         free(checkfolder);
++                         return (-1);
++                 }
++ #endif
++         }
++ 
++         newmaildirsizename=makenewmaildirsizename(dir, &maildirsize_fd);
++         if (!newmaildirsizename)
++         {
++                 free(checkfolder);
++                 return (-1);
++         }
++ 
++         *maildirsize_fdptr=maildirsize_fd;
++ 
++         if (doaddquota(dir, maildirsize_fd, quota_type, maildirsize_size,
++                 maildirsize_cnt, 1))
++         {
++                 free(newmaildirsizename);
++                 unlink(newmaildirsizename);
++                 close(maildirsize_fd);
++                 *maildirsize_fdptr= -1;
++                 free(checkfolder);
++                 return (-1);
++         }
++ 
++         strcat(strcpy(checkfolder, dir), "/maildirsize");
++ 
++         if (rename(newmaildirsizename, checkfolder))
++         {
++                 free(checkfolder);
++                 unlink(newmaildirsizename);
++                 close(maildirsize_fd);
++                 *maildirsize_fdptr= -1;
++         }
++         free(checkfolder);
++         free(newmaildirsizename);
++ 
++         tm=0;
++ 
++         if (statcurnew(dir, &tm))
++         {
++                 close(maildirsize_fd);
++                 *maildirsize_fdptr= -1;
++                 return (-1);
++         }
++ 
++         dirp=opendir(dir);
++         while (dirp && (de=readdir(dirp)) != 0)
++         {
++                 if (statsubdir(dir, de->d_name, &tm))
++                 {
++                         close(maildirsize_fd);
++                         *maildirsize_fdptr= -1;
++                         closedir(dirp);
++                         return (-1);
++                 }
++         }
++         if (dirp)
++         {
++ #if     CLOSEDIR_VOID
++                 closedir(dirp);
++ #else
++                 if (closedir(dirp))
++                 {
++                         close(maildirsize_fd);
++                         *maildirsize_fdptr= -1;
++                         return (-1);
++                 }
++ #endif
++         }
++ 
++         if (tm != maxtime)      /* Race condition, someone changed something */
++         {
++                 errno=EAGAIN;
++                 return (-1);
++         }
++ 
++         return (qcalc(maildirsize_size+xtra_size, maildirsize_cnt+xtra_cnt,
++                 quota_type, percentage));
++ }
++ 
++ int     maildir_addquota(const char *dir, int maildirsize_fd,
++         const char *quota_type, long maildirsize_size, int maildirsize_cnt)
++ {
++         if (!quota_type || !*quota_type)        return (0);
++         return (doaddquota(dir, maildirsize_fd, quota_type, maildirsize_size,
++                         maildirsize_cnt, 0));
++ }
++ 
++ static int countcurnew(const char *dir, time_t *maxtime,
++         off_t *sizep, unsigned *cntp)
++ {
++ char    *p=(char *)malloc(strlen(dir)+5);
++ int     n;
++ 
++         if (!p) return (-1);
++         strcat(strcpy(p, dir), "/new");
++         n=docount(p, maxtime, sizep, cntp);
++         if (n == 0)
++         {
++                 strcat(strcpy(p, dir), "/cur");
++                 n=docount(p, maxtime, sizep, cntp);
++         }
++         free(p);
++         return (n);
++ }
++ 
++ static char *makenewmaildirsizename(const char *dir, int *fd)
++ {
++ char    hostname[256];
++ struct  stat stat_buf;
++ time_t  t;
++ char    *p;
++ 
++         hostname[0]=0;
++         hostname[sizeof(hostname)-1]=0;
++         gethostname(hostname, sizeof(hostname)-1);
++         p=(char *)malloc(strlen(dir)+strlen(hostname)+130);
++         if (!p) return (0);
++ 
++         for (;;)
++         {
++         char    tbuf[NUMBUFSIZE];
++         char    pbuf[NUMBUFSIZE];
++ 
++                 time(&t);
++                 strcat(strcpy(p, dir), "/tmp/");
++                 sprintf(p+strlen(p), "%s.%s_NeWmAiLdIrSiZe.%s",
++                         str_time_t(t, tbuf),
++                         str_pid_t(getpid(), pbuf), hostname);
++ 
++                 if (stat( (const char *)p, &stat_buf) < 0 &&
++                         (*fd=maildir_safeopen(p,
++                                 O_CREAT|O_RDWR|O_APPEND, 0644)) >= 0)
++                         break;
++                 sleep(3);
++         }
++         return (p);
++ }
++ 
++ 
++ static int countsubdir(const char *dir, const char *subdir, time_t *maxtime,
++         off_t *sizep, unsigned *cntp)
++ {
++ char    *p;
++ int     n;
++ 
++         if ( *subdir != '.' || strcmp(subdir, ".") == 0 ||
++                 strcmp(subdir, "..") == 0 || strcmp(subdir, ".Trash") == 0)
++                 return (0);
++ 
++         p=(char *)malloc(strlen(dir)+strlen(subdir)+2);
++         if (!p) return (2);
++         strcat(strcat(strcpy(p, dir), "/"), subdir);
++         n=countcurnew(p, maxtime, sizep, cntp);
++         free(p);
++         return (n);
++ }
++ 
++ static int statcurnew(const char *dir, time_t *maxtimestamp)
++ {
++ char    *p=(char *)malloc(strlen(dir)+5);
++ struct  stat    stat_buf;
++ 
++         if (!p) return (-1);
++         strcat(strcpy(p, dir), "/cur");
++         if ( stat(p, &stat_buf) == 0 && stat_buf.st_mtime > *maxtimestamp)
++                 *maxtimestamp=stat_buf.st_mtime;
++         strcat(strcpy(p, dir), "/new");
++         if ( stat(p, &stat_buf) == 0 && stat_buf.st_mtime > *maxtimestamp)
++                 *maxtimestamp=stat_buf.st_mtime;
++         free(p);
++         return (0);
++ }
++ 
++ static int statsubdir(const char *dir, const char *subdir, time_t *maxtime)
++ {
++ char    *p;
++ int     n;
++ 
++         if ( *subdir != '.' || strcmp(subdir, ".") == 0 ||
++                 strcmp(subdir, "..") == 0 || strcmp(subdir, ".Trash") == 0)
++                 return (0);
++ 
++         p=(char *)malloc(strlen(dir)+strlen(subdir)+2);
++         if (!p) return (-1);
++         strcat(strcat(strcpy(p, dir), "/"), subdir);
++         n=statcurnew(p, maxtime);
++         free(p);
++         return (n);
++ }
++ 
++ 
++ static int doaddquota(const char *dir, int maildirsize_fd,
++         const char *quota_type, long maildirsize_size, int maildirsize_cnt,
++         int isnew)
++ {
++ union   {
++         char    buf[100];
++         struct stat stat_buf;
++         } u;                            /* Scrooge */
++ char    *newname2=0;
++ char    *newmaildirsizename=0;
++ struct  iovec   iov[3];
++ int     niov;
++ struct  iovec   *p;
++ int     n;
++ 
++         niov=0;
++         if ( maildirsize_fd < 0)
++         {
++                 newname2=(char *)malloc(strlen(dir)+sizeof("/maildirfolder"));
++                 if (!newname2)  return (-1);
++                 strcat(strcpy(newname2, dir), "/maildirfolder");
++                 if (stat(newname2, &u.stat_buf) == 0)
++                 {
++                         strcat(strcpy(newname2, dir), "/..");
++                         n=doaddquota(newname2, maildirsize_fd, quota_type,
++                                         maildirsize_size, maildirsize_cnt,
++                                         isnew);
++                         free(newname2);
++                         return (n);
++                 }
++ 
++                 strcat(strcpy(newname2, dir), "/maildirsize");
++ 
++                 if ((maildirsize_fd=maildir_safeopen(newname2,
++                         O_RDWR|O_APPEND, 0644)) < 0)
++                 {
++                         newmaildirsizename=makenewmaildirsizename(dir, &maildirsize_fd);
++                         if (!newmaildirsizename)
++                         {
++                                 free(newname2);
++                                 return (-1);
++                         }
++ 
++                         maildirsize_fd=maildir_safeopen(newmaildirsizename,
++                                 O_CREAT|O_RDWR|O_APPEND, 0644);
++ 
++                         if (maildirsize_fd < 0)
++                         {
++                                 free(newname2);
++                                 return (-1);
++                         }
++                         isnew=1;
++                 }
++         }
++ 
++         if (isnew)
++         {
++                 iov[0].iov_base=(caddr_t)quota_type;
++                 iov[0].iov_len=strlen(quota_type);
++                 iov[1].iov_base=(caddr_t)"\n";
++                 iov[1].iov_len=1;
++                 niov=2;
++         }
++ 
++ 
++         sprintf(u.buf, "%ld %d\n", maildirsize_size, maildirsize_cnt);
++         iov[niov].iov_base=(caddr_t)u.buf;
++         iov[niov].iov_len=strlen(u.buf);
++ 
++         p=iov;
++         ++niov;
++         n=0;
++         while (niov)
++         {
++                 if (n)
++                 {
++                         if (n < p->iov_len)
++                         {
++                                 p->iov_base=
++                                         (caddr_t)((char *)p->iov_base + n);
++                                 p->iov_len -= n;
++                         }
++                         else
++                         {
++                                 n -= p->iov_len;
++                                 ++p;
++                                 --niov;
++                                 continue;
++                         }
++                 }
++ 
++                 n=writev( maildirsize_fd, p, niov);
++ 
++                 if (n <= 0)
++                 {
++                         if (newname2)
++                         {
++                                 close(maildirsize_fd);
++                                 free(newname2);
++                         }
++                         return (-1);
++                 }
++         }
++         if (newname2)
++         {
++                 close(maildirsize_fd);
++ 
++                 if (newmaildirsizename)
++                 {
++                         rename(newmaildirsizename, newname2);
++                         free(newmaildirsizename);
++                 }
++                 free(newname2);
++         }
++         return (0);
++ }
++ 
++ static int docount(const char *dir, time_t *dirstamp,
++         off_t *sizep, unsigned *cntp)
++ {
++ struct  stat    stat_buf;
++ char    *p;
++ DIR     *dirp;
++ struct dirent *de;
++ unsigned long   s;
++ 
++         if (stat(dir, &stat_buf))       return (0);     /* Ignore */
++         if (stat_buf.st_mtime > *dirstamp)      *dirstamp=stat_buf.st_mtime;
++         if ((dirp=opendir(dir)) == 0)   return (0);
++         while ((de=readdir(dirp)) != 0)
++         {
++         const char *n=de->d_name;
++ 
++                 if (*n == '.')  continue;
++ 
++                 /* PATCH - do not count msgs marked as deleted */
++ 
++                 for ( ; *n; n++)
++                 {
++                         if (n[0] != ':' || n[1] != '2' ||
++                                 n[2] != ',')    continue;
++                         n += 3;
++                         while (*n >= 'A' && *n <= 'Z')
++                         {
++                                 if (*n == 'T')  break;
++                                 ++n;
++                         }
++                         break;
++                 }
++                 if (*n == 'T')  continue;
++                 n=de->d_name;
++ 
++ 
++                 if (maildir_parsequota(n, &s) == 0)
++                         stat_buf.st_size=s;
++                 else
++                 {
++                         p=(char *)malloc(strlen(dir)+strlen(n)+2);
++                         if (!p)
++                         {
++                                 closedir(dirp);
++                                 return (-1);
++                         }
++                         strcat(strcat(strcpy(p, dir), "/"), n);
++                         if (stat(p, &stat_buf))
++                         {
++                                 free(p);
++                                 continue;
++                         }
++                         free(p);
++                 }
++                 *sizep += stat_buf.st_size;
++                 ++*cntp;
++         }
++ 
++ #if     CLOSEDIR_VOID
++         closedir(dirp);
++ #else
++         if (closedir(dirp))
++                 return (-1);
++ #endif
++         return (0);
++ }
++ 
++ int maildirsize_read(const char *filename,      /* The filename */
++         int *fdptr,     /* Keep the file descriptor open */
++         off_t *sizeptr, /* Grand total of maildir size */
++         unsigned *cntptr, /* Grand total of message count */
++         unsigned *nlines, /* # of lines in maildirsize */
++         struct stat *statptr)   /* The stats on maildirsize */
++ {
++ char buf[5120];
++ int f;
++ char *p;
++ unsigned l;
++ int n;
++ int first;
++ 
++         if ((f=maildir_safeopen(filename, O_RDWR|O_APPEND, 0)) < 0)
++                 return (-1);
++         p=buf;
++         l=sizeof(buf);
++ 
++         while (l)
++         {
++                 n=read(f, p, l);
++                 if (n < 0)
++                 {
++                         close(f);
++                         return (-1);
++                 }
++                 if (n == 0)     break;
++                 p += n;
++                 l -= n;
++         }
++         if (l == 0 || fstat(f, statptr))        /* maildir too big */
++         {
++                 close(f);
++                 return (-1);
++         }
++ 
++         *sizeptr=0;
++         *cntptr=0;
++         *nlines=0;
++         *p=0;
++         p=buf;
++         first=1;
++         while (*p)
++         {
++         long n=0;
++         int c=0;
++         char    *q=p;
++ 
++                 while (*p)
++                         if (*p++ == '\n')
++                         {
++                                 p[-1]=0;
++                                 break;
++                         }
++ 
++                 if (first)
++                 {
++                         first=0;
++                         continue;
++                 }
++                 sscanf(q, "%ld %d", &n, &c);
++                 *sizeptr += n;
++                 *cntptr += c;
++                 ++ *nlines;
++         }
++         *fdptr=f;
++         return (0);
++ }
++ 
++ static int qcalc(off_t s, unsigned n, const char *quota, int *percentage)
++ {
++ unsigned long i;
++ int     spercentage=0;
++ int     npercentage=0;
++ 
++         errno=ENOSPC;
++         while (quota && *quota)
++         {
++                 if (*quota < '0' || *quota > '9')
++                 {
++                         ++quota;
++                         continue;
++                 }
++                 i=0;
++                 while (*quota >= '0' && *quota <= '9')
++                         i=i*10 + (*quota++ - '0');
++                 switch (*quota) {
++                 default:
++                         if (i < s)
++                         {
++                                 *percentage=100;
++                                 return (-1);
++                         }
++                         spercentage = i ? s * 100 / i:100;
++                         break;
++                 case 'C':
++                         if (i < n)
++                         {
++                                 *percentage=100;
++                                 return (-1);
++                         }
++                         npercentage = i ? n * (unsigned long)100 / i:100;
++                         break;
++                 }
++         }
++         *percentage = spercentage > npercentage ? spercentage:npercentage;
++         return (0);
++ }
++ 
++ char *str_time_t(time_t t, char *arg)
++ {
++ char    buf[NUMBUFSIZE];
++ char    *p=buf+sizeof(buf)-1;
++ 
++         *p=0;
++         do
++         {
++                 *--p= '0' + (t % 10);
++                 t=t / 10;
++         } while(t);
++         return (strcpy(arg, p));
++ }
++ 
++ char *str_pid_t(pid_t t, char *arg)
++ {
++ char    buf[NUMBUFSIZE];
++ char    *p=buf+sizeof(buf)-1;
++ 
++         *p=0;
++         do
++         {
++                 *--p= '0' + (t % 10);
++                 t=t / 10;
++         } while(t);
++         return (strcpy(arg, p));
++ }
++ 
+diff -crN ../qmail-1.03/qmail-remote.c ./qmail-remote.c
+*** ../qmail-1.03/qmail-remote.c	Mon Jun 15 05:53:16 1998
+--- ./qmail-remote.c	Sat May 18 01:43:07 2002
+***************
+*** 26,33 ****
+--- 26,43 ----
+  #include "tcpto.h"
+  #include "readwrite.h"
+  #include "timeoutconn.h"
++ #ifndef TLS
+  #include "timeoutread.h"
+  #include "timeoutwrite.h"
++ #endif
++ 
++ #ifdef TLS
++ #include <sys/stat.h>
++ #include <openssl/ssl.h>
++ SSL *ssl = NULL;
++ 
++ stralloc tlsclientciphers = {0};
++ #endif
+  
+  #define HUGESMTPTEXT 5000
+  
+***************
+*** 107,123 ****
+--- 117,210 ----
+  int smtpfd;
+  int timeout = 1200;
+  
++ #ifdef TLS
++ int flagtimedout = 0;
++ void sigalrm()
++ {
++  flagtimedout = 1;
++ }
++ 
++ int ssl_timeoutread(timeout,fd,buf,n) int timeout; int fd; char *buf; int n;
++ {
++  int r; int saveerrno;
++  if (flagtimedout) { errno = error_timeout; return -1; }
++  alarm(timeout);
++  if (ssl) {
++    while(((r = SSL_read(ssl,buf,n)) <= 0)
++          && (SSL_get_error(ssl, r) == SSL_ERROR_WANT_READ));
++    if (SSL_get_error(ssl, r) != SSL_ERROR_NONE)
++     {char buf[1024];
++  
++      out("ZTLS connection to "); outhost(); out(" died: ");
++      SSL_load_error_strings();
++      out(ERR_error_string(ERR_get_error(), buf)); out("\n");
++      SSL_shutdown(ssl);
++      zerodie();
++     }
++  }else r = read(fd,buf,n);
++  saveerrno = errno;
++  alarm(0);
++  if (flagtimedout) { errno = error_timeout; return -1; }
++  errno = saveerrno;
++  return r;
++ }
++ 
++ int ssl_timeoutwrite(timeout,fd,buf,n) int timeout; int fd; char *buf; int n;
++ {
++  int r; int saveerrno;
++  if (flagtimedout) { errno = error_timeout; return -1; }
++  alarm(timeout);
++  if (ssl) {
++    while(((r = SSL_write(ssl,buf,n)) <= 0)
++          && (SSL_get_error(ssl, r) == SSL_ERROR_WANT_WRITE));
++    if (SSL_get_error(ssl, r) != SSL_ERROR_NONE)
++     {char buf[1024];
++ 
++      out("ZTLS connection to "); outhost(); out(" died: ");
++      SSL_load_error_strings();
++      out(ERR_error_string(ERR_get_error(), buf)); out("\n");
++      SSL_shutdown(ssl);
++      zerodie();
++     }
++  }else r = write(fd,buf,n);
++  saveerrno = errno;
++  alarm(0);
++  if (flagtimedout) { errno = error_timeout; return -1; }
++  errno = saveerrno;
++  return r;
++ }
++ 
++ static int client_cert_cb(SSL *s,X509 **x509, EVP_PKEY **pkey)
++ {
++  out("ZTLS found no client cert in control/clientcert.pem\n");
++  zerodie(NULL,NULL);
++ }
++ 
++ static int verify_cb(int ok, X509_STORE_CTX * ctx)
++ {
++   return (1);
++ }
++ #endif 
++ 
+  int saferead(fd,buf,len) int fd; char *buf; int len;
+  {
+    int r;
++ #ifdef TLS
++   r = ssl_timeoutread(timeout,smtpfd,buf,len);
++ #else
+    r = timeoutread(timeout,smtpfd,buf,len);
++ #endif
+    if (r <= 0) dropped();
+    return r;
+  }
+  int safewrite(fd,buf,len) int fd; char *buf; int len;
+  {
+    int r;
++ #ifdef TLS
++   r = ssl_timeoutwrite(timeout,smtpfd,buf,len);
++ #else
+    r = timeoutwrite(timeout,smtpfd,buf,len);
++ #endif
+    if (r <= 0) dropped();
+    return r;
+  }
+***************
+*** 186,191 ****
+--- 273,306 ----
+    out(append);
+    out(".\n");
+    outsmtptext();
++ 
++ /* TAG */
++ #if defined(TLS) && defined(DEBUG)
++ #define ONELINE_NAME(X) X509_NAME_oneline(X,NULL,0)
++ 
++  if(ssl){
++  X509 *peer;
++ 
++   out("STARTTLS proto="); out(SSL_get_version(ssl));
++   out("; cipher="); out(SSL_CIPHER_get_name(SSL_get_current_cipher(ssl)));
++ 
++   /* we want certificate details */
++   peer=SSL_get_peer_certificate(ssl);
++   if (peer != NULL) {
++    char *str;
++ 
++    str=ONELINE_NAME(X509_get_subject_name(peer));
++    out("; subject="); out(str);
++    Free(str);
++    str=ONELINE_NAME(X509_get_issuer_name(peer));
++    out("; issuer="); out(str);
++    Free(str);
++    X509_free(peer);
++   }
++   out(";\n");
++  }
++ #endif
++ 
+    zerodie();
+  }
+  
+***************
+*** 216,235 ****
+  
+  stralloc recip = {0};
+  
+  void smtp()
+  {
+    unsigned long code;
+    int flagbother;
+    int i;
+!  
+    if (smtpcode() != 220) quit("ZConnected to "," but greeting failed");
+   
+    substdio_puts(&smtpto,"HELO ");
+    substdio_put(&smtpto,helohost.s,helohost.len);
+    substdio_puts(&smtpto,"\r\n");
+    substdio_flush(&smtpto);
+    if (smtpcode() != 250) quit("ZConnected to "," but my name was rejected");
+!  
+    substdio_puts(&smtpto,"MAIL FROM:<");
+    substdio_put(&smtpto,sender.s,sender.len);
+    substdio_puts(&smtpto,">\r\n");
+--- 331,488 ----
+  
+  stralloc recip = {0};
+  
++ #ifdef TLS
++ void smtp(fqdn)
++ char *fqdn;
++ #else
+  void smtp()
++ #endif
+  {
+    unsigned long code;
+    int flagbother;
+    int i;
+! #ifdef TLS
+!   int needtlsauth = 0;
+!   SSL_CTX *ctx;
+!   int saveerrno, r;
+! 
+!   stralloc servercert = {0};
+!   struct stat st;
+!   if(fqdn){
+!    if(!stralloc_copys(&servercert, "control/tlshosts/")) temp_nomem();
+!    if(!stralloc_catb(&servercert, fqdn, str_len(fqdn))) temp_nomem();
+!    if(!stralloc_catb(&servercert, ".pem", 4)) temp_nomem();
+!    if(!stralloc_0(&servercert)) temp_nomem();
+!    if (stat(servercert.s,&st) == 0)  needtlsauth = 1;
+!   }
+! #endif
+! 
+    if (smtpcode() != 220) quit("ZConnected to "," but greeting failed");
+   
++ #ifdef TLS
++   substdio_puts(&smtpto,"EHLO ");
++ #else
+    substdio_puts(&smtpto,"HELO ");
++ #endif
+    substdio_put(&smtpto,helohost.s,helohost.len);
+    substdio_puts(&smtpto,"\r\n");
+    substdio_flush(&smtpto);
++ #ifdef TLS
++   if (smtpcode() != 250){
++    substdio_puts(&smtpto,"HELO ");
++    substdio_put(&smtpto,helohost.s,helohost.len);
++    substdio_puts(&smtpto,"\r\n");
++    substdio_flush(&smtpto);
++    if (smtpcode() != 250) quit("ZConnected to "," but my name was rejected");
++   }
++ #else
+    if (smtpcode() != 250) quit("ZConnected to "," but my name was rejected");
+! #endif
+! 
+! #ifdef TLS
+!   i = 0; 
+!   while((i += str_chr(smtptext.s+i,'\n') + 1) && (i+12 < smtptext.len) &&
+!         str_diffn(smtptext.s+i+4,"STARTTLS\n",9));
+!   if (i+12 < smtptext.len)
+!    {
+!     substdio_puts(&smtpto,"STARTTLS\r\n");
+!     substdio_flush(&smtpto);
+!     if (smtpcode() == 220)
+!      {
+!       SSL_library_init();
+!       if(!(ctx=SSL_CTX_new(SSLv23_client_method())))
+!        {char buf[1024];
+! 
+!         out("ZTLS not available: error initializing ctx: ");
+!         SSL_load_error_strings();
+!         out(ERR_error_string(ERR_get_error(), buf));
+!         out("\n");
+!         SSL_shutdown(ssl);
+!         zerodie();
+!       }
+!       if((stat("control/clientcert.pem", &st) == 0) &&
+!          ((SSL_CTX_use_RSAPrivateKey_file(ctx, "control/clientcert.pem", SSL_FILETYPE_PEM) <= 0) ||
+!          (SSL_CTX_use_certificate_chain_file(ctx, "control/clientcert.pem") <= 0) ||
+!          (SSL_CTX_check_private_key(ctx) <= 0)))
+!         /* if there is a cert and it is bad, I fail
+!            if there is no cert, I leave it to the other side to complain */
+!         SSL_CTX_set_client_cert_cb(ctx, client_cert_cb);
+!  
+!       /*SSL_CTX_set_options(ctx, SSL_OP_NO_TLSv1);*/
+!       SSL_CTX_set_cipher_list(ctx,tlsclientciphers.s);
+!  
+!       if (needtlsauth){
+!         if (!SSL_CTX_load_verify_locations(ctx, servercert.s, NULL))
+!           {out("ZTLS unable to load "); out(servercert.s); out("\n");
+!            zerodie();}
+!         SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, verify_cb);
+!       }
+!      
+!       if(!(ssl=SSL_new(ctx)))
+!         {char buf[1024];
+! 
+!          out("ZTLS not available: error initializing ssl: "); 
+!          SSL_load_error_strings();
+!          out(ERR_error_string(ERR_get_error(), buf));
+!          out("\n");
+!          SSL_shutdown(ssl);
+!          zerodie();
+!         }
+!       SSL_set_fd(ssl,smtpfd);
+! 
+!       alarm(timeout);
+!       r = SSL_connect(ssl); saveerrno = errno;
+!       alarm(0); 
+!       if (flagtimedout) 
+!        {out("ZTLS not available: connect timed out\n");
+!         zerodie();}
+!       errno = saveerrno;
+!       if (r<=0)
+!         {char buf[1024];
+! 
+!          out("ZTLS not available: connect failed: ");
+!          SSL_load_error_strings();
+!          out(ERR_error_string(ERR_get_error(), buf));
+!          out("\n");
+!          SSL_shutdown(ssl);
+!          zerodie();
+!         }
+!       if (needtlsauth)
+!        /* should also check alternate names */
+!        {char commonName[256];
+! 
+!         if ((r=SSL_get_verify_result(ssl)) != X509_V_OK)
+!          {out("ZTLS unable to verify server with ");
+!           out(servercert.s); out(": ");
+!           out(X509_verify_cert_error_string(r)); out("\n");
+!           zerodie();
+!          }
+!         X509_NAME_get_text_by_NID(X509_get_subject_name(
+!                                    SSL_get_peer_certificate(ssl)),
+!                                    NID_commonName, commonName, 256);
+!         if (strcasecmp(fqdn,commonName)){
+!          out("ZTLS connection to "); out(fqdn);
+!          out(" wanted, certificate for "); out(commonName);
+!          out(" received\n");
+!          zerodie();}
+!         }
+! 
+!       substdio_puts(&smtpto,"EHLO ");
+!       substdio_put(&smtpto,helohost.s,helohost.len);
+!       substdio_puts(&smtpto,"\r\n");
+!       substdio_flush(&smtpto);
+! 
+!       if (smtpcode() != 250)
+!        {
+!         quit("ZTLS connected to "," but my name was rejected");
+!        }
+!      } 
+!    }
+!   if ((!ssl) && needtlsauth)
+!    {out("ZNo TLS achieved while "); out(servercert.s); out(" exists.\n");
+!     quit();}
+! #endif
+! 
+    substdio_puts(&smtpto,"MAIL FROM:<");
+    substdio_put(&smtpto,sender.s,sender.len);
+    substdio_puts(&smtpto,">\r\n");
+***************
+*** 324,329 ****
+--- 577,587 ----
+      case 1:
+        if (!constmap_init(&maproutes,routes.s,routes.len,1)) temp_nomem(); break;
+    }
++ #ifdef TLS
++   if (control_rldef(&tlsclientciphers,"control/tlsclientciphers",0,"DEFAULT") != 1)
++     temp_control();
++   if(!stralloc_0(&tlsclientciphers)) temp_nomem();
++ #endif
+  }
+  
+  void main(argc,argv)
+***************
+*** 338,344 ****
+    int flagallaliases;
+    int flagalias;
+    char *relayhost;
+!  
+    sig_pipeignore();
+    if (argc < 4) perm_usage();
+    if (chdir(auto_qmail) == -1) temp_chdir();
+--- 596,605 ----
+    int flagallaliases;
+    int flagalias;
+    char *relayhost;
+! 
+! #ifdef TLS
+!   sig_alarmcatch(sigalrm);
+! #endif
+    sig_pipeignore();
+    if (argc < 4) perm_usage();
+    if (chdir(auto_qmail) == -1) temp_chdir();
+***************
+*** 417,423 ****
+--- 678,688 ----
+      if (timeoutconn(smtpfd,&ip.ix[i].ip,(unsigned int) port,timeoutconnect) == 0) {
+        tcpto_err(&ip.ix[i].ip,0);
+        partner = ip.ix[i].ip;
++ #ifdef TLS
++       smtp(ip.ix[i].fqdn); /* does not return */
++ #else
+        smtp(); /* does not return */
++ #endif
+      }
+      tcpto_err(&ip.ix[i].ip,errno == error_timeout);
+      close(smtpfd);
+diff -crN ../qmail-1.03/qmail-smtpd.8 ./qmail-smtpd.8
+*** ../qmail-1.03/qmail-smtpd.8	Mon Jun 15 05:53:16 1998
+--- ./qmail-smtpd.8	Sat May 18 01:43:07 2002
+***************
+*** 3,8 ****
+--- 3,13 ----
+  qmail-smtpd \- receive mail via SMTP
+  .SH SYNOPSIS
+  .B qmail-smtpd
++ [
++ .I hostname
++ .I checkprogram
++ .I subprogram
++ ]
+  .SH DESCRIPTION
+  .B qmail-smtpd
+  receives mail messages via the Simple Mail Transfer Protocol (SMTP)
+***************
+*** 23,29 ****
+  header fields.
+  
+  .B qmail-smtpd
+! supports ESMTP, including the 8BITMIME and PIPELINING options.
+  .SH TRANSPARENCY
+  .B qmail-smtpd
+  converts the SMTP newline convention into the UNIX newline convention
+--- 28,56 ----
+  header fields.
+  
+  .B qmail-smtpd
+! supports ESMTP, including the 8BITMIME, PIPELINING, and AUTH options.
+! 
+! .B qmail-smtpd
+! can accept LOGIN, PLAIN, and CRAM-MD5 AUTH types.  It invokes
+! .IR checkprogram ,
+! which reads on file descriptor 3 the username, a 0 byte, the password
+! or challenge derived from
+! .IR hostname ,
+! another 0 byte, a CRAM-MD5 response (if applicable to the AUTH type),
+! and a final 0 byte.
+! .I checkprogram
+! invokes
+! .I subprogram
+! upon successful authentication, which should in turn return 0 to
+! .BR qmail-smtpd ,
+! effectively setting the environment variables RELAYCLIENT and TCPREMOTEINFO
+! (any supplied value replaced with the authenticated username).
+! .B qmail-smtpd
+! will reject the authentication attempt if it receives a nonzero return
+! value from
+! .I checkprogram
+! or
+! .IR subprogram .
+  .SH TRANSPARENCY
+  .B qmail-smtpd
+  converts the SMTP newline convention into the UNIX newline convention
+***************
+*** 177,179 ****
+--- 204,209 ----
+  qmail-newmrh(8),
+  qmail-queue(8),
+  qmail-remote(8)
++ .SH "HISTORY"
++ The patch enabling the ESMTP AUTH option is not part of the standard
++ qmail-1.03 distribution.
+diff -crN ../qmail-1.03/qmail-smtpd.c ./qmail-smtpd.c
+*** ../qmail-1.03/qmail-smtpd.c	Mon Jun 15 05:53:16 1998
+--- ./qmail-smtpd.c	Sat May 18 01:43:07 2002
+***************
+*** 20,37 ****
+--- 20,92 ----
+  #include "now.h"
+  #include "exit.h"
+  #include "rcpthosts.h"
++ #ifndef TLS
+  #include "timeoutread.h"
+  #include "timeoutwrite.h"
++ #endif
+  #include "commands.h"
++ #include "wait.h"
++ #include "fd.h"
++   
++ #ifdef TLS
++ #include <openssl/ssl.h>
++ SSL *ssl = NULL;
++ 
++ stralloc clientcert = {0};
++ stralloc tlsserverciphers = {0};
++ #endif
+  
++ #define AUTHCRAM
+  #define MAXHOPS 100
+  unsigned int databytes = 0;
+  int timeout = 1200;
+  
++ #ifdef TLS
++ int flagtimedout = 0;
++ void sigalrm()
++ {
++  flagtimedout = 1;
++ }
++ int ssl_timeoutread(timeout,fd,buf,n) int timeout; int fd; char *buf; int n;
++ {
++  int r; int saveerrno;
++  if (flagtimedout) { errno = error_timeout; return -1; }
++  alarm(timeout);
++  if (ssl) {
++    while(((r = SSL_read(ssl,buf,n)) <= 0)
++          && (SSL_get_error(ssl, r) == SSL_ERROR_WANT_READ));
++  }else r = read(fd,buf,n);
++  saveerrno = errno;
++  alarm(0);
++  if (flagtimedout) { errno = error_timeout; return -1; }
++  errno = saveerrno;
++  return r;
++ }
++ int ssl_timeoutwrite(timeout,fd,buf,n) int timeout; int fd; char *buf; int n;
++ {
++  int r; int saveerrno;
++  if (flagtimedout) { errno = error_timeout; return -1; }
++  alarm(timeout);
++  if (ssl) { 
++    while(((r = SSL_write(ssl,buf,n)) <= 0)
++          && (SSL_get_error(ssl, r) == SSL_ERROR_WANT_WRITE));
++  }else r = write(fd,buf,n);
++  saveerrno = errno;
++  alarm(0);
++  if (flagtimedout) { errno = error_timeout; return -1; }
++  errno = saveerrno;
++  return r;
++ }
++ #endif
++ 
+  int safewrite(fd,buf,len) int fd; char *buf; int len;
+  {
+    int r;
++ #ifdef TLS
++   r = ssl_timeoutwrite(timeout,fd,buf,len);
++ #else
+    r = timeoutwrite(timeout,fd,buf,len);
++ #endif
+    if (r <= 0) _exit(1);
+    return r;
+  }
+***************
+*** 51,56 ****
+--- 106,114 ----
+  
+  void err_bmf() { out("553 sorry, your envelope sender is in my badmailfrom list (#5.7.1)\r\n"); }
+  void err_nogateway() { out("553 sorry, that domain isn't in my list of allowed rcpthosts (#5.7.1)\r\n"); }
++ #ifdef TLS
++ void err_nogwcert() { out("553 no valid cert for gatewaying (#5.7.1)\r\n"); }
++ #endif
+  void err_unimpl() { out("502 unimplemented (#5.5.1)\r\n"); }
+  void err_syntax() { out("555 syntax error (#5.5.4)\r\n"); }
+  void err_wantmail() { out("503 MAIL first (#5.5.1)\r\n"); }
+***************
+*** 59,64 ****
+--- 117,131 ----
+  void err_vrfy() { out("252 send some mail, i'll try my best\r\n"); }
+  void err_qqt() { out("451 qqt failure (#4.3.0)\r\n"); }
+  
++ int err_child() { out("454 oops, problem with child and I can't auth (#4.3.0)\r\n"); return -1; }
++ int err_fork() { out("454 oops, child won't start and I can't auth (#4.3.0)\r\n"); return -1; }
++ int err_pipe() { out("454 oops, unable to open pipe and I can't auth (#4.3.0)\r\n"); return -1; }
++ int err_write() { out("454 oops, unable to write pipe and I can't auth (#4.3.0)\r\n"); return -1; }
++ void err_authd() { out("503 you're already authenticated (#5.5.0)\r\n"); }
++ void err_authmail() { out("503 no auth during mail transaction (#5.5.0)\r\n"); }
++ int err_noauth() { out("504 auth type unimplemented (#5.5.1)\r\n"); return -1; }
++ int err_authabrt() { out("501 auth exchange cancelled (#5.0.0)\r\n"); return -1; }
++ int err_input() { out("501 malformed auth input (#5.5.4)\r\n"); return -1; }
+  
+  stralloc greeting = {0};
+  
+***************
+*** 81,86 ****
+--- 148,156 ----
+  char *remoteinfo;
+  char *local;
+  char *relayclient;
++ #ifdef TLS
++ char *tlsciphers;
++ #endif
+  
+  stralloc helohost = {0};
+  char *fakehelo; /* pointer into helohost, or 0 */
+***************
+*** 101,107 ****
+  {
+    char *x;
+    unsigned long u;
+!  
+    if (control_init() == -1) die_control();
+    if (control_rldef(&greeting,"control/smtpgreeting",1,(char *) 0) != 1)
+      die_control();
+--- 171,180 ----
+  {
+    char *x;
+    unsigned long u;
+! #ifdef TLS
+!   char *tlsciphers;
+! #endif
+! 
+    if (control_init() == -1) die_control();
+    if (control_rldef(&greeting,"control/smtpgreeting",1,(char *) 0) != 1)
+      die_control();
+***************
+*** 131,136 ****
+--- 204,220 ----
+    if (!remotehost) remotehost = "unknown";
+    remoteinfo = env_get("TCPREMOTEINFO");
+    relayclient = env_get("RELAYCLIENT");
++ #ifdef TLS
++   if (tlsciphers = env_get("TLSCIPHERS")){
++     if (!stralloc_copys(&tlsserverciphers,tlsciphers)) die_nomem();
++   } 
++   else {
++     if (control_rldef(&tlsserverciphers,"control/tlsserverciphers",0,"DEFAULT") != 1) 
++       die_control();
++   }
++   if (!stralloc_0(&tlsserverciphers)) die_nomem();
++ #endif
++ 
+    dohelo(remotehost);
+  }
+  
+***************
+*** 229,235 ****
+  }
+  void smtp_ehlo(arg) char *arg;
+  {
+!   smtp_greet("250-"); out("\r\n250-PIPELINING\r\n250 8BITMIME\r\n");
+    seenmail = 0; dohelo(arg);
+  }
+  void smtp_rset()
+--- 313,352 ----
+  }
+  void smtp_ehlo(arg) char *arg;
+  {
+!   smtp_greet("250-"); 
+! #ifdef TLS
+!   #ifdef AUTHCRAM
+!     if (ssl) {
+!       out("\r\n250-AUTH LOGIN CRAM-MD5 PLAIN");
+!       out("\r\n250-AUTH=LOGIN CRAM-MD5 PLAIN");
+!       out("\r\n250-PIPELINING\r\n250 8BITMIME\r\n");
+!     } else {
+!       out("\r\n250-AUTH LOGIN CRAM-MD5 PLAIN");
+!       out("\r\n250-AUTH=LOGIN CRAM-MD5 PLAIN");
+!       out("\r\n250-PIPELINING\r\n250-STARTTLS\r\n250 8BITMIME\r\n");
+!     }
+!   #else
+!     if (ssl) {
+!       out("\r\n250-AUTH LOGIN PLAIN");
+!       out("\r\n250-AUTH=LOGIN PLAIN");
+!       out("\r\n250-PIPELINING\r\n250 8BITMIME\r\n");
+!     } else {
+!       out("\r\n250-AUTH LOGIN PLAIN");
+!       out("\r\n250-AUTH=LOGIN PLAIN");
+!       out("\r\n250-PIPELINING\r\n250-STARTTLS\r\n250 8BITMIME\r\n");
+!     }
+!   #endif
+! #else
+!   #ifdef AUTHCRAM
+!     out("\r\n250-AUTH LOGIN CRAM-MD5 PLAIN");
+!     out("\r\n250-AUTH=LOGIN CRAM-MD5 PLAIN");
+!     out("\r\n250-PIPELINING\r\n250 8BITMIME\r\n");
+!   #else
+!     out("\r\n250-AUTH LOGIN PLAIN");
+!     out("\r\n250-AUTH=LOGIN PLAIN");
+!     out("\r\n250-PIPELINING\r\n250 8BITMIME\r\n");
+!   #endif
+! #endif
+    seenmail = 0; dohelo(arg);
+  }
+  void smtp_rset()
+***************
+*** 247,252 ****
+--- 364,375 ----
+    if (!stralloc_0(&mailfrom)) die_nomem();
+    out("250 ok\r\n");
+  }
++ #ifdef TLS
++ static int verify_cb(int ok, X509_STORE_CTX * ctx)
++ {
++   return (1);
++ }
++ #endif
+  void smtp_rcpt(arg) char *arg; {
+    if (!seenmail) { err_wantmail(); return; }
+    if (!addrparse(arg)) { err_syntax(); return; }
+***************
+*** 257,263 ****
+--- 380,434 ----
+      if (!stralloc_0(&addr)) die_nomem();
+    }
+    else
++ #ifndef TLS
+      if (!addrallowed()) { err_nogateway(); return; }
++ #else
++     if (!addrallowed())
++      {
++       if (ssl)
++       { STACK_OF(X509_NAME) *sk;
++         X509 *peercert;
++         stralloc tlsclients = {0};
++         struct constmap maptlsclients;
++         int r;
++ 
++         SSL_set_verify(ssl,
++                        SSL_VERIFY_PEER|SSL_VERIFY_CLIENT_ONCE,
++                        verify_cb);
++         if ((sk = SSL_load_client_CA_file("control/clientca.pem")) == NULL)
++          { err_nogateway(); return; }
++         SSL_set_client_CA_list(ssl, sk);
++         if((control_readfile(&tlsclients,"control/tlsclients",0) != 1) ||
++            !constmap_init(&maptlsclients,tlsclients.s,tlsclients.len,0))
++           { err_nogateway(); return; }
++  
++         SSL_renegotiate(ssl);
++         SSL_do_handshake(ssl);
++         ssl->state = SSL_ST_ACCEPT;
++         SSL_do_handshake(ssl);
++         if ((r = SSL_get_verify_result(ssl)) != X509_V_OK)
++          {out("553 no valid cert for gatewaying: ");
++           out(X509_verify_cert_error_string(r));
++           out(" (#5.7.1)\r\n");
++           return;
++          }
++   
++         if (peercert = SSL_get_peer_certificate(ssl))
++          {char emailAddress[256];
++ 
++           X509_NAME_get_text_by_NID(X509_get_subject_name(
++                                      SSL_get_peer_certificate(ssl)),
++                                      NID_pkcs9_emailAddress, emailAddress, 256);
++           if (!stralloc_copys(&clientcert, emailAddress)) die_nomem();
++           if (!constmap(&maptlsclients,clientcert.s,clientcert.len))
++             { err_nogwcert(); return; }
++           relayclient = "";
++          }
++           else { err_nogwcert(); return; }
++        }
++       else { err_nogateway(); return; }
++      }
++ #endif
+    if (!stralloc_cats(&rcptto,"T")) die_nomem();
+    if (!stralloc_cats(&rcptto,addr.s)) die_nomem();
+    if (!stralloc_0(&rcptto)) die_nomem();
+***************
+*** 269,275 ****
+--- 440,450 ----
+  {
+    int r;
+    flush();
++ #ifdef TLS
++   r = ssl_timeoutread(timeout,fd,buf,len);
++ #else
+    r = timeoutread(timeout,fd,buf,len);
++ #endif
+    if (r == -1) if (errno == error_timeout) die_alarm();
+    if (r <= 0) die_read();
+    return r;
+***************
+*** 369,374 ****
+--- 544,552 ----
+    int hops;
+    unsigned long qp;
+    char *qqx;
++ #ifdef TLS
++   stralloc protocolinfo = {0};
++ #endif
+   
+    if (!seenmail) { err_wantmail(); return; }
+    if (!rcptto.len) { err_wantrcpt(); return; }
+***************
+*** 377,384 ****
+    if (qmail_open(&qqt) == -1) { err_qqt(); return; }
+    qp = qmail_qp(&qqt);
+    out("354 go ahead\r\n");
+!  
+    received(&qqt,"SMTP",local,remoteip,remotehost,remoteinfo,fakehelo);
+    blast(&hops);
+    hops = (hops >= MAXHOPS);
+    if (hops) qmail_fail(&qqt);
+--- 555,574 ----
+    if (qmail_open(&qqt) == -1) { err_qqt(); return; }
+    qp = qmail_qp(&qqt);
+    out("354 go ahead\r\n");
+! #ifdef TLS
+!   if(ssl){
+!    if (!stralloc_copys(&protocolinfo, SSL_CIPHER_get_name(SSL_get_current_cipher(ssl)))) die_nomem();
+!    if (!stralloc_catb(&protocolinfo, " encrypted SMTP", 15)) die_nomem();
+!    if (clientcert.len){
+!      if (!stralloc_catb(&protocolinfo," cert ", 6)) die_nomem();
+!      if (!stralloc_catb(&protocolinfo,clientcert.s, clientcert.len)) die_nomem();
+!    }
+!    if (!stralloc_0(&protocolinfo)) die_nomem();
+!   } else if (!stralloc_copyb(&protocolinfo,"SMTP",5)) die_nomem();
+!   received(&qqt,protocolinfo.s,local,remoteip,remotehost,remoteinfo,case_diffs(remotehost,helohost.s) ? helohost.s : 0);
+! #else
+    received(&qqt,"SMTP",local,remoteip,remotehost,remoteinfo,fakehelo);
++ #endif
+    blast(&hops);
+    hops = (hops >= MAXHOPS);
+    if (hops) qmail_fail(&qqt);
+***************
+*** 394,415 ****
+    out("\r\n");
+  }
+  
+  struct commands smtpcommands[] = {
+    { "rcpt", smtp_rcpt, 0 }
+  , { "mail", smtp_mail, 0 }
+  , { "data", smtp_data, flush }
+  , { "quit", smtp_quit, flush }
+  , { "helo", smtp_helo, flush }
+  , { "ehlo", smtp_ehlo, flush }
+  , { "rset", smtp_rset, 0 }
+  , { "help", smtp_help, flush }
+  , { "noop", err_noop, flush }
+  , { "vrfy", err_vrfy, flush }
+  , { 0, err_unimpl, flush }
+  } ;
+  
+! void main()
+! {
+    sig_pipeignore();
+    if (chdir(auto_qmail) == -1) die_control();
+    setup();
+--- 584,880 ----
+    out("\r\n");
+  }
+  
++ #ifdef TLS
++ static RSA *tmp_rsa_cb(ssl,export,keylength) SSL *ssl; int export; int keylength; 
++ {
++   RSA* rsa;
++   BIO* in;
++ 
++   if (!export || keylength == 512)
++    if (in=BIO_new(BIO_s_file_internal()))
++     if (BIO_read_filename(in,"control/rsa512.pem") > 0)
++      if (rsa=PEM_read_bio_RSAPrivateKey(in,NULL,NULL,NULL))
++       return rsa;
++   return (RSA_generate_key(export?keylength:512,RSA_F4,NULL,NULL));
++ }
++ 
++ void smtp_tls(arg) char *arg; 
++ {
++   SSL_CTX *ctx;
++ 
++   if (*arg)
++    {out("501 Syntax error (no parameters allowed) (#5.5.4)\r\n");
++     return;}
++ 
++   SSL_library_init();
++   if(!(ctx=SSL_CTX_new(SSLv23_server_method())))
++    {out("454 TLS not available: unable to initialize ctx (#4.3.0)\r\n"); 
++     return;}
++   if(!SSL_CTX_use_RSAPrivateKey_file(ctx, "control/servercert.pem", SSL_FILETYPE_PEM))
++    {out("454 TLS not available: missing RSA private key (#4.3.0)\r\n"); 
++     return;}
++   if(!SSL_CTX_use_certificate_chain_file(ctx, "control/servercert.pem"))
++    {out("454 TLS not available: missing certificate (#4.3.0)\r\n"); 
++     return;}
++   SSL_CTX_set_tmp_rsa_callback(ctx, tmp_rsa_cb);
++   SSL_CTX_set_cipher_list(ctx,tlsserverciphers.s);
++   SSL_CTX_load_verify_locations(ctx, "control/clientca.pem",NULL);
++   SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, verify_cb);
++  
++   out("220 ready for tls\r\n"); flush();
++ 
++   if(!(ssl=SSL_new(ctx))) die_read();
++   SSL_set_fd(ssl,0);
++   if(SSL_accept(ssl)<=0) die_read();
++   substdio_fdbuf(&ssout,SSL_write,ssl,ssoutbuf,sizeof(ssoutbuf));
++ 
++   remotehost = env_get("TCPREMOTEHOST");
++   if (!remotehost) remotehost = "unknown";
++   dohelo(remotehost);
++ }
++ #endif
++ 
++ 
++ char unique[FMT_ULONG + FMT_ULONG + 3];
++ static stralloc authin = {0};
++ static stralloc user = {0};
++ static stralloc pass = {0};
++ static stralloc resp = {0};
++ static stralloc slop = {0};
++ char *hostname;
++ char **childargs;
++ substdio ssup;
++ char upbuf[128];
++ int authd = 0;
++ 
++ int authgetl(void) {
++   int i;
++ 
++   if (!stralloc_copys(&authin, "")) die_nomem();
++ 
++   for (;;) {
++     if (!stralloc_readyplus(&authin,1)) die_nomem(); /* XXX */
++     i = substdio_get(&ssin,authin.s + authin.len,1);
++     if (i != 1) die_read();
++     if (authin.s[authin.len] == '\n') break;
++     ++authin.len;
++   }
++ 
++   if (authin.len > 0) if (authin.s[authin.len - 1] == '\r') --authin.len;
++   authin.s[authin.len] = 0;
++ 
++   if (*authin.s == '*' && *(authin.s + 1) == 0) { return err_authabrt(); }
++   if (authin.len == 0) { return err_input(); }
++   return authin.len;
++ }
++ 
++ int authenticate(void)
++ {
++   int child;
++   int wstat;
++   int pi[2];
++ 
++   if (!stralloc_0(&user)) die_nomem();
++   if (!stralloc_0(&pass)) die_nomem();
++   if (!stralloc_0(&resp)) die_nomem();
++ 
++   if (fd_copy(2,1) == -1) return err_pipe();
++   close(3);
++   if (pipe(pi) == -1) return err_pipe();
++   if (pi[0] != 3) return err_pipe();
++   switch(child = fork()) {
++     case -1:
++       return err_fork();
++     case 0:
++       close(pi[1]);
++       sig_pipedefault();
++       execvp(*childargs, childargs);
++       _exit(1);
++   }
++   close(pi[0]);
++ 
++   substdio_fdbuf(&ssup,write,pi[1],upbuf,sizeof upbuf);
++   if (substdio_put(&ssup,user.s,user.len) == -1) return err_write();
++   if (substdio_put(&ssup,pass.s,pass.len) == -1) return err_write();
++   if (substdio_put(&ssup,resp.s,resp.len) == -1) return err_write();
++   if (substdio_flush(&ssup) == -1) return err_write();
++ 
++   close(pi[1]);
++   byte_zero(pass.s,pass.len);
++   byte_zero(upbuf,sizeof upbuf);
++   if (wait_pid(&wstat,child) == -1) return err_child();
++   if (wait_crashed(wstat)) return err_child();
++   if (wait_exitcode(wstat)) { sleep(5); return 1; } /* no */
++   return 0; /* yes */
++ }
++ 
++ int auth_login(arg) char *arg;
++ {
++   int r;
++ 
++   if (*arg) {
++     if (r = b64decode(arg,str_len(arg),&user) == 1) return err_input();
++   }
++   else {
++     out("334 VXNlcm5hbWU6\r\n"); flush(); /* Username: */
++     if (authgetl() < 0) return -1;
++     if (r = b64decode(authin.s,authin.len,&user) == 1) return err_input();
++   }
++   if (r == -1) die_nomem();
++ 
++   out("334 UGFzc3dvcmQ6\r\n"); flush(); /* Password: */
++ 
++   if (authgetl() < 0) return -1;
++   if (r = b64decode(authin.s,authin.len,&pass) == 1) return err_input();
++   if (r == -1) die_nomem();
++ 
++   if (!user.len || !pass.len) return err_input();
++   return authenticate();  
++ }
++ 
++ int auth_plain(arg) char *arg;
++ {
++   int r, id = 0;
++ 
++   if (*arg) {
++     if (r = b64decode(arg,str_len(arg),&slop) == 1) return err_input();
++   }
++   else {
++     out("334 ok, go on\r\n"); flush();
++     if (authgetl() < 0) return -1;
++     if (r = b64decode(authin.s,authin.len,&slop) == 1) return err_input();
++   }
++   if (r == -1 || !stralloc_0(&slop)) die_nomem();
++   while (slop.s[id]) id++; /* ignore authorize-id */
++ 
++   if (slop.len > id + 1)
++     if (!stralloc_copys(&user,slop.s + id + 1)) die_nomem();
++   if (slop.len > id + user.len + 2)
++     if (!stralloc_copys(&pass,slop.s + id + user.len + 2)) die_nomem();
++ 
++   if (!user.len || !pass.len) return err_input();
++   return authenticate();
++ }
++ 
++ #ifdef AUTHCRAM
++ int auth_cram()
++ {
++   int i, r;
++   char *s;
++ 
++   s = unique;
++   s += fmt_uint(s,getpid());
++   *s++ = '.';
++   s += fmt_ulong(s,(unsigned long) now());
++   *s++ = '@';
++   *s++ = 0;
++ 
++   if (!stralloc_copys(&pass,"<")) die_nomem();
++   if (!stralloc_cats(&pass,unique)) die_nomem();
++   if (!stralloc_cats(&pass,hostname)) die_nomem();
++   if (!stralloc_cats(&pass,">")) die_nomem();
++   if (b64encode(&pass,&slop) < 0) die_nomem();
++   if (!stralloc_0(&slop)) die_nomem();
++ 
++   out("334 ");
++   out(slop.s);
++   out("\r\n");
++   flush();
++ 
++   if (authgetl() < 0) return -1;
++   if (r = b64decode(authin.s,authin.len,&slop) == 1) return err_input();
++   if (r == -1 || !stralloc_0(&slop)) die_nomem();
++ 
++   i = str_chr(slop.s,' ');
++   s = slop.s + i;
++   while (*s == ' ') ++s;
++   slop.s[i] = 0;
++   if (!stralloc_copys(&user,slop.s)) die_nomem();
++   if (!stralloc_copys(&resp,s)) die_nomem();
++ 
++   if (!user.len || !resp.len) return err_input();
++   return authenticate();
++ }
++ #endif
++ 
++ struct authcmd {
++   char *text;
++   int (*fun)();
++ } authcmds[] = {
++   { "login", auth_login }
++ , { "plain", auth_plain }
++ #ifdef AUTHCRAM
++ , { "cram-md5", auth_cram }
++ #endif
++ , { 0, err_noauth }
++ };
++ 
++ void smtp_auth(arg)
++ char *arg;
++ {
++   int i;
++   char *cmd = arg;
++ 
++   if (!hostname || !*childargs)
++   {
++     out("503 auth not available (#5.3.3)\r\n");
++     return;
++   }
++   if (authd) { err_authd(); return; }
++   if (seenmail) { err_authmail(); return; }
++ 
++   if (!stralloc_copys(&user,"")) die_nomem();
++   if (!stralloc_copys(&pass,"")) die_nomem();
++   if (!stralloc_copys(&resp,"")) die_nomem();
++ 
++   i = str_chr(cmd,' ');   
++   arg = cmd + i;
++   while (*arg == ' ') ++arg;
++   cmd[i] = 0;
++ 
++   for (i = 0;authcmds[i].text;++i)
++     if (case_equals(authcmds[i].text,cmd)) break;
++ 
++   switch (authcmds[i].fun(arg)) {
++     case 0:
++       authd = 1;
++       relayclient = "";
++       remoteinfo = user.s;
++       out("235 ok, go ahead (#2.0.0)\r\n");
++       break;
++     case 1:
++       out("535 authorization failed (#5.7.0)\r\n");
++   }
++ }
++ 
+  struct commands smtpcommands[] = {
+    { "rcpt", smtp_rcpt, 0 }
+  , { "mail", smtp_mail, 0 }
+  , { "data", smtp_data, flush }
++ , { "auth", smtp_auth, flush }
+  , { "quit", smtp_quit, flush }
+  , { "helo", smtp_helo, flush }
+  , { "ehlo", smtp_ehlo, flush }
+  , { "rset", smtp_rset, 0 }
+  , { "help", smtp_help, flush }
++ #ifdef TLS
++ , { "starttls", smtp_tls, flush }
++ #endif
+  , { "noop", err_noop, flush }
+  , { "vrfy", err_vrfy, flush }
+  , { 0, err_unimpl, flush }
+  } ;
+  
+! void main(argc,argv)
+! int argc;
+! char **argv;
+! {
+! #ifdef TLS
+!   sig_alarmcatch(sigalrm);
+! #endif
+!   hostname = argv[1];
+!   childargs = argv + 2;
+! 
+    sig_pipeignore();
+    if (chdir(auto_qmail) == -1) die_control();
+    setup();
+diff -crN ../qmail-1.03/qmail.c ./qmail.c
+*** ../qmail-1.03/qmail.c	Mon Jun 15 05:53:16 1998
+--- ./qmail.c	Sat May 18 01:45:14 2002
+***************
+*** 6,19 ****
+  #include "fd.h"
+  #include "qmail.h"
+  #include "auto_qmail.h"
+  
+! static char *binqqargs[2] = { "bin/qmail-queue", 0 } ;
+  
+  int qmail_open(qq)
+  struct qmail *qq;
+  {
+    int pim[2];
+    int pie[2];
+  
+    if (pipe(pim) == -1) return -1;
+    if (pipe(pie) == -1) { close(pim[0]); close(pim[1]); return -1; }
+--- 6,30 ----
+  #include "fd.h"
+  #include "qmail.h"
+  #include "auto_qmail.h"
++ #include "env.h"
+  
+! static char *binqqargs[2] = { 0, 0 } ;
+! 
+! static void setup_qqargs()
+! {
+!   if(!binqqargs[0])
+!     binqqargs[0] = env_get("QMAILQUEUE");
+!   if(!binqqargs[0])
+!     binqqargs[0] = "bin/qmail-queue";
+! }
+  
+  int qmail_open(qq)
+  struct qmail *qq;
+  {
+    int pim[2];
+    int pie[2];
++ 
++   setup_qqargs();
+  
+    if (pipe(pim) == -1) return -1;
+    if (pipe(pie) == -1) { close(pim[0]); close(pim[1]); return -1; }

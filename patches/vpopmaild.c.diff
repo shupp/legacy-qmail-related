@@ -1,0 +1,50 @@
+--- vpopmaild.c.orig	2007-04-29 15:04:01.000000000 -0700
++++ vpopmaild.c	2007-04-29 15:06:36.000000000 -0700
+@@ -656,6 +656,12 @@
+       } else if ( atoi(value) == 0 ) {
+         tmpvpw->pw_gid &= ~DELETE_SPAM;
+       }
++    } else if ( strcmp(param,"no_maildrop") == 0 ) {
++      if ( atoi(value) == 1 ) {
++        tmpvpw->pw_gid |= NO_MAILDROP;
++      } else if ( atoi(value) == 0 ) {
++        tmpvpw->pw_gid &= ~NO_MAILDROP;
++      }
+     }
+   }
+ 
+@@ -842,6 +848,12 @@
+       snprintf(WriteBuf, sizeof(WriteBuf), "delete_spam 0" RET_CRLF);
+     }
+     wait_write();
++    if ( tmpvpw->pw_gid & NO_MAILDROP ) {
++      snprintf(WriteBuf, sizeof(WriteBuf), "no_maildrop 1" RET_CRLF);
++    } else {
++      snprintf(WriteBuf, sizeof(WriteBuf), "no_maildrop 0" RET_CRLF);
++    }
++    wait_write();
+     if ( tmpvpw->pw_gid & SA_ADMIN ) {
+       snprintf(WriteBuf, sizeof(WriteBuf), "system_admin_privileges 1" RET_CRLF);
+     } else {
+@@ -2076,6 +2088,12 @@
+     snprintf(WriteBuf,sizeof(WriteBuf), "delete_spam 0" RET_CRLF);
+   wait_write();
+ 
++  if (mylimits.disable_maildrop) 
++    snprintf(WriteBuf,sizeof(WriteBuf), "disable_maildrop 1" RET_CRLF);
++  else 
++    snprintf(WriteBuf,sizeof(WriteBuf), "disable_maildrop 0" RET_CRLF);
++  wait_write();
++
+   snprintf(WriteBuf,sizeof(WriteBuf), "perm_account %d" RET_CRLF, 
+     mylimits.perm_account); wait_write();
+   snprintf(WriteBuf,sizeof(WriteBuf), "perm_alias %d" RET_CRLF, 
+@@ -2169,6 +2187,8 @@
+       mylimits.disable_spamassassin = atoi(value);
+     } else if ( strcmp(param,"delete_spam") == 0 ) {
+       mylimits.delete_spam = atoi(value);
++    } else if ( strcmp(param,"disable_maildrop") == 0 ) {
++      mylimits.disable_maildrop = atoi(value);
+     } else if ( strcmp(param,"perm_account") == 0 ) {
+       mylimits.perm_account = atoi(value);
+     } else if ( strcmp(param,"perm_alias") == 0 ) {

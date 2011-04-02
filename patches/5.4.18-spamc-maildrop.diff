@@ -1,0 +1,819 @@
+diff -urN ../vpopmail-5.4.18/config.h.in ./config.h.in
+--- ../vpopmail-5.4.18/config.h.in	2006-12-19 13:16:34.000000000 -0800
++++ ./config.h.in	2007-04-28 19:24:11.582211832 -0700
+@@ -193,6 +193,12 @@
+ #undef LOG_NAME
+ 
+ /* "" */
++#undef MAILDROP
++
++/* "" */
++#undef MAILDROP_PROG
++
++/* "" */
+ #undef MAKE_SEEKABLE
+ 
+ /* "" */
+@@ -265,6 +271,12 @@
+ #undef RETSIGTYPE
+ 
+ /* "" */
++#undef SPAMASSASSIN
++
++/* "" */
++#undef SPAMC_PROG
++
++/* "" */
+ #undef SQWEBMAIL_PASS
+ 
+ /* Define to 1 if you have the ANSI C header files. */
+diff -urN ../vpopmail-5.4.18/configure.in ./configure.in
+--- ../vpopmail-5.4.18/configure.in	2006-12-16 00:11:45.000000000 -0800
++++ ./configure.in	2007-04-28 19:24:11.585211376 -0700
+@@ -855,6 +855,112 @@
+ 
+ 
+ #----------------------------------------------------------------------
++
++AC_MSG_CHECKING(whether spamassassin is enabled)
++AC_ARG_ENABLE(spamassassin,
++        [  --enable-spamassassin      Enable spamassassin. See  README.spamassassin for more info.],
++        ENABLE_SPAMASSASSIN=$enableval,
++                [
++                        ENABLE_SPAMASSASSIN=0
++                ]
++)
++
++case $ENABLE_SPAMASSASSIN in
++  0*|n*|N*)
++      AC_MSG_RESULT(no)
++      ;;
++  *)
++      AC_MSG_RESULT(yes)
++      ENABLE_SPAMASSASSIN=1
++      AC_DEFINE_UNQUOTED(SPAMASSASSIN,$ENABLE_SPAMASSASSIN,"")
++
++    AC_MSG_CHECKING(whether we can locate the spamc program)
++    for f in /usr/bin/spamc /usr/local/bin/spamc
++    do
++        if test -f $f
++        then
++            spamc_prog=$f
++            break
++        fi
++    done
++    AC_ARG_ENABLE(spamc-prog,
++        [  --enable-spamc-prog=PATH   Full path to spamc program [/usr/{local/}bin/spamc].],
++        spamc_prog="$enableval",
++        [
++            if test "$spamc_prog" = ""
++            then
++                AC_MSG_RESULT(no)
++                AC_MSG_ERROR([Unable to find your spamc prog, specify --enable-spamc-prog.])
++            fi
++        ]
++    )
++
++    if test ! -f "$spamc_prog"
++    then
++        AC_MSG_RESULT(no)
++        AC_MSG_ERROR([Unable to find your spamc program, specify --enable-spamc-prog=/full/path/to/spamc])
++    fi
++
++    AC_MSG_RESULT(yes)
++    AC_DEFINE_UNQUOTED(SPAMC_PROG,"$spamc_prog","")
++
++      ;;
++esac
++
++#----------------------------------------------------------------------
++
++AC_MSG_CHECKING(whether maildrop is enabled)
++AC_ARG_ENABLE(maildrop,
++        [  --enable-maildrop          Enable maildrop. See  README.maildrop for more info.],
++        ENABLE_MAILDROP=$enableval,
++                [
++                        ENABLE_MAILDROP=0
++                ]
++)
++
++case $ENABLE_MAILDROP in
++  0*|n*|N*)
++      AC_MSG_RESULT(no)
++      ;;
++  *)
++      AC_MSG_RESULT(yes)
++      ENABLE_MAILDROP=1
++      AC_DEFINE_UNQUOTED(MAILDROP,$ENABLE_MAILDROP,"")
++
++    AC_MSG_CHECKING(whether we can locate the maildrop program)
++    for f in /usr/bin/maildrop /usr/local/bin/maildrop
++    do
++        if test -f $f
++        then
++            maildrop_prog=$f
++            break
++        fi
++    done
++    AC_ARG_ENABLE(maildrop-prog,
++        [  --enable-maildrop-prog=PATH    Full path to maildrop program [/usr/{local/}bin/maildrop].],
++        maildrop_prog="$enableval",
++        [
++            if test "$maildrop_prog" = ""
++            then
++                AC_MSG_RESULT(no)
++                AC_MSG_ERROR([Unable to find your maildrop prog, specify --enable-maildrop-prog.])
++            fi
++        ]
++    )
++
++    if test ! -f "$maildrop_prog"
++    then
++        AC_MSG_RESULT(no)
++        AC_MSG_ERROR([Unable to find your maildrop program, specify --enable-maildrop-prog=/full/path/to/maildrop])
++    fi
++
++    AC_MSG_RESULT(yes)
++    AC_DEFINE_UNQUOTED(MAILDROP_PROG,"$maildrop_prog","")
++
++      ;;
++esac
++
++#----------------------------------------------------------------------
+ #  -- domain quotas disabled until they actually work again --
+ #AC_MSG_CHECKING(whether domainquotas is enabled)
+ #AC_ARG_ENABLE(domainquotas,
+@@ -1692,6 +1798,24 @@
+   fi
+ fi
+ 
++case $ENABLE_SPAMASSASSIN in
++  1*|y*|Y*)
++    echo "      spamassassin = ON  --enable-spamassassin"
++    ;;
++  *)
++    echo "      spamassassin = OFF --disable-spamassassin (default)"
++    ;;
++esac
++
++case $ENABLE_MAILDROP in
++  1*|y*|Y*)
++    echo "          maildrop = ON  --enable-maildrop"
++    ;;
++  *)
++    echo "          maildrop = OFF --disable-maildrop (default)"
++    ;;
++esac
++
+ echo "${CC} -O2" > cdb/conf-cc
+ echo "${CC} -s" > cdb/conf-ld
+ 
+diff -urN ../vpopmail-5.4.18/maildrop/maildroprc.v1 ./maildrop/maildroprc.v1
+--- ../vpopmail-5.4.18/maildrop/maildroprc.v1	1969-12-31 16:00:00.000000000 -0800
++++ ./maildrop/maildroprc.v1	2007-04-28 19:24:11.587211072 -0700
+@@ -0,0 +1,111 @@
++import EXT
++import HOST
++VPOPMAILDIR="/home/vpopmail"
++VHOME=`$VPOPMAILDIR/bin/vuserinfo -d $EXT@$HOST`
++DOMDIR=`$VPOPMAILDIR/bin/vdominfo -d $HOST`
++NOEXT=`echo $EXT | awk -F- '{ print $1}'`
++JUNK="$VHOME/Maildir/.Junk/"
++DELETESCORE=100
++GLOBALJUNK="/home/vpopmail/domains/shupp.org/bill/Maildir/.Junk/"
++
++
++DUMMY=`test -d $VHOME/Maildir`
++if ( $RETURNCODE == 1 )
++{
++    DUMMY=`test $EXT = $NOEXT`
++    if ( $RETURNCODE == 1 )
++    {
++        VHOME=`$VPOPMAILDIR/bin/vuserinfo -d $NOEXT@$HOST`
++    }
++}
++
++DUMMY=`test -d $VHOME/Maildir`
++if ( $RETURNCODE == 1 )
++{
++	DUMMY=`grep bounce-no-mailbox $DOMDIR/.qmail-default`
++	if ( $RETURNCODE == 0 )
++	{
++   		echo "Sorry, no mailbox here by that name. (#5.1.1) - maildrop"
++   		EXITCODE=100
++   		exit
++	}
++	DUMMY=`grep ' delete$' $DOMDIR/.qmail-default`
++	if ( $RETURNCODE == 0 )
++	{
++   		echo "Deleted mail for non-existent user $EXT@$HOST - maildrop"
++   		EXITCODE=0
++   		exit
++	}
++	# else, it's either a Maildir or forward
++	ARG4=`awk '{ print $4 }' $DOMDIR/.qmail-default`
++	# check forward first
++	DUMMY=`echo $ARG4 | grep '@'`
++	if ( $RETURNCODE == 0 )
++	{
++		to '| /var/qmail/bin/qmail-inject'
++	}
++	# then check Maildir
++	DUMMY=`echo $ARG4 | grep '^/'`
++	if ( $RETURNCODE == 0 )
++	{
++		VHOME="$ARG4"
++		JUNK="$ARG4/Maildir/.Junk/"
++	}
++}
++
++
++# pipe to spamc
++if ( $SIZE < 262144 )
++{
++        exception {
++                xfilter "/usr/bin/spamc -f -u $EXT@$HOST"
++        }
++}
++
++if (/^X-Spam-Flag: *YES/)
++{
++        exception {
++		/X-Spam-Status: Yes, score=!-*[0-9]+\.[0-9]+/
++		SCORE=$MATCH2
++		if ($SCORE >= $DELETESCORE )
++		{
++			if ( /^From: *!.*/ )
++			{
++   				ADDR=getaddr($MATCH2)
++			}
++
++        		echo "auto-deleted spam from $FROM::$ADDR to $EXT@$HOST with score of $SCORE"
++			to /dev/null
++		}
++        }
++
++	# check for junk folder, create and subscribe if necessary
++        DUMMY=`test -d $JUNK`
++        if ( $RETURNCODE == 1 )
++        {
++                `/var/qmail/bin/maildirmake $JUNK`
++                `touch $JUNK/maildirfolder`
++                `chown vpopmail:vchkpw  $JUNK/maildirfolder`
++                DUMMY=`grep $JUNKNAME $VHOME/Maildir/courierimapsubscribed`
++                if ( $RETURNCODE == 1 )
++                {
++                        `echo $JUNKNAME >> $VHOME/Maildir/courierimapsubscribed`
++                        `chown vpopmail:vchkpw $VHOME/Maildir/courierimapsubscribed`
++                }
++                echo "created $JUNK"
++        }
++
++        echo "maildrop: filtered junk from $FROM::$ADDR to $EXT@$HOST with score of $SCORE"
++        to $JUNK
++}
++else
++{
++	# optionally include other filter instructions
++	DUMMY=`test -f $VHOME/.mailfilter`
++	if ( $RETURNCODE == 0 )
++	{
++		include $VHOME/.mailfilter
++	}
++	echo "maildrop: non-filtered mail delivery"
++        to $VHOME/Maildir/
++}
+diff -urN ../vpopmail-5.4.18/maildrop/maildroprc.v2 ./maildrop/maildroprc.v2
+--- ../vpopmail-5.4.18/maildrop/maildroprc.v2	1969-12-31 16:00:00.000000000 -0800
++++ ./maildrop/maildroprc.v2	2007-04-28 19:24:11.588210920 -0700
+@@ -0,0 +1,111 @@
++import EXT
++import HOST
++VPOPMAILDIR="/home/vpopmail"
++VHOME=`$VPOPMAILDIR/bin/vuserinfo -d $EXT@$HOST`
++DOMDIR=`$VPOPMAILDIR/bin/vdominfo -d $HOST`
++NOEXT=`echo $EXT | awk -F- '{ print $1}'`
++JUNK="$VHOME/Maildir/.Junk/"
++DELETESCORE=100
++GLOBALJUNK="/home/vpopmail/domains/shupp.org/bill/Maildir/.Junk/"
++
++
++DUMMY=`test -d $VHOME/Maildir`
++if ( $RETURNCODE == 1 )
++{
++    DUMMY=`test $EXT = $NOEXT`
++    if ( $RETURNCODE == 1 )
++    {
++        VHOME=`$VPOPMAILDIR/bin/vuserinfo -d $NOEXT@$HOST`
++    }
++}
++
++DUMMY=`test -d $VHOME/Maildir`
++if ( $RETURNCODE == 1 )
++{
++	DUMMY=`grep bounce-no-mailbox $DOMDIR/.qmail-default`
++	if ( $RETURNCODE == 0 )
++	{
++   		echo "Sorry, no mailbox here by that name. (#5.1.1) - maildrop"
++   		EXITCODE=100
++   		exit
++	}
++	DUMMY=`grep ' delete$' $DOMDIR/.qmail-default`
++	if ( $RETURNCODE == 0 )
++	{
++   		echo "Deleted mail for non-existent user $EXT@$HOST - maildrop"
++   		EXITCODE=0
++   		exit
++	}
++	# else, it's either a Maildir or forward
++	ARG4=`awk '{ print $4 }' $DOMDIR/.qmail-default`
++	# check forward first
++	DUMMY=`echo $ARG4 | grep '@'`
++	if ( $RETURNCODE == 0 )
++	{
++		to '| /var/qmail/bin/qmail-inject'
++	}
++	# then check Maildir
++	DUMMY=`echo $ARG4 | grep '^/'`
++	if ( $RETURNCODE == 0 )
++	{
++		VHOME="$ARG4"
++		JUNK="$ARG4/Maildir/.Junk/"
++	}
++}
++
++
++# pipe to spamc
++if ( $SIZE < 262144 )
++{
++        exception {
++                xfilter "/usr/bin/spamc -f -u $EXT@$HOST"
++        }
++}
++
++if (/^X-Spam-Flag: *YES/)
++{
++        exception {
++                /^X-Spam-Status:\s*Yes, score=(-*[0-9]+\.[0-9]+)/
++                SCORE=$MATCH1
++                if ($SCORE >= $DELETESCORE )
++                {
++                        if ( /^From:\s*(.*)/ )
++                        {
++                                ADDR=getaddr($MATCH1)
++                        }
++
++        		echo "auto-deleted spam from $FROM::$ADDR to $EXT@$HOST with score of $SCORE"
++			to /dev/null
++		}
++        }
++
++	# check for junk folder, create and subscribe if necessary
++        DUMMY=`test -d $JUNK`
++        if ( $RETURNCODE == 1 )
++        {
++                `/var/qmail/bin/maildirmake $JUNK`
++                `touch $JUNK/maildirfolder`
++                `chown vpopmail:vchkpw  $JUNK/maildirfolder`
++                DUMMY=`grep $JUNKNAME $VHOME/Maildir/courierimapsubscribed`
++                if ( $RETURNCODE == 1 )
++                {
++                        `echo $JUNKNAME >> $VHOME/Maildir/courierimapsubscribed`
++                        `chown vpopmail:vchkpw $VHOME/Maildir/courierimapsubscribed`
++                }
++                echo "created $JUNK"
++        }
++
++        echo "maildrop: filtered junk from $FROM::$ADDR to $EXT@$HOST with score of $SCORE"
++        to $JUNK
++}
++else
++{
++	# optionally include other filter instructions
++	DUMMY=`test -f $VHOME/.mailfilter`
++	if ( $RETURNCODE == 0 )
++	{
++		include $VHOME/.mailfilter
++	}
++	echo "maildrop: non-filtered mail delivery"
++        to $VHOME/Maildir/
++}
+diff -urN ../vpopmail-5.4.18/README.maildrop ./README.maildrop
+--- ../vpopmail-5.4.18/README.maildrop	1969-12-31 16:00:00.000000000 -0800
++++ ./README.maildrop	2007-04-28 19:24:11.588210920 -0700
+@@ -0,0 +1,36 @@
++4/28/2007
++
++* Maildrop Support in vdelivermail
++
++Vdelivermail can call maildrop during local delivery to a Maildir.  To enable
++this, simply compile vpopmail with --enable-maildrop=y.  Configure will
++look for the maildrop program in /usr/bin and /usr/local/bin.  If it is not 
++found, you will need to specify the location with the additional 
++--enable-maildrop-prog='/path/to/maildrop' option.
++
++If you want to disable maildrop processing for a user or all users in a domain, 
++you may do so with the vmoduser program:
++
++vmoduser -m user@domain.com
++or
++vmoduser -m domain.com
++
++When compiled with maildrop support, maildrop processing defaults to on for 
++users.  If you want to override this default on a system or per domain basis, 
++these can be set as well with the following entries to vlimits.default, or 
++.qmailadmin-limits, respectively:
++
++disable_maildrop
++
++maildrop is called with no arguments, allowing for the default maildroprc 
++location (/etc/maildroprc on Linux, /usr/local/etc/maildroprc on FreeBSD).
++You can find two sample maildroprc files in the maildrop subdirectory.  The
++file maildroprc.v1 is for maildrop versions below 2.0, and maildroprc.v2 is 
++for maildrop versions 2.0 or higher.  (Some expression syntax change at 2.0).
++
++If you want to automatically run spamc before calling maildrop, see 
++README.spamassassin
++
++
++Bill Shupp
++hostmaster@shupp.org
+diff -urN ../vpopmail-5.4.18/README.spamassassin ./README.spamassassin
+--- ../vpopmail-5.4.18/README.spamassassin	1969-12-31 16:00:00.000000000 -0800
++++ ./README.spamassassin	2007-04-28 19:24:11.588210920 -0700
+@@ -0,0 +1,37 @@
++4/28/2007
++
++* SpamAssassin Support in vdelivermail
++
++Vdelivermail can call spamc during local delivery to a Maildir.  To enable
++this, simply compile vpopmail with --enable-spamassassin=y.  Configure will
++look for the spamc program in /usr/bin and /usr/local/bin.  If it not found,
++you will need to specify the location with the additional 
++--enable-spamc-prog='/path/to/spamc' option.
++
++If you want to disable spamc processing for a user or domain, you may do so
++with the vmoduser program:
++
++vmoduser -f user@domain.com
++or
++vmoduser -f domain.com
++
++You may also have vdelivermail discard a message found to be spam.  This also 
++can be done with vmoduser:
++
++vmoduser -F user@domain.com
++or
++vmoduser -F domain.com
++
++When compiled with SpamAssassin support, spamc processing defaults to "on" for 
++users.  Deleting spam defaults to "off".  If you want to override these 
++defaults on a system or per domain basis, these can be set as well with the 
++following entries to vlimits.default, or .qmailadmin-limits, respectively:
++
++disable_spamassassin
++delete_spam
++
++If you want to automatically filter mail, see README.maildrop
++
++
++Bill Shupp
++hostmaster@shupp.org
+diff -urN ../vpopmail-5.4.18/vdelivermail.c ./vdelivermail.c
+--- ../vpopmail-5.4.18/vdelivermail.c	2006-12-23 17:28:49.000000000 -0800
++++ ./vdelivermail.c	2007-04-28 19:26:11.617963624 -0700
+@@ -42,6 +42,7 @@
+ #ifdef MAKE_SEEKABLE
+ #include "seek.h"
+ #endif
++#include "vlimits.h"
+ 
+ /* Globals */
+ #define AUTH_SIZE 300
+@@ -68,6 +69,13 @@
+ #define FILE_SIZE 156
+ char loop_buf[FILE_SIZE];
+ 
++#ifdef SPAMASSASSIN
++int  InHeaders = 1;
++int is_spam();
++#endif
++int  DeleteMail = 0;
++int  local = 1;
++
+ #define MSG_BUF_SIZE 5000
+ char msgbuf[MSG_BUF_SIZE];
+ 
+@@ -343,18 +351,85 @@
+     return(pid);
+ }
+ 
+-int fdcopy (int write_fd, int read_fd, const char *extra_headers, size_t headerlen)
++int fdcopy (int write_fd, int read_fd, const char *extra_headers, size_t headerlen, char *address)
+ {
+   char msgbuf[4096];
+   ssize_t file_count;
++  struct vlimits limits;
++#ifdef SPAMASSASSIN
++  long unsigned pid;
++  int  pim[2];
++#endif
++#ifdef MAILDROP
++  char maildrop_command[256];
++#endif
+ 
+     /* write the Return-Path: and Delivered-To: headers */
+     if (headerlen > 0) {
+         if (write(write_fd, extra_headers, headerlen) != headerlen) return -1;
+     }
++
++    /* fork the SpamAssassin client - based on work by Alex Dupre */
++    if(local==1) {
++      vget_limits(TheDomain, &limits);
++      if ( vpw==NULL ) {
++        parse_email(address, TheUser, TheDomain, AUTH_SIZE);
++        vpw=vauth_getpw(TheUser, TheDomain);
++      }
++#ifdef SPAMASSASSIN
++      if ( limits.disable_spamassassin==0 && vpw!=NULL &&
++           !(vpw->pw_gid & NO_SPAMASSASSIN) ) {
++
++        if (!pipe(pim)) {
++          pid = vfork();
++          switch (pid) {
++           case -1:
++            close(pim[0]);
++            close(pim[1]);
++            break;
++           case 0:
++            close(pim[0]);
++            dup2(pim[1], 1);
++            close(pim[1]);
++            if (execl(SPAMC_PROG, SPAMC_PROG, "-f", "-u",
++                 address, 0) == -1) {
++              while ((file_count = read(0, msgbuf, MSG_BUF_SIZE)) > 0) {
++                write(1, msgbuf, file_count);
++              }
++              _exit(0);
++            }
++          }
++          close(pim[1]);
++          dup2(pim[0], 0);
++          close(pim[0]);
++        }
++    }
++#endif
++
++#ifdef MAILDROP
++      if ( limits.disable_maildrop==0 && vpw!=NULL &&
++           !(vpw->pw_gid & NO_MAILDROP) ) {
++	sprintf(maildrop_command, "| preline %s", MAILDROP_PROG);
++	run_command(maildrop_command);
++	DeleteMail = 1;
++	return(0);
++      }
++#endif
++    }
++
+     
+     /* read it in chunks and write it to the new file */
+     while ((file_count = read(read_fd, msgbuf, sizeof(msgbuf))) > 0) {
++#ifdef SPAMASSASSIN
++        if ( local==1 && InHeaders==1 &&
++             (limits.delete_spam==1 || vpw->pw_gid & DELETE_SPAM) ) {
++          printf("check is_spam\n");
++          if (is_spam(msgbuf) == 1) {
++            DeleteMail = 1;
++            return(0);
++          }
++        }
++#endif
+         if ( write(write_fd, msgbuf, file_count) == -1 ) return -1;
+     }
+     
+@@ -444,7 +519,8 @@
+         return(-2);
+     }
+ 
+-    if (fdcopy (write_fd, read_fd, extra_headers, headerlen) != 0) {
++    local = 1;
++    if (fdcopy(write_fd, read_fd, extra_headers, headerlen, maildir_to_email(maildir)) != 0) {
+         /* Did the write fail because we were over quota? */
+         if ( errno == EDQUOT ) {
+             close(write_fd);
+@@ -472,6 +548,14 @@
+ #endif
+         close (write_fd) == 0 ) {
+ 
++	if(DeleteMail == 1) {
++	    if (unlink(local_file_tmp) != 0) {
++                printf("unlink failed %s errno = %d\n", local_file_tmp, errno);
++                return(errno);
++            }
++            return(0);
++	}
++
+         /* if this succeeds link the file to the new directory */
+         if ( link( local_file_tmp, local_file_new ) == 0 ) {
+             /* file was successfully delivered, remove temp file */
+@@ -511,6 +595,9 @@
+  char tmp_file[256];
+  char maildirquota[80];
+  char *email;
++#ifdef MAILDROP
++ struct vlimits limits;
++#endif
+ 
+     /* This is a comment, ignore it */
+     if ( *address == '#' ) return;
+@@ -551,6 +638,15 @@
+         }
+         
+         /* if the user has a quota set */
++#ifdef MAILDROP
++       vget_limits(TheDomain, &limits);
++       if ( vpw==NULL ) {
++         parse_email(maildir_to_email(address), TheUser, TheDomain, AUTH_SIZE);
++         vpw=vauth_getpw(TheUser, TheDomain);
++       }
++       if ( vpw!=NULL && (limits.disable_spamassassin==1 ||
++           (vpw->pw_gid & NO_MAILDROP)) ) {
++#endif
+         if ( strncmp(quota, "NOQUOTA", 2) != 0 ) {
+ 
+             /* If the user is over their quota, return it back
+@@ -583,6 +679,9 @@
+                 deliver_quota_warning(address, format_maildirquota(quota));
+             }
+         }
++#ifdef MAILDROP
++      }
++#endif
+ 
+ #ifdef DOMAIN_QUOTAS
+     /* bk: check domain quota */
+@@ -679,7 +778,8 @@
+           "%sDelivered-To: %s", getenv("RPLINE"), dtline);
+       }
+       
+-      if (fdcopy (fdm, 0, DeliveredTo, strlen(DeliveredTo)) != 0) {
++      local = 0;
++      if (fdcopy (fdm, 0, DeliveredTo, strlen(DeliveredTo), address) != 0) {
+           printf ("write to qmail-inject failed: %d\n", errno);
+           close(fdm);
+           waitpid(inject_pid,&child,0);
+@@ -1100,3 +1200,57 @@
+ 
+     return (strcasecmp (compare, (dt+14)) == 0);
+ }
++
++#ifdef SPAMASSASSIN
++/* Check for a spam message
++ *  * This is done by checking for a matching line
++ *   * in the email headers for X-Spam-Level: which
++ *    * we put in each spam email
++ *     *
++ *      * Return 1 if spam
++ *       * Return 0 if not spam
++ *        * Return -1 on error
++ *         */
++int is_spam(char *spambuf)
++{
++ int i,j,k;
++ int found;
++
++    for(i=0,j=0;spambuf[i]!=0;++i) {
++
++       /* found a line */
++       if (spambuf[i]=='\n' || spambuf[i]=='\r' ) {
++
++         /* check for blank line, end of headers */
++         for(k=j,found=0;k<i;++k) {
++           switch(spambuf[k]) {
++             /* skip blank spaces and new lines */
++             case ' ':
++             case '\n':
++             case '\t':
++             case '\r':
++               break;
++
++             /* found a non blank, so we are still
++              * in the headers
++              */
++             default:
++               /* set the found non blank char flag */
++               found = 1;
++               break;
++           }
++         }
++         if ( found == 0 ) {
++           InHeaders=0;
++           return(0);
++         }
++
++         /* still in the headers check for spam header */
++         if ( strncmp(&spambuf[j], "X-Spam-Flag: YES", 16 ) == 0 ) return(1);
++
++         if (spambuf[i+1]!=0) j=i+1;
++       }
++     }
++     return(0);
++}
++#endif
+diff -urN ../vpopmail-5.4.18/vlimits.c ./vlimits.c
+--- ../vpopmail-5.4.18/vlimits.c	2006-01-17 10:50:22.000000000 -0800
++++ ./vlimits.c	2007-04-28 19:24:11.591210464 -0700
+@@ -145,6 +145,9 @@
+                 limits->delete_spam = 1;
+             }
+ 
++            if (!strcmp(s1, "disable_maildrop")) {
++                limits->disable_maildrop = 1;
++            }
+ 
+             if (!strcmp(s1, "perm_account")) {
+                 if ((s2 = strtok(NULL, TOKENS)) == NULL)
+@@ -273,6 +276,9 @@
+     if (limits->delete_spam != 0) {
+         mask |= DELETE_SPAM;
+     }
++    if (limits->disable_maildrop != 0) {
++        mask |= NO_MAILDROP;
++    }
+ 
+     return mask;
+     /* this feature has been temporarily disabled until we can figure
+diff -urN ../vpopmail-5.4.18/vlimits.default ./vlimits.default
+--- ../vpopmail-5.4.18/vlimits.default	2006-01-17 10:50:22.000000000 -0800
++++ ./vlimits.default	2007-04-28 19:24:11.591210464 -0700
+@@ -27,6 +27,7 @@
+ #disable_webmail
+ #disable_spamassassin
+ #delete_spam
++#disable_maildrop
+ 
+ 
+ # Set bitflags on account management for non-postmaster admins.
+diff -urN ../vpopmail-5.4.18/vlimits.h ./vlimits.h
+--- ../vpopmail-5.4.18/vlimits.h	2005-12-07 22:10:36.000000000 -0800
++++ ./vlimits.h	2007-04-28 19:24:11.591210464 -0700
+@@ -39,6 +39,7 @@
+       short     disable_smtp;
+       short     disable_spamassassin;
+       short     delete_spam;
++      short     disable_maildrop;
+ 
+       /* the following permissions are for non-postmaster admins */
+       short     perm_account;
+diff -urN ../vpopmail-5.4.18/vmoduser.c ./vmoduser.c
+--- ../vpopmail-5.4.18/vmoduser.c	2006-11-26 10:55:52.000000000 -0800
++++ ./vmoduser.c	2007-04-28 19:27:44.346866688 -0700
+@@ -149,6 +149,7 @@
+     printf("         -E ( grant expert privileges - edit .qmail files )\n");
+     printf("         -f ( disable spamassassin)\n");
+     printf("         -F ( delete spam)\n");
++    printf("         -m ( disable maildrop)\n");
+     printf("  [The following flags aren't used directly by vpopmail but are]\n");
+     printf("  [included for other programs that share the user database.]\n");
+     printf("         -u ( set no dialup flag )\n");
+@@ -178,7 +179,7 @@
+     NoMakeIndex = 0;
+ 
+     errflag = 0;
+-    while( (c=getopt(argc,argv,"D:avunxc:q:dpswibro0123he:C:fFSE")) != -1 ) {
++    while( (c=getopt(argc,argv,"D:avunxc:q:dpswibro0123he:C:fFSEm")) != -1 ) {
+         switch(c) {
+             case 'v':
+                 printf("version: %s\n", VERSION);
+@@ -260,6 +261,9 @@
+             case 'F':
+                 GidFlag |= DELETE_SPAM;
+                 break;
++            case 'm':
++                GidFlag |= NO_MAILDROP;
++                break;
+             case 'h':
+                 usage();
+                 vexit(0);
+diff -urN ../vpopmail-5.4.18/vpopmail.h ./vpopmail.h
+--- ../vpopmail-5.4.18/vpopmail.h	2006-12-16 00:52:59.000000000 -0800
++++ ./vpopmail.h	2007-04-28 19:24:11.593210160 -0700
+@@ -125,6 +125,7 @@
+ #define DELETE_SPAM  0x8000
+ #define SA_ADMIN     0x10000
+ #define SA_EXPERT    0x20000
++#define NO_MAILDROP  0x40000
+ 
+ 
+ extern int OptimizeAddDomain;
+diff -urN ../vpopmail-5.4.18/vuserinfo.c ./vuserinfo.c
+--- ../vpopmail-5.4.18/vuserinfo.c	2006-01-17 10:50:22.000000000 -0800
++++ ./vuserinfo.c	2007-04-28 19:24:11.593210160 -0700
+@@ -297,6 +297,7 @@
+             display_limit (mypw, NO_RELAY,       "user not allowed to relay mail");
+             display_limit (mypw, NO_SPAMASSASSIN,"spamassassin processing disabled");
+             display_limit (mypw, DELETE_SPAM,    "delete spam");
++            display_limit (mypw, NO_MAILDROP,    "maildrop processing disabled");
+             display_limit (mypw, NO_DIALUP,      "no dialup flag has been set");
+             display_limit (mypw, BOUNCE_MAIL,    "mail will be bounced back to sender");
+             display_limit (mypw, QA_ADMIN,       "has qmailadmin administrator access");

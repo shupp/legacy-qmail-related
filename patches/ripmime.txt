@@ -1,0 +1,74 @@
+Date: Tue, 10 Jan 2006 11:50:52 -0800
+From: Bill Shupp <hostmaster@shupp.org>
+To:  simscan@inter7.com
+Subject: [simscan] ripmime --disable-qmail-bounce
+
+Greetings,
+
+It turns out, ripmime by default tries to detect qmail bounce messages. 
+  Unfortunately, this "detection" takes an email with one 600K pdf 
+attachment and 18 bounce headers, and "breaks" it into 18 unique bounce 
+messages messages, each with their own 600K pdf attachment.  clamdscan 
+was then trying to scan them ALL, and spiking the cpu in the process, 
+and eventually timing out smtp connections.
+
+Here's what the ripmime man page says about this feature (misspelled, 
+for some reason):
+
+######################
+--disable-qmailbounce:
+
+Turns  off  ripMIME's  look-ahead  searching  for RFC822 headers
+within a body of text. Normally the  look-ahead  is  useful  for
+decoding embedded emails which have been bounced back by systems
+like qmail, but have been included in such a way that  they  are
+not  meant  to  be  decoded, unfortunately some MUA (Outlook for
+one) still decode it, hence we need  to  by  default  check  for
+attachments in such forwarded bodies.
+######################
+
+(incidentally, I did a diff on the resulting 18 files - the attachment 
+parts are indeed identical, only the headers are different)
+
+Attached is a text diff for that will add the ripmime argument to 
+simscan.c (v. 1.2).
+
+Here's the time results using the QMAILQUEUE environment and the 
+qmail-inject program to test the simscan process (bypassing smtp):
+
+Without --disable-qmail-bounce:
+
+real    5m38.363s
+user    0m0.489s
+sys     0m0.289s
+
+With --disable-qmail-bounce:
+
+real    0m34.952s
+user    0m0.057s
+sys     0m0.074s
+
+That's about 1/10 of the time.  So my questions are:
+
+Has anyone else tried this?  Are there any dangers in using this I 
+haven't considered?  If not, perhaps this is a change that should be 
+added to simscan.  It has greatly improved clamd performance on the 3 
+machines involved in this busy system.
+
+Regards,
+
+Bill
+
+--- simscan.c.orig	Tue Jan 10 11:32:26 2006
++++ simscan.c	Tue Jan 10 11:33:04 2006
+@@ -729,7 +729,8 @@
+     case 0:
+      close(1);
+      close(2);
+-     execl(RIPMIME, "ripmime", "-i", message_name, "-d", NULL );
++     /* execl(RIPMIME, "ripmime", "-i", message_name, "-d", NULL ); */
++     execl(RIPMIME, "ripmime", "--disable-qmail-bounce", "-i", message_name, "-d", NULL );
+      _exit(-1);
+   }
+ 
+

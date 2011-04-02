@@ -1,0 +1,49 @@
+<title><?php echo _("Install Software") ?></title>
+
+<itemizedlist>
+    <listitem>
+        <para><emphasis><?php echo _("SquirrelMail")?> </emphasis></para>
+
+        <para><?php echo _("SquirrelMail is a web based IMAP client")?></para>
+
+        <para><?php echo _("Info: ")?><ulink url="http://www.squirrelmail.org">http://www.squirrelmail.org</ulink></para>
+
+        <para><?php echo _("<emphasis>NOTE: This section assumes that your apache ServerRoot is /var/www and that your DocumentRoot is /var/www/html, and also that your web server runs as apache:apache</emphasis>")?></para>
+
+        <para><?php echo _("Install:")?></para>
+
+
+        <programlisting>
+            <literal>cd {varsrc}</literal>
+            <literal>tar -xjf tar/squirrelmail-{squirrelmail}.tar.bz2</literal>
+            <literal>cd squirrelmail-{squirrelmail}</literal>
+            <literal>cd plugins</literal>
+            <literal>tar -xzf ../../tar/quota_usage-{quotausage}.tar.gz</literal>
+            <literal>cp quota_usage/config.php.sample quota_usage/config.php</literal>
+            <literal>cd ../</literal>
+            <literal>./configure</literal>
+        </programlisting>
+
+        <para><?php echo _("here you will have to set a few options:")?></para>
+
+        <blockquote role="configure">
+            <itemizedlist>
+                <listitem><literallayout><?php echo _("go to Server Settings (2), Server Software (8) and change the Server Software from <quote>other</quote> to <quote>courier</quote> (a)")?></literallayout></listitem>
+                <listitem><literallayout><?php echo _("From the main menu, go to General Options (4) and change Data Direcotry (2) to <quote>/var/www/data/</quote>, change <quote>Allow server thread sort</quote> (10) to y, and change <quote>Allow server-side sorting</quote> (11) to y.")?></literallayout></listitem>
+                <listitem><literallayout><?php echo _("From the main menu, go to Plugins and enable the quota_usage plugin, along with any others you prefer")?></literallayout></listitem>
+                <listitem><literallayout><?php echo _("Save settings")?></literallayout></listitem>
+                <listitem><literallayout><?php echo _("quit")?></literallayout></listitem>
+            </itemizedlist>
+        </blockquote>
+
+        <programlisting>
+            <lineannotation><?php echo _("move the data directory into place and change permissions to the user:group that the web server runs as:")?></lineannotation>
+            <literal>mv data /var/www/</literal>
+            <literal>chown -R apache:apache /var/www/data</literal>
+            <literal></literal>
+            <lineannotation>install squirrelmail</lineannotation>
+            <literal>cd ../</literal>
+            <literal>mv squirrelmail-{squirrelmail} /var/www/html/</literal>
+        </programlisting>
+    </listitem>
+</itemizedlist>

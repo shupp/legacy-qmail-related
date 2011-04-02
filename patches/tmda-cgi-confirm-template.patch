@@ -1,0 +1,10 @@
+diff -urN ../tmda-cgi-0.16.1-orig/skel/install/.tmda/templates/confirm_accept.txt ./skel/install/.tmda/templates/confirm_accept.txt
+--- ../tmda-cgi-0.16.1-orig/skel/install/.tmda/templates/confirm_accept.txt	2007-03-02 06:07:43.000000000 -0800
++++ ./skel/install/.tmda/templates/confirm_accept.txt	2007-03-28 19:56:35.647879952 -0700
+@@ -4,4 +4,5 @@
+ 
+ This message was created automatically by mail delivery software (TMDA).
+ 
+-%%(confirm_accept_text)s
++Your confirmation was accepted, and so your original message has been
++delivered.

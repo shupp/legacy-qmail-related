@@ -1,0 +1,153 @@
+<title><?php echo _("Install Software") ?></title>
+
+<itemizedlist>
+    <listitem>
+        <para><emphasis><?php echo _("qmail")?> </emphasis></para>
+
+        <para><?php echo _("qmail is allegedly the second most popular MTA in use, known for speed and security.")?></para>
+
+        <para><?php echo _("Info: ")?><ulink url="http://www.qmail.org">http://www.qmail.org</ulink></para>
+
+        <para><?php echo _("The patch you will apply later is a composite of these existing patches:")?></para>
+
+        <itemizedlist>
+            <listitem><literallayout><?php echo _("smtp auth (cram-md5)")?></literallayout></listitem>
+            <listitem><literallayout><?php echo _("starttls support")?></literallayout></listitem>
+            <listitem><literallayout><?php echo _("support oversize dns packets (not necessary if you use dnscache)")?></literallayout></listitem>
+            <listitem><literallayout><?php echo _("qregex (regular expression matching in badmailfrom and badmailto)")?></literallayout></listitem>
+            <listitem><literallayout><?php echo _("reread concurrency via HUP")?></literallayout></listitem>
+            <listitem><literallayout><?php echo _("big concurrency (set the spawn limit above 255)")?></literallayout></listitem>
+            <listitem><literallayout><?php echo _("maildir++ patch")?></literallayout></listitem>
+            <listitem><literallayout><?php echo _("qmail-queue (to allow for virus scanners, part of netqmail)")?></literallayout></listitem>
+            <listitem><literallayout><?php echo _("chkuser (check for local users, envelope syntax) with user extensions enabled (for TMDA)")?></literallayout></listitem>
+            <listitem><literallayout><?php echo _("spam throttle")?></literallayout></listitem>
+            <listitem><literallayout><?php echo _("spf")?></literallayout></listitem>
+            <listitem><literallayout><?php echo _("surbl support in qmail-smtpd")?></literallayout></listitem>
+            <listitem><literallayout><?php echo _("domainkeys support")?></literallayout></listitem>
+        </itemizedlist>
+
+        <para><?php echo _("Install:")?></para>
+
+
+
+        <programlisting>
+			<literal>mkdir /var/qmail</literal>
+			<literal>groupadd nofiles</literal>
+			<literal>useradd -g nofiles -d /var/qmail/alias alias</literal>
+			<literal>useradd -g nofiles -d /var/qmail qmaild</literal>
+			<literal>useradd -g nofiles -d /var/qmail qmaill</literal>
+			<literal>useradd -g nofiles -d /var/qmail qmailp</literal>
+			<literal>groupadd qmail</literal>
+			<literal>useradd -g qmail -d /var/qmail qmailq</literal>
+			<literal>useradd -g qmail -d /var/qmail qmailr</literal>
+			<literal>useradd -g qmail -d /var/qmail qmails</literal>
+			<literal></literal>
+			<literal>cd {varsrc}</literal>
+			<literal>tar -xzf tar/toaster-scripts-{toasterscripts}.tar.gz</literal>
+			<literal>cd netqmail-{netqmail}/netqmail-{netqmail}</literal>
+			<literal></literal>
+			<lineannotation><?php echo _("NOTE: RedHat/Fedora users may need to link certain include files for the TLS patch.")?></lineannotation>
+			<lineannotation><?php echo _("Issue the command below only if make fails:")?></lineannotation>
+			<literal>ln -s /usr/kerberos/include/com_err.h /usr/kerberos/include/krb5.h \</literal>
+            <literal>/usr/kerberos/include/profile.h /usr/include/</literal>
+			<lineannotation><?php echo _("as well as remove the sendmail link if it still exists:")?></lineannotation>
+			<literal>rm /usr/sbin/sendmail</literal>
+			<literal></literal>
+			<literal>make</literal>
+			<literal>make setup check</literal>
+			<lineannotation><?php echo _("NOTE: qmail will be patched AFTER vpopmail is installed")?></lineannotation>
+			<literal></literal>
+			<lineannotation><?php echo _("turn on SPF checking")?></lineannotation>
+			<literal>echo 3 > /var/qmail/control/spfbehavior</literal>
+			<literal></literal>
+			<lineannotation><?php echo _("Setup the primary administrator's email address.")?></lineannotation>
+			<lineannotation><?php echo _("This address will receive mail for root, postmaster, and mailer-daemon.")?></lineannotation>
+			<lineannotation><?php echo _("Replace <quote>admin@example.com</quote> with your email address")?></lineannotation>
+			<literal>(cd ~alias; echo "admin@example.com" > .qmail-postmaster ;\ </literal>
+			<literal>echo "admin@example.com" > .qmail-mailer-daemon ;\ </literal>
+			<literal>echo "admin@example.com" > .qmail-root ) </literal>
+			<literal>chmod 644 ~alias/.qmail*</literal>
+			<literal></literal>
+			<literal>./config-fast `hostname --long`</literal>
+        </programlisting>
+
+        <para><?php echo _("Configure:")?></para>
+
+        <blockquote role="configure">
+            <title><?php echo _("add qmail man pages to MANPATH")?></title>
+            <literallayout><?php echo _("Edit /etc/man.config")?></literallayout>
+            <itemizedlist>
+                <listitem><literallayout><?php echo _("Add <quote>MANPATH /var/qmail/man</quote>")?></literallayout></listitem>
+                <listitem><literallayout><?php echo _("NOTE: Debian users should set MANDATORY_MANPATH rather than MANPATH")?></literallayout></listitem>
+            </itemizedlist>
+        </blockquote>
+
+        <programlisting>
+				<literal>cd {varsrc}</literal>
+				<literal>cp toaster-scripts-{toasterscripts}/rc /var/qmail/rc</literal>
+				<literal>chmod 755 /var/qmail/rc</literal>
+				<literal>mkdir /var/log/qmail</literal>
+				<literal>echo ./Maildir/ >/var/qmail/control/defaultdelivery</literal>
+				<literal>cp toaster-scripts-{toasterscripts}/qmailctl /var/qmail/bin/</literal>
+				<literal>chmod 755 /var/qmail/bin/qmailctl</literal>
+				<literal>ln -s /var/qmail/bin/qmailctl /usr/bin</literal>
+				<literal>ln -s /var/qmail/bin/sendmail /usr/sbin/sendmail</literal>
+				<literal>ln -s /var/qmail/bin/sendmail /usr/lib/sendmail</literal>
+				<literal></literal>
+				<lineannotation><?php echo _("Now create the supervise directories/scripts for the qmail services:")?></lineannotation>
+				<literal>mkdir -p /var/qmail/supervise/qmail-send/log</literal>
+				<literal>mkdir -p /var/qmail/supervise/qmail-smtpd/log</literal>
+				<literal>mkdir -p /var/qmail/supervise/qmail-pop3d/log</literal>
+				<literal>mkdir -p /var/qmail/supervise/qmail-pop3ds/log</literal>
+				<literal>cp {varsrc}/toaster-scripts-{toasterscripts}/send.run /var/qmail/supervise/qmail-send/run</literal>
+				<literal>cp {varsrc}/toaster-scripts-{toasterscripts}/send.log.run /var/qmail/supervise/qmail-send/log/run</literal>
+				<literal>cp {varsrc}/toaster-scripts-{toasterscripts}/smtpd.run /var/qmail/supervise/qmail-smtpd/run</literal>
+				<literal>cp {varsrc}/toaster-scripts-{toasterscripts}/smtpd.log.run /var/qmail/supervise/qmail-smtpd/log/run</literal>
+				<literal>cp {varsrc}/toaster-scripts-{toasterscripts}/pop3d.run /var/qmail/supervise/qmail-pop3d/run</literal>
+				<literal>cp {varsrc}/toaster-scripts-{toasterscripts}/pop3d.log.run /var/qmail/supervise/qmail-pop3d/log/run</literal>
+				<literal></literal>
+				<lineannotation><?php echo _(" NOTE: If you are using stunnel version 4, you should use pop3ds.run.v4")?></lineannotation>
+				<lineannotation><?php echo _(" instead of pop3ds.run below.")?></lineannotation>
+				<lineannotation><?php echo _(" Type <quote>stunnel -V</quote> (v. 3) or <quote>stunnel -version</quote> (v. 4) to see what version is installed.")?></lineannotation>
+				<lineannotation><?php echo _(" You will also need to copy over stunnel.conf like so:")?></lineannotation>
+				<lineannotation></lineannotation>
+				<lineannotation><?php echo _(" cp {varsrc}/toaster-scripts-{toasterscripts}/stunnel.conf /var/qmail/supervise/qmail-pop3ds/")?></lineannotation>
+				<literal></literal>
+				<literal>cp {varsrc}/toaster-scripts-{toasterscripts}/pop3ds.run /var/qmail/supervise/qmail-pop3ds/run</literal>
+				<literal></literal>
+				<literal>cp {varsrc}/toaster-scripts-{toasterscripts}/pop3ds.log.run /var/qmail/supervise/qmail-pop3ds/log/run</literal>
+				<literal>echo 20 > /var/qmail/control/concurrencyincoming</literal>
+				<literal>chmod 644 /var/qmail/control/concurrencyincoming</literal>
+				<literal>chmod 755 /var/qmail/supervise/qmail-send/run</literal>
+				<literal>chmod 755 /var/qmail/supervise/qmail-send/log/run</literal>
+				<literal>chmod 755 /var/qmail/supervise/qmail-smtpd/run</literal>
+				<literal>chmod 755 /var/qmail/supervise/qmail-smtpd/log/run</literal>
+				<literal>chmod 755 /var/qmail/supervise/qmail-pop3d/run</literal>
+				<literal>chmod 755 /var/qmail/supervise/qmail-pop3d/log/run</literal>
+				<literal>chmod 755 /var/qmail/supervise/qmail-pop3ds/run</literal>
+				<literal>chmod 755 /var/qmail/supervise/qmail-pop3ds/log/run</literal>
+				<literal>mkdir -p /var/log/qmail/smtpd</literal>
+				<literal>mkdir -p /var/log/qmail/pop3d</literal>
+				<literal>mkdir -p /var/log/qmail/pop3ds</literal>
+				<literal>chown -R qmaill /var/log/qmail</literal>
+				<literal></literal>
+				<lineannotation><?php echo _("allow daemontools to start qmail")?></lineannotation>
+				<literal>ln -s /var/qmail/supervise/qmail-send /var/qmail/supervise/qmail-smtpd /service</literal>
+				<literal></literal>
+				<lineannotation><?php echo _("verify that it's running with qmailctl")?></lineannotation>
+				<literal>sleep 5</literal>
+				<literal>qmailctl stat </literal>
+        </programlisting>
+
+        <para><?php echo _("Now let's compile libdomainkeys, we'll need that later:")?></para>
+
+        <programlisting>
+				<literal>cd {varsrc}</literal>
+				<literal>tar -xzf tar/libdomainkeys-{libdomainkeys}.tar.gz</literal>
+				<literal>cd libdomainkeys-{libdomainkeys}</literal>
+				<literal>patch -p0 &lt;  ../tar/libdomainkeys.diff</literal>
+				<literal>make</literal>
+        </programlisting>
+
+    </listitem>
+</itemizedlist>

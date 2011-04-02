@@ -1,0 +1,295 @@
+diff -urN ../qmailmrtg7-3.6/ChangeLog ./ChangeLog
+--- ../qmailmrtg7-3.6/ChangeLog	Sat Apr  6 08:37:09 2002
++++ ./ChangeLog	Wed Mar 31 10:37:29 2004
+@@ -1,3 +1,12 @@
++3.6 - shupp
++02/23/04 - Add clamd log parsing
++
++3.6 - shupp
++08/25/03 - change msg graphs back to msg, as well as pop/smtp totals
++         - added d, T, S for dnscache, tinydns, and spamd reporting 
++           respectively
++         - removed duplicate usage statement
++
+ 3.6
+ 03/11/02 - change msg graphs to msg/hour
+          - set concurrency lable on graphs to max concurrency
+Binary files ../qmailmrtg7-3.6/checkq and ./checkq differ
+diff -urN ../qmailmrtg7-3.6/qmail.mrtg.cfg ./qmail.mrtg.cfg
+--- ../qmailmrtg7-3.6/qmail.mrtg.cfg	Sat Apr  6 08:37:08 2002
++++ ./qmail.mrtg.cfg	Wed Mar 31 10:37:29 2004
+@@ -9,7 +9,7 @@
+ Target[msg]: `/usr/local/bin/qmailmrtg7 m /var/log/qmail`
+ PageTop[msg]: <B>FQDN Messages</B><br>
+ ShortLegend[msg]: msg
+-YLegend[msg]: msg/hour
++YLegend[msg]: msg
+ Legend1[msg]: Total Msg&nbsp;
+ LegendI[msg]: Deliveries:&nbsp;
+ LegendO[msg]: Attempts:&nbsp;
+@@ -54,7 +54,7 @@
+ Target[messstatus]: `/usr/local/bin/qmailmrtg7 s /var/log/qmail`
+ PageTop[messstatus]: <B>FQDN - Message Status</B><BR> 
+ ShortLegend[messstatus]: msg
+-YLegend[messstatus]: msg/hour
++YLegend[messstatus]: msg
+ Legend1[messstatus]: msg&nbsp;
+ LegendI[messstatus]: success&nbsp;
+ LegendO[messstatus]: failures&nbsp;
+@@ -81,7 +81,7 @@
+ MaxBytes[smtp]: 100
+ AbsMax[smtp]: 500
+ Options[smtp]: gauge
+-Target[smtp]: `/usr/local/bin/qmailmrtg7 t /var/log/smtp`
++Target[smtp]: `/usr/local/bin/qmailmrtg7 t /var/log/qmail/smtpd`
+ PageTop[smtp]: <B>FQDN - SMTP Concurrency</B><BR>
+ ShortLegend[smtp]: SMTP
+ YLegend[smtp]: max SMTP
+@@ -96,10 +96,10 @@
+ MaxBytes[smtpad]: 1000
+ AbsMax[smtpad]: 10000
+ Options[smtpad]: gauge
+-Target[smtpad]: `/usr/local/bin/qmailmrtg7 a /var/log/smtp`
++Target[smtpad]: `/usr/local/bin/qmailmrtg7 a /var/log/qmail/smtpd`
+ PageTop[smtpad]: <B>FQDN - SMTP Totals</B><BR>
+ ShortLegend[smtpad]: SMTP
+-YLegend[smtpad]: SMTP/hour
++YLegend[smtpad]: SMTP
+ Legend1[smtpad]: SMTP&nbsp;
+ LegendI[smtpad]: Allow&nbsp;
+ LegendO[smtpad]: Deny&nbsp;
+@@ -110,7 +110,7 @@
+ MaxBytes[pop3]: 100
+ AbsMax[pop3]: 500 
+ Options[pop3]: gauge
+-Target[pop3]: `/usr/local/bin/qmailmrtg7 t /var/log/pop3`
++Target[pop3]: `/usr/local/bin/qmailmrtg7 t /var/log/qmail/pop3d`
+ PageTop[pop3]: <B>FQDN POP3 Concurrency</B><BR>
+ ShortLegend[pop3]: POP3
+ YLegend[pop3]: max POP3
+@@ -125,12 +125,82 @@
+ MaxBytes[pop3ad]: 1000
+ AbsMax[pop3ad]: 10000
+ Options[pop3ad]: gauge
+-Target[pop3ad]: `/usr/local/bin/qmailmrtg7 a /var/log/pop3`
++Target[pop3ad]: `/usr/local/bin/qmailmrtg7 a /var/log/qmail/pop3d`
+ PageTop[pop3ad]: <B>FQDN - POP3 Totals</B><BR>
+ ShortLegend[pop3ad]: POP3
+-YLegend[pop3ad]: POP3/hour
++YLegend[pop3ad]: POP3
+ Legend1[pop3ad]: POP3&nbsp;
+ LegendI[pop3ad]: Allow&nbsp;
+ LegendO[pop3ad]: Deny&nbsp;
+ WithPeak[pop3ad]: ymwd
+ 
++#
++# the target below is for clamd (via multilog)
++#
++##-------------------------------------------------------------------
++#
++#Title[virus]: Clamd Viruses Detected - FQDN
++#MaxBytes[virus]: 120
++#AbsMax[virus]: 120
++#Options[virus]: gauge
++#Target[virus]: `/usr/local/bin/qmailmrtg7 C /var/log/clamd`
++#PageTop[virus]: <B>FQDN Viruses</B><br>
++#ShortLegend[virus]: 5 minute totals
++#YLegend[virus]: virus scanning
++#Legend1[virus]: Total Messages&nbsp;
++#LegendI[virus]: viruses&nbsp;
++#LegendO[virus]: viruses&nbsp;
++#WithPeak[virus]: ymwd
++
++#
++# the target below is for spamd (via multilog)
++#
++##-------------------------------------------------------------------
++#
++#Title[spam]: Spam - FQDN
++#MaxBytes[spam]: 120
++#AbsMax[spam]: 120
++#Options[spam]: gauge
++#Target[spam]: `/usr/local/bin/qmailmrtg7 S /service/spamd/log/main`
++#PageTop[spam]: <B>FQDN Spam</B><br>
++#ShortLegend[spam]: 5 minute totals
++#YLegend[spam]: spam scanning
++#Legend1[spam]: Total Messages&nbsp;
++#LegendI[spam]: spam&nbsp;identified:&nbsp;
++#LegendO[spam]: clean&nbsp;message:&nbsp;
++#WithPeak[spam]: ymwd
++
++#
++# the 2 targets below are for djbdns
++#
++##-------------------------------------------------------------------
++#
++#Title[dnscache]: FQDN - dnscache Totals
++#MaxBytes[dnscache]: 1000
++#AbsMax[dnscache]: 500000
++#Options[dnscache]: gauge
++#Target[dnscache]: `/usr/local/bin/qmailmrtg7 d /service/dnscachex/log/main/`
++#PageTop[dnscache]: <B>FQDN - dnscache Totals</B><BR>
++#ShortLegend[dnscache]: dns queries/5 min
++#YLegend[dnscache]: dns queries
++#Legend1[dnscache]: Total Queries
++#LegendI[dnscache]: &nbsp;total queries:
++#LegendO[dnscache]: &nbsp;failures:
++#WithPeak[dnscache]: ymwd
++#
++##-------------------------------------------------------------------
++#
++#Title[tinydns]: FQDN - tinydns Responses/Drops
++#MaxBytes[tinydns]: 1000
++#AbsMax[tinydns]: 500000
++#Options[tinydns]: gauge,growright
++#Target[tinydns]: `/usr/local/bin/qmailmrtg7 d /var/log/tinydns/`
++#PageTop[tinydns]: <B>FQDN - tinydns Totals</B><BR>
++#ShortLegend[tinydns]: queries/5 min
++#YLegend[tinydns]: dns queries
++#Legend1[tinydns]: Successful Queries
++#Legend2[tinydns]: Non-Authoritative Drops
++#LegendI[tinydns]: &nbsp;responses:
++#LegendO[tinydns]: &nbsp;drops:
++#WithPeak[tinydns]: ymwd
++#
+Binary files ../qmailmrtg7-3.6/qmailmrtg7 and ./qmailmrtg7 differ
+diff -urN ../qmailmrtg7-3.6/qmailmrtg7.c ./qmailmrtg7.c
+--- ../qmailmrtg7-3.6/qmailmrtg7.c	Sat Apr  6 08:37:08 2002
++++ ./qmailmrtg7.c	Wed Mar 31 10:40:03 2004
+@@ -41,6 +41,13 @@
+ int local;
+ int remote;
+ int max_files;
++int dnscachequery;
++int nxdomain;
++int tinydnsresponse;
++int tinydnsdrop;
++int tspam;
++int tnotspam;
++int tvirus;
+ 
+ time_t end_time;
+ time_t start_time;
+@@ -62,10 +69,6 @@
+ 
+     if ( argc != 3 ) { 
+         usage();
+-        printf("usage: type dir\n");
+-        printf("where type is one of t, a, m, c, s, b, q, r, R \n");
+-        printf("and dir is a directory containing multilog files\n");
+-        printf("for q option dir is the qmail queue dir\n");
+         exit(-1);
+     }
+     strncpy(TheDir, argv[2], MAX_BUFF);
+@@ -76,11 +79,15 @@
+       case 'a':
+       case 'm':
+       case 'c':
++      case 'C':
+       case 's':
+       case 'b':
+       case 'q':
+       case 'r':
+       case 'R':
++      case 'd':
++      case 'S':
++      case 'T':
+         break;
+       default:
+         usage();
+@@ -152,12 +159,32 @@
+ 
+         /* tcpserver allow/deny */
+         case 'a':
+-            printf("%d\n%d\n\n\n", tallow*12, tdeny*12);
++            printf("%d\n%d\n\n\n", tallow, tdeny);
+             break;
+ 
+         /* messages */
+         case 'm':
+-            printf("%d\n%d\n\n\n",success*12, (failure+success)*12);
++            printf("%d\n%d\n\n\n",success, (failure+success));
++            break;
++
++        /* dnscache queries */
++        case 'd':
++            printf("%d\n%d\n\n\n", dnscachequery, nxdomain);
++            break;
++
++        /* tinydns queries */
++        case 'T':
++            printf("%d\n%d\n\n\n", tinydnsresponse, tinydnsdrop);
++            break;
++
++        /* clamd viruses found */
++        case 'C':
++            printf("%d\n%d\n\n\n", tvirus, tvirus);
++            break;
++
++        /* spamd */
++        case 'S':
++            printf("%d\n%d\n\n\n", tspam, tnotspam);
+             break;
+ 
+         /* remote/local concurrency */
+@@ -232,6 +259,43 @@
+                 ++tdeny;
+             } else if ((tmpstr1 = strstr(TmpBuf, " rblsmtpd:"))!=NULL) {
+                 ++tdeny;
++            } else if ((tmpstr1 = strstr(TmpBuf, "permanently rejected message (#5.3.0)"))!=NULL) {
++                ++tdeny;
++            } else if ((tmpstr1 = strstr(TmpBuf, "#5.1.1 - chkusr"))!=NULL) {
++                ++tdeny;
++            }
++            break;
++
++        case 'd':
++            if ((tmpstr1 = strstr(TmpBuf, " query "))!=NULL) {
++                ++dnscachequery;
++            }
++            if ((tmpstr1 = strstr(TmpBuf, " nxdomain "))!=NULL) {
++                ++nxdomain;
++            }
++            break;
++
++        case 'T':
++            if ((tmpstr1 = strstr(TmpBuf, " + "))!=NULL) {
++                ++tinydnsresponse;
++            }
++            if ((tmpstr1 = strstr(TmpBuf, " - "))!=NULL) {
++                ++tinydnsdrop;
++            }
++            break;
++
++        case 'S':
++            if ((tmpstr1 = strstr(TmpBuf, " clean message "))!=NULL) {
++                ++tnotspam;
++            }
++            if ((tmpstr1 = strstr(TmpBuf, " identified spam "))!=NULL) {
++                ++tspam;
++            }
++            break;
++
++        case 'C':
++            if ((tmpstr1 = strstr(TmpBuf, "FOUND"))!=NULL) {
++                ++tvirus;
+             }
+             break;
+ 
+@@ -305,7 +369,7 @@
+ void usage()
+ {
+     printf("usage: type dir\n");
+-    printf("where type is one of t, a, m, c, s, b, q \n");
++    printf("where type is one of t, a, m, c, s, b, q, d, T, S, C\n");
+     printf("and dir is a directory containing multilog files\n");
+     printf("for q option dir is the qmail queue dir\n");
+ }
+diff -urN ../qmailmrtg7-3.6/qmailmrtg7.h ./qmailmrtg7.h
+--- ../qmailmrtg7-3.6/qmailmrtg7.h	Sat Apr  6 08:37:09 2002
++++ ./qmailmrtg7.h	Wed Mar 31 10:40:07 2004
+@@ -1,2 +1,2 @@
+-int BigTodo=1;
+-int ConfSplit=53;
++int BigTodo=0;
++int ConfSplit=23;

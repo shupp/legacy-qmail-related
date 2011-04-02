@@ -1,0 +1,491 @@
+#!/usr/bin/env python
+#
+# Copyright (C) 2002 Gre7g Luterman <gre7g@wolfhome.com>
+#
+# This file is part of TMDA.
+#
+# TMDA is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.  A copy of this license should
+# be included in the file COPYING.
+#
+# TMDA is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with TMDA; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+
+# TODO: Perhaps a check should be put in for the various authentication schemes
+# that the arguments are valid.  This is currently done at runtime within
+# "Authenticate.py", but it may be better to check at least some of the
+# values at compile-time anyway.
+
+"""Configure tmda-cgi for compiling.
+
+Usage:  %(Program)s [OPTIONS]
+
+Where:
+    -b <path>
+    --base-dir <path>
+       Specify a path to TMDA.
+       Current default: %(Base)s
+
+    -c <file>
+    --config-file <file>
+       Specify a TMDA configuration file.  May be an equation with ~ used to
+       represent the user name.
+       Current default: %(Config)s
+
+    -C <executable name>
+    --cc <executable name>
+       Specify a different C compiler besides the two defaults we check for
+       (gcc and then cc)
+       Current default: %(CC)s
+
+    -d <path>
+    --display-dir <path>
+       Specify a directory for supplimental display files (icons and
+       stylesheet).
+       Current default: %(DispDir)s
+
+    -e <seconds>
+    --session-exp <seconds>
+       Specify the number of seconds old a session may be before it risk get-
+       ting "cleaned".
+       Current default: %(SessionExp)s
+
+    -f <authfile>
+    --file-auth <authfile>
+       Specify an authentication file.
+       - If you specify "None", the system will check either
+         <config_directory>/tmda-cgi, ~/.tmda/tmda-cgi for the authenticating
+         user, or /etc/tmda-cgi, whichever is found first.
+       Current default: %(AuthFile)s
+
+    -h
+    --help
+       Print this help message and exit.
+
+    -i <path>
+    --install-prefix <path>
+       Specify path to tmda-cgi.py and the other tmda-cgi program files.
+       Current default: %(InstPath)s
+
+    -l <path>
+    --virtual-lookup <path>
+       Specify a stub and parameters for a virtual user lookup.
+       - This is generally "<stub> <program> <params...>" where <stub> is the
+         Python stub, <program> is the program that must be run to feed the
+         stub, and <params...> are any parameters needed by <program>.  Any
+         parameter that is a ~ will be replaced by the login name.
+       - Use "None" if your system does not support virtual users.
+       Current default: %(VLookup)s
+
+    -m system-wide|single-user|no-su
+    --mode system-wide|single-user|no-su
+       Specify an operating mode.
+       Current default: %(Mode)s
+
+    -n
+    --no-su
+       Compile a CGI to run in no-su mode.  Forces option "-m no-su".
+
+    -o <odds>
+    --cleanup-odds
+       Specify chance of cleaning up session files.
+       Current default: %(SessionOdds)s
+
+    -p <checkpassword>
+    --program-auth <checkpassword>
+       Specify checkpassword-style authentication
+       - Must conform exactly to the checkpassword stardard
+            http://cr.yp.to/checkpwd/interface.html
+        - Any program that returns "0" (true) is acceptable as the command
+          run by the checkpassword program upon successful authentication.
+        - If <checkpassword> requires commandline switches, you must supply the
+          command to be run upon successful authentication.
+          If <checkpassword> does not, the default program (/usr)/bin/true is
+          automatically appended.
+       Examples: -p "/usr/sbin/checkpassword-pam -s id -- /bin/true"
+                 -p /home/vpopmail/bin/vchkpw
+                    (/usr/bin/true or /bin/true is automatically used)
+       Current default: %(AuthProg)s
+
+    -r protocol[://host[:port]][/dn]
+    --remote-auth protocol[://host[:port]][/dn]
+        Host to connect to to check username and password.
+        - Allowed protocols are:
+            imap, imaps, apop, pop3, ldap
+        - Host defaults to localhost
+        - Port defaults to default port for the protocol
+        - dn is manditory for ldap and must contain a '%%(user)s'
+          identifying the username
+        Examples: -r imap
+                  -r imaps://myimapserver.net
+                  -r pop3://mypopserver.net:2110
+                  -r ldap://host.com/cn=%%(user)s,dc=host,dc=com
+       Current default: %(AuthURI)s
+
+    -s <prefix>
+    --session-prefix <prefix>
+       Path/file prefix for session files.
+       Current default: %(SessionPrefix)s
+
+    -t <file>
+    --target <file>
+       Compile as a file other than ./tmda-cgi.
+       Current default: %(Target)s
+
+    -u <virtual user>
+    --virtual-user <virtual-user>
+       Real user name to run as when a virtual user logs in.
+       Current default: %(VUser)s
+
+If you specify no options, then the program will run in an interactive mode,
+provide defaults for all values, and remember the new values you give it as
+future defaults in case you need to recompile later.
+"""
+
+import compileall
+import getopt
+import glob
+import os.path
+import pickle
+import pwd
+import re
+import string
+import sys
+
+# Tab completion support (if library is present)
+def SetDefault():
+  readline.insert_text(DefaultInput)
+def PlainInput(Default):
+  return raw_input("(%s): " % Default)
+def TabCompInput(Default):
+  global DefaultInput
+  DefaultInput = Default
+  return raw_input("> ")
+try:
+  import readline
+  readline.set_completer_delims(" |=")
+  readline.parse_and_bind("tab: complete")
+  readline.set_startup_hook(SetDefault)
+  Input = TabCompInput
+except (ImportError, AttributeError):
+  Input = PlainInput
+
+def Ask(Question, Str, ValProg = None, TestStr = None):
+  "Ask for a member from the keyboard."
+
+  global OptD
+
+  while 1:
+    print "\n" + Question
+    Temp = Input(OptD[Str]).strip()
+    if Temp:
+      Limit = re.search("\[(.+,.+)\]", Question)
+      if Limit and not (Temp in Limit.group(1).split(", ")): continue
+      OptD[Str] = Temp
+    if ValProg:
+      Filename = TestStr % OptD[Str].split()[0]
+      if not ValProg(Filename):
+        print "Warning!  Cannot locate: %s" % Filename
+        print "Use this value anyhow? [Yes, No]"
+        Temp = Input("No").strip().lower()
+        if not Temp or (Temp[0] != "y"): continue
+    break
+
+def Interactive():
+  "Get options interactively."
+
+  global OptD
+
+  Ask("Where is the Python interpreter? (version 2.1+)", "Python",
+    os.path.isfile, "%s")
+  Ask("""When I compile the binary executable, where should I save it?
+Enter the full path AND filename.
+Generally, you will use the path to your webserver's cgi-bin directory, but it
+can be stored elsewhere if you have your webserver configured to run CGI's in
+other directories.""", "Target")
+  Ask("""Where did you install TMDA?
+For source installs, this is the directory where you unzipped the archive.
+You may enter a relative path (relative to the CWD) if you like.
+If you installed TMDA from an RPM,
+  try: "/usr/lib/python2.2/site-packages".
+If you installed TMDA from a FreeBSD port, try:
+  "/usr/local/lib/python2.2/site-packages".""", "Base", os.path.isdir,
+    "%s/TMDA")
+  Ask("""Where did you install tmda-cgi?
+This is typically the CWD.""", "InstPath", os.path.isfile, "%s/tmda-cgi.py")
+  Ask("""Would you like to override the default config file location?
+If so, enter a "formula" to specify where to look for the config file.
+This formula is just a path, but it can include the character "~".
+This character will be replaced by the user's name during execution.
+To use the default config file location, enter "None".""", "Config")
+  Ask("""How should I authentication user logins? [file, program, remote, default]
+"file" lets you specify a password file.
+"program" lets you specify the path to a program such as checkpassword
+"remote" lets you specify a protocol such as imap or pop3
+"default" is similar to file, except it looks for password files in the default
+locations.""", "AuthType")
+  if OptD["AuthType"] == "file":
+    Ask("Where is the password file?", "AuthFile", os.path.isfile, "%s")
+    OptD["AuthArg"] = OptD["AuthFile"]
+  elif OptD["AuthType"] == "program":
+    Ask("""What is the authentication command? (full path and args)
+ * For more details, see "config --help" option -p *""", "AuthProg",
+     os.path.isfile, "%s")
+    OptD["AuthArg"] = OptD["AuthProg"]
+  elif OptD["AuthType"] == "remote":
+    Ask("What is the authentication URI? (protocol://host.domain.com[:port][/dn])",
+      "AuthURI")
+    OptD["AuthArg"] = OptD["AuthURI"]
+  elif OptD["AuthType"] == "default":
+    OptD["AuthArg"] = "None"
+  Ask("""What is the relative or absolute web path from CGI to display directory?
+This is discussed in the documentation at:
+  http://tmda.sourceforge.net/tmda-cgi/compile.html#Display""", "DispDir")
+  Ask("What mode should the CGI run in? [system-wide, single-user, no-su]",
+    "Mode")
+  Ask("""Which virtual user stub and parameters should I use for locating virtual users?
+If your system does not have any virtual users, enter "None".""", "VLookup")
+  if (OptD["Mode"] == "system-wide") and (OptD["VLookup"] != "None"):
+      Ask("What real user name should I use when a virtual user logs in?",
+        "VUser")
+  Ask("""Where should I save temporary session files?
+Please enter a path and file prefix.""", "SessionPrefix")
+  Ask("""How long (in seconds) may a temporary session file be allowed to sit
+before it risks being cleaned up?""", "SessionExp")
+  Ask("What are the odds of cleanup I should use? (0.01 = 1%)", "SessionOdds")
+  Ask("What C compiler should I use? (%s)" % OptD["CC"], "CC" )
+  print
+
+Program = sys.argv[0]
+
+# Keep options in one handy dictionary
+OptD = \
+{
+  "Python":        sys.executable,
+  "Target":        "/usr/local/apache/cgi-bin/tmda.cgi",
+  "Base":          "../tmda/",
+  "Path":          os.path.abspath(os.path.split(sys.argv[0])[0]) + "/",
+  "DispDir":       "/display",
+  "AuthType":      "remote",
+  "AuthFile":      "None",
+  "AuthProg":      "/usr/sbin/checkpassword",
+  "AuthURI":       "pop3://localhost",
+  "AuthArg":       "None",
+  "VUser":         "vpopmail",
+  "VLookup":       "vpopmail1 /home/vpopmail/bin/vuserinfo ~",
+  "SessionPrefix": "/tmp/TMDASession.",
+  "SessionExp":    "300",
+  "SessionOdds":   "0.01",
+  "Perm":          "6711"
+}
+
+OptD["InstPath"] = OptD["Path"]
+
+if os.geteuid():
+  OptD["Mode"] = "single-user"
+else:
+  OptD["Mode"] = "system-wide"
+if os.environ.has_key("TMDARC"):
+  OptD["Config"] = os.environ["TMDARC"]
+else:
+  OptD["Config"] = "None"
+
+if not os.path.isdir("../tmda"):
+  Dirs = glob.glob("../tmda-[0-9]*")
+  if Dirs:
+    OptD["Base"] = Dirs[0]
+  elif os.path.isdir("/usr/lib/python2.2/site-packages/TMDA"):
+    OptD["Base"] = "/usr/lib/python2.2/site-packages/"
+  elif os.path.isdir("/usr/local/lib/python2.2/site-packages/TMDA"):
+    OptD["Base"] = "/usr/local/lib/python2.2/site-packages/"
+
+for compiler in ( "gcc", "cc" ):
+  cmdline = "which %s" % compiler
+  ( i, o, e ) = os.popen3( cmdline )
+  if len( o.read() ) > 0:
+    OptD["CC"] = compiler
+    break
+
+def Usage(Code, Msg=""):
+  "Show usage information and possibly an error message."
+  OptD.update(globals())
+  print __doc__ % OptD
+  if Msg: print Msg
+  sys.exit(Code)
+
+try:
+  Opts, Args = getopt.getopt(sys.argv[1:], "b:c:C:d:e:f:hi:l:m:no:p:r:s:t:",
+    ["base-dir=", "config-file=", "cc=", "display-dir=", "session-exp=",
+     "file-auth=", "help", "install-prefix=", "virtual-lookup=", "mode=",
+     "no-su", "cleanup-odds", "program-auth=", "remote-auth=",
+     "session-prefix=", "target=", "virtual-user="])
+except getopt.error, Msg:
+  Usage(1, Msg)
+
+# Handle any options passed in
+for Opt, Arg in Opts:
+  if Opt in ("-h", "--help"):
+    Usage(0)
+  elif Opt in ("-b", "--base-dir"):
+    OptD["Base"] = Arg
+  elif Opt in ("-c", "--config-file"):
+    OptD["Config"] = Arg
+  elif Opt in ("-C", "--cc"):
+    OptD["CC"] = Arg
+  elif Opt in ("-d", "--display-dir"):
+    OptD["DispDir"] = Arg
+  elif Opt in ("-e", "--session-exp"):
+    OptD["SessionExp"] = Arg
+  elif Opt in ("-f", "--file-auth"):
+    OptD["AuthType"] = "file"
+    OptD["AuthFile"] = Arg
+    OptD["AuthArg"] = Arg
+  elif Opt in ("-i", "--install-prefix"):
+    OptD["InstPath"] = Arg
+  elif Opt in ("-u", "--virtual-user"):
+    OptD["VUser"] = Arg
+  elif Opt in ("-l", "--virtual-lookup"):
+    OptD["VLookup"] = Arg
+  elif Opt in ("-o", "--cleanup-odds"):
+    OptD["SessionOdds"] = Arg
+  elif Opt in ("-p", "--program-auth"):
+    OptD["AuthType"] = "program"
+    OptD["AuthProg"] = Arg
+    OptD["AuthArg"] = Arg
+  elif Opt in ("-r", "--remote-auth"):
+    OptD["AuthType"] = "remote"
+    OptD["AuthURI"] = Arg
+    OptD["AuthArg"] = Arg
+  elif Opt in ("-s", "--session-prefix"):
+    OptD["SessionPrefix"] = Arg
+  elif Opt in ("-t", "--target"):
+    OptD["Target"] = Arg
+  elif Opt in ("-m", "--mode"):
+    if not Arg in ("system-wide", "single-user", "no-su"):
+      Usage(1, "Valid modes are system-wide, single-user, and no-su")
+    OptD["Mode"] = Arg
+  elif Opt in ("-n", "--no-su"):
+    OptD["Mode"] = "no-su"
+
+# No options means interactive mode
+if not len(Opts):
+  # Try to load options from last interactive run
+  try:
+    F = open("configure.ini")
+    OptD.update(pickle.load(F))
+    F.close()
+  except IOError:
+    pass
+  Break = 0
+  try:
+    Interactive()
+  except KeyboardInterrupt:
+    Break = 1
+    print "\nSaving settings. Delete configure.ini to reset back to defaults."
+  try:
+    F = open("configure.ini", "w")
+    pickle.dump(OptD, F)
+    F.close()
+  except IOError:
+    pass
+  if Break: sys.exit()
+
+# Check that we're running in Python version 2.1 or higher
+if sys.version.split()[0] < '2.1':
+  print """Compile terminated.  tmda-cgi requires Python version 2.1 or higher.
+
+Either install the latest version of Python or specify the appropriate Python
+interpreter when you issue the compile command.  Instead of typing:
+
+    $ ./%(Program)s <options>
+
+Type:
+
+    $ /usr/bin/python2 %(Program)s <options>
+
+(Assuming that your Python 2.1+ can be found at /usr/bin/python2.)
+The compiler will save the correct version of the Python interpreter and use it
+when tmda-cgi is run.""" % globals()
+  sys.exit()
+
+# Check for a compatible version of TMDA
+sys.path.insert(0, OptD["Base"])
+try:
+  import CgiVersion
+  CgiVersion.Test()
+except ImportError, ErrStr:
+  print ErrStr
+  sys.exit()
+
+if OptD["DispDir"][-1] == "/": OptD["DispDir"] = OptD["DispDir"][:-1]
+
+if OptD["Mode"] == "no-su": OptD["Perm"] = "711"
+
+# Create tmda-cgi.h
+F = open("tmda-cgi.h", "w")
+F.write("""
+#define PYTHON    "%(Python)s"
+#define INSTALL   "%(InstPath)s"
+#define MODE      "TMDA_CGI_MODE=%(Mode)s"
+#define DISP_DIR  "TMDA_CGI_DISP_DIR=%(DispDir)s"
+#define BASE_DIR  "TMDA_BASE_DIR=%(Base)s"
+#define VUSER     "TMDA_VUSER=%(VUser)s"
+#define SESS_PRE  "TMDA_SESSION_PREFIX=%(SessionPrefix)s"
+#define SESS_EXP  "TMDA_SESSION_EXP=%(SessionExp)s"
+#define SESS_ODDS "TMDA_SESSION_ODDS=%(SessionOdds)s"
+""" % OptD)
+if OptD["VLookup"] != "None":
+  F.write('#define VLOOKUP  "TMDA_VLOOKUP=%(VLookup)s"\n' % OptD)
+if OptD["Config"] != "None":
+  if OptD["Config"].find("~") >= 0:
+    if os.environ.has_key( "USER" ):
+      user = os.environ["USER"]
+    elif os.environ.has_key( "LOGNAME" ):  
+      user = os.environ["LOGNAME"]
+    else:
+      user = os.getlogin()
+    OptD["Config"] = \
+      string.replace(OptD["Config"], "/%s/" % user, "/~/")
+    print """NOTE:
+tmda-cgi will look for config files at: %s
+Where <user> will be replaced by the user's login name.
+""" % string.replace(OptD["Config"], "/~/", "/<user>/")
+F.write('#define TMDARC "TMDARC=%(Config)s"\n' % OptD)
+if OptD["AuthArg"] != "None":
+  F.write("""#define AUTH_TYPE "TMDA_AUTH_TYPE=%(AuthType)s"
+#define AUTH_ARG "TMDA_AUTH_ARG=%(AuthArg)s"
+""" % OptD)
+F.close()
+
+# Create Makefile
+OptD["TargDir"], OptD["TargFN"] = os.path.split(OptD["Target"])
+F = open("Makefile", "w")
+F.write("""# This makefile is automatically generated by ./configure
+# Do not edit by hand
+
+DESTDIR ?= %(TargDir)s
+CC = %(CC)s
+
+all: tmda.cgi
+
+tmda.cgi: tmda-cgi.h
+	$(CC) -I . %(Path)stmda-cgi.c -o tmda.cgi
+	chmod %(Perm)s tmda.cgi
+
+install: $(DESTDIR)/%(TargFN)s
+
+$(DESTDIR)/%(TargFN)s: tmda.cgi
+	cp -f tmda.cgi $(DESTDIR)/%(TargFN)s
+	chmod %(Perm)s $(DESTDIR)/%(TargFN)s
+""" % OptD)
+
+# Compile Python code
+compileall.compile_dir(OptD["Path"])
